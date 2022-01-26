@@ -1,18 +1,18 @@
 // import React, {useEffect, useState} from "react";
 import { ethers } from "ethers";
-import unicryptETHabi from "../abi/unicryptETH_abi.json";
-import uniswapETHabi from "../abi/uniswapETH_abi.json";
+import unicryptBSCabi from "../abi/unicryptBSC_abi.json";
+import pancakeswapBSCabi from "../abi/pancakeswapBSC_abi.json";
 import BigNumber from "bignumber.js";
 import { createClient } from 'urql'
 // import Axios from "axios";
 
-const unicryptAddressETH = "0x663A5C229c09b049E36dCc11a9B0d4a8Eb9db214";
+const unicryptAddressBSC = "0xC765bddB93b0D1c1A88282BA0fa6B2d00E3e0c83";
 
-async function UnicryptETH() {
+async function UnicryptBSC() {
   
     let provider = ethers.getDefaultProvider();
-    const unicryptETHPortal = new ethers.Contract(unicryptAddressETH, unicryptETHabi, provider);
-    let total_tokenNums = await unicryptETHPortal.getNumLockedTokens();
+    const unicryptBSCPortal = new ethers.Contract(unicryptAddressBSC, unicryptBSCabi, provider);
+    let total_tokenNums = await unicryptBSCPortal.getNumLockedTokens();
   
     const APIURL = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2';
     const ethpriceQuery = `
@@ -29,7 +29,7 @@ async function UnicryptETH() {
     let ethPrice = ethData.data.bundle.ethPrice;
   
     let tokenAddr = [];
-    const uniswapETHPortal = [];
+    const pancakeswapBSCPortal = [];
     let token0Addr = [];
     let token1Addr = [];
     let LPdecimals = [];
@@ -54,17 +54,17 @@ async function UnicryptETH() {
     let tokensinfo = [];
   
     for (let i = 0; i < 10; i++) {
-      tokenAddr[i] = await unicryptETHPortal.getLockedTokenAtIndex(total_tokenNums - i - 1);
-  
-      uniswapETHPortal[i] = new ethers.Contract(tokenAddr[i], uniswapETHabi, provider);
-      token0Addr[i] = await uniswapETHPortal[i].token0();
-      token1Addr[i] = await uniswapETHPortal[i].token1();
-      LPdecimals[i] = await uniswapETHPortal[i].decimals();
+      tokenAddr[i] = await unicryptBSCPortal.getLockedTokenAtIndex(total_tokenNums - i - 1);
+
+      pancakeswapBSCPortal[i] = new ethers.Contract(tokenAddr[i], pancakeswapBSCabi, provider);
+      token0Addr[i] = await pancakeswapBSCPortal[i].token0();
+      token1Addr[i] = await pancakeswapBSCPortal[i].token1();
+      LPdecimals[i] = await pancakeswapBSCPortal[i].decimals();
   
       // let apiurl = `https://api.coingecko.com/api/v3/coins/ethereum/contract/${token1Addr}`;
       // const { data: datainfo } = await Axios.get(apiurl);
       // console.log(datainfo.market_data.current_price.usd);
-  
+
       tokensQuery0[i] = `
         query {
           token(id: "${token0Addr[i].toLowerCase()}"){
@@ -94,9 +94,9 @@ async function UnicryptETH() {
       token1Symbol[i] = tokenData1[i].data.token.symbol;
       token1DerivedETH[i] = tokenData1[i].data.token.derivedETH;
       
-      tokenReserves[i] = await uniswapETHPortal[i].getReserves();
-      tokenLockdata[i] = await unicryptETHPortal.tokenLocks(tokenAddr[i], 0);
-      total_supply[i] = await uniswapETHPortal[i].totalSupply();
+      tokenReserves[i] = await pancakeswapBSCPortal[i].getReserves();
+      tokenLockdata[i] = await unicryptBSCPortal.tokenLocks(tokenAddr[i], 0);
+      total_supply[i] = await pancakeswapBSCPortal[i].totalSupply();
 
       percentage[i] = new BigNumber(tokenLockdata[i][1]._hex).dividedBy(10**LPdecimals[i]).dividedBy(new BigNumber(total_supply[i]._hex).dividedBy(10**LPdecimals[i]));
       token0Price[i] = new BigNumber(tokenReserves[i][0]._hex).dividedBy(10**decimals0[i]).multipliedBy(new BigNumber(token0DerivedETH[i])).multipliedBy(ethPrice);
@@ -117,4 +117,4 @@ async function UnicryptETH() {
     return tokensinfo;
   }
 
-export default UnicryptETH;
+export default UnicryptBSC;
