@@ -21,8 +21,6 @@ function GlobalFilter({
   const [value, setValue] = React.useState(globalFilter);
   const onChange = useAsyncDebounce(async (value) => {
     setGlobalFilter(value || undefined);
-    // let abc = await getAddress();
-    // console.log(abc);
   }, 200);
 
   return (
@@ -67,8 +65,6 @@ function Actiontable({ columns, data }) {
     },
     useGlobalFilter, useSortBy, usePagination
   );
-
-  // console.log();
 
   // Render the UI for your table
   return (
@@ -185,7 +181,7 @@ function Actiontable({ columns, data }) {
   );
 }
 
-async function GetAddress() {
+async function UnicryptETH() {
   
   let provider = ethers.getDefaultProvider();
   const unicryptETHPortal = new ethers.Contract(unicryptAddressETH, unicryptETHabi, provider);
@@ -225,7 +221,6 @@ async function GetAddress() {
   let token1Reserve = [];
   let tokenLockdata = [];
   let lockedAmount = [];
-  let roundAmount = [];
   let total_supply = [];
   let totalSupply = [];
   let percentage = [];
@@ -234,17 +229,14 @@ async function GetAddress() {
   let token1Price = [];
   let LPmarketcap = [];
   let lockedPrice = [];
-  let roundPrice = [];
   let lockDate = [];
   let unlockDate = [];
   let period = [];
-  let roundPeriod = [];
-  let roundMarketCap = [];
   let score = [];
 
   let tokensinfo = [];
 
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 10; i++) {
     tokenAddr[i] = await unicryptETHPortal.getLockedTokenAtIndex(total_tokenNums - i - 1);
 
     uniswapETHPortal[i] = new ethers.Contract(tokenAddr[i], uniswapETHabi, provider);
@@ -256,15 +248,6 @@ async function GetAddress() {
     // const { data: datainfo } = await Axios.get(apiurl);
     // console.log(datainfo.market_data.current_price.usd);
 
-
-    // const APIURL = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2';
-    // const ethpriceQuery = `
-    //   query {
-    //     bundle(id: "1" ) {
-    //       ethPrice
-    //     }
-    //   }
-    // `; 
     tokensQuery0[i] = `
       query {
         token(id: "${token0Addr[i].toLowerCase()}"){
@@ -290,12 +273,6 @@ async function GetAddress() {
       }
     `;
 
-    // const client = createClient({
-    //   url: APIURL,
-    // });
-    // const ethData = await client.query(ethpriceQuery).toPromise();
-    // let ethPrice = ethData.data.bundle.ethPrice;
-
     tokenData0[i] = await client.query(tokensQuery0[i]).toPromise();
     decimals0[i] = tokenData0[i].data.token.decimals;
     token0Symbol[i] = tokenData0[i].data.token.symbol;
@@ -312,7 +289,6 @@ async function GetAddress() {
 
     tokenLockdata[i] = await unicryptETHPortal.tokenLocks(tokenAddr[i], 0);
     lockedAmount[i] = new BigNumber(tokenLockdata[i][1]._hex).dividedBy(new BigNumber(10).pow(LPdecimals[i]));
-    roundAmount[i] = lockedAmount[i].toFormat(4);
 
     total_supply[i] = await uniswapETHPortal[i].totalSupply();
     totalSupply[i] = new BigNumber(total_supply[i]._hex).dividedBy(new BigNumber(10).pow(LPdecimals[i]));
@@ -324,26 +300,20 @@ async function GetAddress() {
     token1Price[i] = token1Reserve[i].multipliedBy(new BigNumber(token1DerivedETH[i])).multipliedBy(new BigNumber(ethPrice));
     LPmarketcap[i] = token0Price[i].plus(token1Price[i]);
     lockedPrice[i] = LPmarketcap[i].multipliedBy(percentage[i]);
-    roundPrice[i] = lockedPrice[i].toFormat(0);
 
     lockDate[i] = new BigNumber(tokenLockdata[i][0]._hex);
     unlockDate[i] = new BigNumber(tokenLockdata[i][3]._hex);
     period[i] = unlockDate[i].minus(lockDate[i]).dividedBy(new BigNumber(86400));
-    roundPeriod[i] = period[i].toFormat(0);
 
-    roundMarketCap[i] = LPmarketcap[i].toFormat(0);
     score[i] = lockedPrice[i].multipliedBy(period[i]).multipliedBy(percentage[i]).toFormat(0);
-
-    // token0Symbol + " / " + token1Symbol, Ethereum, "$" + roundPrice, roundAmount + " (" + percent + "%)", roundPeriod + "days", Unicrypt, "$" + roundMarketCap, " ", score
-    // return roundAmount + " (" + percent + "%)";
 
     tokensinfo.push({ tokenName: token0Symbol[i] + " / " + token1Symbol[i], 
                       blockchain: "Ethereum",
-                      lockedPrice: "$" + roundPrice[i], 
-                      lockedAmount: roundAmount[i] + " (" + percent[i] + "%)", 
-                      unlockPeriod: roundPeriod[i] + "days", 
+                      lockedPrice: "$" + lockedPrice[i].toFormat(0), 
+                      lockedAmount: lockedAmount[i].toFormat(4) + " (" + percent[i] + "%)", 
+                      unlockPeriod: period[i].toFormat(0) + "days", 
                       locker: "Unicrypt", 
-                      marketCap: "$" + roundMarketCap[i], 
+                      marketCap: "$" + LPmarketcap[i].toFormat(0), 
                       rank: " ", 
                       score: score[i] });
   }
@@ -353,12 +323,11 @@ async function GetAddress() {
 
 function Table() {
   const [tokenInfo, setTokenInfo] = useState([]);
-    GetAddress().then(resp =>
+    UnicryptETH().then(resp =>
     {
       setTokenInfo(resp);
     });
     
-
   const columns = React.useMemo(
     () => [
       {
@@ -402,159 +371,33 @@ function Table() {
   );
 
   const data = React.useMemo(
-    () => { if(tokenInfo.length) { return [
-      {
-        first: tokenInfo[0].tokenName,
-        second: tokenInfo[0].blockchain,
-        third: tokenInfo[0].lockedPrice,
-        fourth: tokenInfo[0].lockedAmount,
-        fifth: tokenInfo[0].unlockPeriod,
-        sixth: tokenInfo[0].locker,
-        seventh: tokenInfo[0].marketCap,
-        eighth: tokenInfo[0].rank,
-        ninth: tokenInfo[0].score
-      },
-        {
-          first: tokenInfo[1].tokenName,
-          second: tokenInfo[1].blockchain,
-          third: tokenInfo[1].lockedPrice,
-          fourth: tokenInfo[1].lockedAmount,
-          fifth: tokenInfo[1].unlockPeriod,
-          sixth: tokenInfo[1].locker,
-          seventh: tokenInfo[1].marketCap,
-          eighth: tokenInfo[1].rank,
-          ninth: tokenInfo[1].score
-        },
-      {
-        first: "Fake",
-        second: "Ethereum",
-        third: 457899,
-        fourth: 400000,
-        fifth: 15,
-        sixth: "Unicrypt",
-        seventh: 755555000,
-        eighth: 23,
-        ninth: 700
-      },
-      {
-        first: "safemoon",
-        second: "BSC",
-        third: 3200000,
-        fourth: 100000000,
-        fifth: 7,
-        sixth: "Mudra",
-        seventh: 23457777,
-        eighth: 122,
-        ninth: 13569000
-      },
-      {
-        first: "Fake",
-        second: "Ethereum",
-        third: 457899,
-        fourth: 400000,
-        fifth: 15,
-        sixth: "Unicrypt",
-        seventh: 755555000,
-        eighth: 23,
-        ninth: 700
-      },
-      {
-        first: "Fake",
-        second: "Ethereum",
-        third: 457899,
-        fourth: 400000,
-        fifth: 15,
-        sixth: "Cryptoexlock",
-        seventh: 755555000,
-        eighth: 23,
-        ninth: 700
-      },
-      {
-        first: "Fake",
-        second: "Ethereum",
-        third: 457899,
-        fourth: 400000,
-        fifth: 15,
-        sixth: "Deeplock",
-        seventh: 755555000,
-        eighth: 23,
-        ninth: 700
-      },
-      {
-        first: "safemoon",
-        second: "BSC",
-        third: 3200000,
-        fourth: 100000000,
-        fifth: 7,
-        sixth: "Unicrypt",
-        seventh: 23457777,
-        eighth: 122,
-        ninth: 13569000
-      },
-      {
-        first: "Fake",
-        second: "Ethereum",
-        third: 457899,
-        fourth: 400000,
-        fifth: 15,
-        sixth: "Unilocker",
-        seventh: 755555000,
-        eighth: 23,
-        ninth: 700
-      },
-      {
-        first: "Fake",
-        second: "Ethereum",
-        third: 457899,
-        fourth: 400000,
-        fifth: 15,
-        sixth: "Unicrypt",
-        seventh: 755555000,
-        eighth: 23,
-        ninth: 700
-      },
-      {
-        first: "Fake",
-        second: "Ethereum",
-        third: 457899,
-        fourth: 400000,
-        fifth: 15,
-        sixth: "Trustswap",
-        seventh: 755555000,
-        eighth: 23,
-        ninth: 700
-      },
-      {
-        first: "safemoon",
-        second: "BSC",
-        third: 3200000,
-        fourth: 100000000,
-        fifth: 7,
-        sixth: "Unicrypt",
-        seventh: 23457777,
-        eighth: 122,
-        ninth: 13569000
-      },
-      {
-        first: "Fake",
-        second: "Ethereum",
-        third: 457899,
-        fourth: 400000,
-        fifth: 15,
-        sixth: "Pinksale",
-        seventh: 755555000,
-        eighth: 23,
-        ninth: 700
-      }
-    ]; }else {return [];} },
-    [tokenInfo]
+    () => { if(tokenInfo.length) {
+              let tokensInfo = [];
+              for(let i = 0; i < tokenInfo.length; i++) {
+                tokensInfo.push(
+                  {
+                    first: tokenInfo[i].tokenName,
+                    second: tokenInfo[i].blockchain,
+                    third: tokenInfo[i].lockedPrice,
+                    fourth: tokenInfo[i].lockedAmount,
+                    fifth: tokenInfo[i].unlockPeriod,
+                    sixth: tokenInfo[i].locker,
+                    seventh: tokenInfo[i].marketCap,
+                    eighth: tokenInfo[i].rank,
+                    ninth: tokenInfo[i].score
+                  }
+                );
+              }
+              return tokensInfo;
+            } else { return []; }
+          },
+        [tokenInfo]
   );
 
   return <Actiontable columns={columns} data={data} />;
 }
 
 export default Table;
-
 
 
 
