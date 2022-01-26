@@ -190,16 +190,6 @@ async function GetAddress() {
   let provider = ethers.getDefaultProvider();
   const unicryptETHPortal = new ethers.Contract(unicryptAddressETH, unicryptETHabi, provider);
   let total_tokenNums = await unicryptETHPortal.getNumLockedTokens();
-  let tokenAddr = await unicryptETHPortal.getLockedTokenAtIndex(total_tokenNums - 1);
-
-  const uniswapETHPortal = new ethers.Contract(tokenAddr, uniswapETHabi, provider);
-  let token0Addr = await uniswapETHPortal.token0();
-  let token1Addr = await uniswapETHPortal.token1();
-  let LPdecimals = await uniswapETHPortal.decimals();
-
-  // let apiurl = `https://api.coingecko.com/api/v3/coins/ethereum/contract/${token1Addr}`;
-  // const { data: datainfo } = await Axios.get(apiurl);
-  // console.log(datainfo.market_data.current_price.usd);
 
   const APIURL = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2';
   const ethpriceQuery = `
@@ -209,94 +199,165 @@ async function GetAddress() {
       }
     }
   `; 
-  const tokensQuery0 = `
-    query {
-      token(id: "${token0Addr.toLowerCase()}"){
-        name
-        symbol
-        decimals
-        derivedETH
-        tradeVolumeUSD
-        totalLiquidity
-      }
-    }
-  `;
-  const tokensQuery1 = `
-    query {
-      token(id: "${token1Addr.toLowerCase()}"){
-        name
-        symbol
-        decimals
-        derivedETH
-        tradeVolumeUSD
-        totalLiquidity
-      }
-    }
-  `;
-
   const client = createClient({
     url: APIURL,
   });
   const ethData = await client.query(ethpriceQuery).toPromise();
   let ethPrice = ethData.data.bundle.ethPrice;
 
-  const tokenData0 = await client.query(tokensQuery0).toPromise();
-  let decimals0 = tokenData0.data.token.decimals;
-  let token0Symbol = tokenData0.data.token.symbol;
-  let token0DerivedETH = tokenData0.data.token.derivedETH;
+  let tokenAddr = [];
+  const uniswapETHPortal = [];
+  let token0Addr = [];
+  let token1Addr = [];
+  let LPdecimals = [];
+  const tokensQuery0 = [];
+  const tokensQuery1 = [];
+  const tokenData0 = [];
+  let decimals0 = [];
+  let token0Symbol = [];
+  let token0DerivedETH = [];
+  const tokenData1 = [];
+  let decimals1 = [];
+  let token1Symbol = [];
+  let token1DerivedETH = [];
+  let tokenReserves = [];
+  let token0Reserve = [];
+  let token1Reserve = [];
+  let tokenLockdata = [];
+  let lockedAmount = [];
+  let roundAmount = [];
+  let total_supply = [];
+  let totalSupply = [];
+  let percentage = [];
+  let percent = [];
+  let token0Price = [];
+  let token1Price = [];
+  let LPmarketcap = [];
+  let lockedPrice = [];
+  let roundPrice = [];
+  let lockDate = [];
+  let unlockDate = [];
+  let period = [];
+  let roundPeriod = [];
+  let roundMarketCap = [];
+  let score = [];
 
-  const tokenData1 = await client.query(tokensQuery1).toPromise();
-  let decimals1 = tokenData1.data.token.decimals;
-  let token1Symbol = tokenData1.data.token.symbol;
-  let token1DerivedETH = tokenData1.data.token.derivedETH;
-  
-  let tokenReserves = await uniswapETHPortal.getReserves();
-  let token0Reserve = new BigNumber(tokenReserves[0]._hex).dividedBy(new BigNumber(10).pow(decimals0));
-  let token1Reserve = new BigNumber(tokenReserves[1]._hex).dividedBy(new BigNumber(10).pow(decimals1));
+  let tokensinfo = [];
 
-  let tokenLockdata = await unicryptETHPortal.tokenLocks(tokenAddr, 0);
-  let lockedAmount = new BigNumber(tokenLockdata[1]._hex).dividedBy(new BigNumber(10).pow(LPdecimals));
-  let roundAmount = lockedAmount.toFormat(4);
+  for (let i = 0; i < 4; i++) {
+    tokenAddr[i] = await unicryptETHPortal.getLockedTokenAtIndex(total_tokenNums - i - 1);
 
-  let total_supply = await uniswapETHPortal.totalSupply();
-  let totalSupply = new BigNumber(total_supply._hex).dividedBy(new BigNumber(10).pow(LPdecimals));
+    uniswapETHPortal[i] = new ethers.Contract(tokenAddr[i], uniswapETHabi, provider);
+    token0Addr[i] = await uniswapETHPortal[i].token0();
+    token1Addr[i] = await uniswapETHPortal[i].token1();
+    LPdecimals[i] = await uniswapETHPortal[i].decimals();
 
-  let percentage = lockedAmount.dividedBy(totalSupply);
-  let percent = percentage.multipliedBy(new BigNumber(100)).toFormat(1);
+    // let apiurl = `https://api.coingecko.com/api/v3/coins/ethereum/contract/${token1Addr}`;
+    // const { data: datainfo } = await Axios.get(apiurl);
+    // console.log(datainfo.market_data.current_price.usd);
 
-  let token0Price = token0Reserve.multipliedBy(new BigNumber(token0DerivedETH)).multipliedBy(new BigNumber(ethPrice));
-  let token1Price = token1Reserve.multipliedBy(new BigNumber(token1DerivedETH)).multipliedBy(new BigNumber(ethPrice));
-  let LPmarketcap = token0Price.plus(token1Price);
-  let lockedPrice = LPmarketcap.multipliedBy(percentage);
-  let roundPrice = lockedPrice.toFormat(0);
 
-  let lockDate = new BigNumber(tokenLockdata[0]._hex);
-  let unlockDate = new BigNumber(tokenLockdata[3]._hex);
-  let period = unlockDate.minus(lockDate).dividedBy(new BigNumber(86400));
-  let roundPeriod = period.toFormat(0);
+    // const APIURL = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2';
+    // const ethpriceQuery = `
+    //   query {
+    //     bundle(id: "1" ) {
+    //       ethPrice
+    //     }
+    //   }
+    // `; 
+    tokensQuery0[i] = `
+      query {
+        token(id: "${token0Addr[i].toLowerCase()}"){
+          name
+          symbol
+          decimals
+          derivedETH
+          tradeVolumeUSD
+          totalLiquidity
+        }
+      }
+    `;
+    tokensQuery1[i] = `
+      query {
+        token(id: "${token1Addr[i].toLowerCase()}"){
+          name
+          symbol
+          decimals
+          derivedETH
+          tradeVolumeUSD
+          totalLiquidity
+        }
+      }
+    `;
 
-  let roundMarketCap = LPmarketcap.toFormat(0);
-  let score = lockedPrice.multipliedBy(period).multipliedBy(percentage).toFormat(0);
+    // const client = createClient({
+    //   url: APIURL,
+    // });
+    // const ethData = await client.query(ethpriceQuery).toPromise();
+    // let ethPrice = ethData.data.bundle.ethPrice;
 
-  // token0Symbol + " / " + token1Symbol, Ethereum, "$" + roundPrice, roundAmount + " (" + percent + "%)", roundPeriod + "days", Unicrypt, roundMarketCap, " ", score
-  // return roundAmount + " (" + percent + "%)";
-  return { tokenName: token0Symbol + " / " + token1Symbol, 
-            blockchain: "Ethereum", 
-            lockedPrice: "$" + roundPrice, 
-            lockedAmount: roundAmount + " (" + percent + "%)", 
-            unlockPeriod: roundPeriod + "days", 
-            locker: "Unicrypt", 
-            marketCap: roundMarketCap, 
-            rank: " ", 
-            score: score };
+    tokenData0[i] = await client.query(tokensQuery0[i]).toPromise();
+    decimals0[i] = tokenData0[i].data.token.decimals;
+    token0Symbol[i] = tokenData0[i].data.token.symbol;
+    token0DerivedETH[i] = tokenData0[i].data.token.derivedETH;
+
+    tokenData1[i] = await client.query(tokensQuery1[i]).toPromise();
+    decimals1[i] = tokenData1[i].data.token.decimals;
+    token1Symbol[i] = tokenData1[i].data.token.symbol;
+    token1DerivedETH[i] = tokenData1[i].data.token.derivedETH;
+    
+    tokenReserves[i] = await uniswapETHPortal[i].getReserves();
+    token0Reserve[i] = new BigNumber(tokenReserves[i][0]._hex).dividedBy(new BigNumber(10).pow(decimals0[i]));
+    token1Reserve[i] = new BigNumber(tokenReserves[i][1]._hex).dividedBy(new BigNumber(10).pow(decimals1[i]));
+
+    tokenLockdata[i] = await unicryptETHPortal.tokenLocks(tokenAddr[i], 0);
+    lockedAmount[i] = new BigNumber(tokenLockdata[i][1]._hex).dividedBy(new BigNumber(10).pow(LPdecimals[i]));
+    roundAmount[i] = lockedAmount[i].toFormat(4);
+
+    total_supply[i] = await uniswapETHPortal[i].totalSupply();
+    totalSupply[i] = new BigNumber(total_supply[i]._hex).dividedBy(new BigNumber(10).pow(LPdecimals[i]));
+
+    percentage[i] = lockedAmount[i].dividedBy(totalSupply[i]);
+    percent[i] = percentage[i].multipliedBy(new BigNumber(100)).toFormat(1);
+
+    token0Price[i] = token0Reserve[i].multipliedBy(new BigNumber(token0DerivedETH[i])).multipliedBy(new BigNumber(ethPrice));
+    token1Price[i] = token1Reserve[i].multipliedBy(new BigNumber(token1DerivedETH[i])).multipliedBy(new BigNumber(ethPrice));
+    LPmarketcap[i] = token0Price[i].plus(token1Price[i]);
+    lockedPrice[i] = LPmarketcap[i].multipliedBy(percentage[i]);
+    roundPrice[i] = lockedPrice[i].toFormat(0);
+
+    lockDate[i] = new BigNumber(tokenLockdata[i][0]._hex);
+    unlockDate[i] = new BigNumber(tokenLockdata[i][3]._hex);
+    period[i] = unlockDate[i].minus(lockDate[i]).dividedBy(new BigNumber(86400));
+    roundPeriod[i] = period[i].toFormat(0);
+
+    roundMarketCap[i] = LPmarketcap[i].toFormat(0);
+    score[i] = lockedPrice[i].multipliedBy(period[i]).multipliedBy(percentage[i]).toFormat(0);
+
+    // token0Symbol + " / " + token1Symbol, Ethereum, "$" + roundPrice, roundAmount + " (" + percent + "%)", roundPeriod + "days", Unicrypt, "$" + roundMarketCap, " ", score
+    // return roundAmount + " (" + percent + "%)";
+
+    tokensinfo.push({ tokenName: token0Symbol[i] + " / " + token1Symbol[i], 
+                      blockchain: "Ethereum",
+                      lockedPrice: "$" + roundPrice[i], 
+                      lockedAmount: roundAmount[i] + " (" + percent[i] + "%)", 
+                      unlockPeriod: roundPeriod[i] + "days", 
+                      locker: "Unicrypt", 
+                      marketCap: "$" + roundMarketCap[i], 
+                      rank: " ", 
+                      score: score[i] });
+  }
+
+  return tokensinfo;
 }
 
 function Table() {
-  const [tokenInfo, setTokenInfo] = useState({});
+  const [tokenInfo, setTokenInfo] = useState([]);
     GetAddress().then(resp =>
     {
       setTokenInfo(resp);
     });
+    
 
   const columns = React.useMemo(
     () => [
@@ -325,7 +386,7 @@ function Table() {
         accessor: "sixth"
       },
       {
-        Header: "Marketcap",
+        Header: "Marketcap $",
         accessor: "seventh"
       },
       {
@@ -341,40 +402,29 @@ function Table() {
   );
 
   const data = React.useMemo(
-    () => [
+    () => { if(tokenInfo.length) { return [
       {
-        first: tokenInfo.tokenName,
-        second: tokenInfo.blockchain,
-        third: tokenInfo.lockedPrice,
-        fourth: tokenInfo.lockedAmount,
-        fifth: tokenInfo.unlockPeriod,
-        sixth: tokenInfo.locker,
-        seventh: tokenInfo.marketCap,
-        eighth: tokenInfo.rank,
-        ninth: tokenInfo.score
+        first: tokenInfo[0].tokenName,
+        second: tokenInfo[0].blockchain,
+        third: tokenInfo[0].lockedPrice,
+        fourth: tokenInfo[0].lockedAmount,
+        fifth: tokenInfo[0].unlockPeriod,
+        sixth: tokenInfo[0].locker,
+        seventh: tokenInfo[0].marketCap,
+        eighth: tokenInfo[0].rank,
+        ninth: tokenInfo[0].score
       },
-      {
-        first: "Pinkcow",
-        second: "Ethereum",
-        third: 4578600,
-        fourth: 122111,
-        fifth: 20,
-        sixth: "Deeplock",
-        seventh: 2340000,
-        eighth: 5455,
-        ninth: 18890
-      },
-      {
-        first: "Fake",
-        second: "Ethereum",
-        third: 457899,
-        fourth: 400000,
-        fifth: 15,
-        sixth: "Unicrypt",
-        seventh: 755555000,
-        eighth: 23,
-        ninth: 700
-      },
+        {
+          first: tokenInfo[1].tokenName,
+          second: tokenInfo[1].blockchain,
+          third: tokenInfo[1].lockedPrice,
+          fourth: tokenInfo[1].lockedAmount,
+          fifth: tokenInfo[1].unlockPeriod,
+          sixth: tokenInfo[1].locker,
+          seventh: tokenInfo[1].marketCap,
+          eighth: tokenInfo[1].rank,
+          ninth: tokenInfo[1].score
+        },
       {
         first: "Fake",
         second: "Ethereum",
@@ -496,7 +546,7 @@ function Table() {
         eighth: 23,
         ninth: 700
       }
-    ],
+    ]; }else {return [];} },
     [tokenInfo]
   );
 
@@ -504,6 +554,8 @@ function Table() {
 }
 
 export default Table;
+
+
 
 
 

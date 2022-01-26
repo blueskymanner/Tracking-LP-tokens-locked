@@ -244,8 +244,8 @@ async function GetAddress() {
 
   let tokensinfo = [];
 
-  for (let i = 1; i < 4; i++) {
-    tokenAddr[i] = await unicryptETHPortal.getLockedTokenAtIndex(total_tokenNums - i);
+  for (let i = 0; i < 4; i++) {
+    tokenAddr[i] = await unicryptETHPortal.getLockedTokenAtIndex(total_tokenNums - i - 1);
 
     uniswapETHPortal[i] = new ethers.Contract(tokenAddr[i], uniswapETHabi, provider);
     token0Addr[i] = await uniswapETHPortal[i].token0();
@@ -346,9 +346,9 @@ async function GetAddress() {
                       marketCap: "$" + roundMarketCap[i], 
                       rank: " ", 
                       score: score[i] });
-
-    return tokensinfo;
   }
+
+  return tokensinfo;
 }
 
 function Table() {
@@ -357,6 +357,7 @@ function Table() {
     {
       setTokenInfo(resp);
     });
+    
 
   const columns = React.useMemo(
     () => [
@@ -401,7 +402,7 @@ function Table() {
   );
 
   const data = React.useMemo(
-    () => [
+    () => { if(tokenInfo.length) { return [
       {
         first: tokenInfo[0].tokenName,
         second: tokenInfo[0].blockchain,
@@ -413,28 +414,17 @@ function Table() {
         eighth: tokenInfo[0].rank,
         ninth: tokenInfo[0].score
       },
-      {
-        first: "Pinkcow",
-        second: "Ethereum",
-        third: 4578600,
-        fourth: 122111,
-        fifth: 20,
-        sixth: "Deeplock",
-        seventh: 2340000,
-        eighth: 5455,
-        ninth: 18890
-      },
-      {
-        first: "Fake",
-        second: "Ethereum",
-        third: 457899,
-        fourth: 400000,
-        fifth: 15,
-        sixth: "Unicrypt",
-        seventh: 755555000,
-        eighth: 23,
-        ninth: 700
-      },
+        {
+          first: tokenInfo[1].tokenName,
+          second: tokenInfo[1].blockchain,
+          third: tokenInfo[1].lockedPrice,
+          fourth: tokenInfo[1].lockedAmount,
+          fifth: tokenInfo[1].unlockPeriod,
+          sixth: tokenInfo[1].locker,
+          seventh: tokenInfo[1].marketCap,
+          eighth: tokenInfo[1].rank,
+          ninth: tokenInfo[1].score
+        },
       {
         first: "Fake",
         second: "Ethereum",
@@ -556,7 +546,7 @@ function Table() {
         eighth: 23,
         ninth: 700
       }
-    ],
+    ]; }else {return [];} },
     [tokenInfo]
   );
 
