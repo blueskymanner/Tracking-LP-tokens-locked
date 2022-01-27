@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import { useTable, useGlobalFilter, useAsyncDebounce, useSortBy, usePagination } from "react-table";
-import UnicryptETH from './unicryptETH.js';
-// import UnicryptBSC from './unicryptBSC.js';
+// import UnicryptETH from './unicryptETH.js';
+import UnicryptBSC from './unicryptBSC.js';
 import '../Style/style.css';
 
 function GlobalFilter({
@@ -175,7 +175,7 @@ function Actiontable({ columns, data }) {
 
 function Table() {
   const [tokenInfo, setTokenInfo] = useState([]);
-    UnicryptETH().then(resp =>
+    UnicryptBSC().then(resp =>
     {
       setTokenInfo(resp);
     });

@@ -396,45 +396,37 @@ import unicryptBSCabi from "../abi/unicryptBSC_abi.json";
 import pancakeswapBSCabi from "../abi/pancakeswapBSC_abi.json";
 import BigNumber from "bignumber.js";
 import { createClient } from 'urql'
-// import Axios from "axios";
+import Axios from "axios";
 
 const unicryptAddressBSC = "0xC765bddB93b0D1c1A88282BA0fa6B2d00E3e0c83";
 
 async function UnicryptBSC() {
-  
+
     let provider = ethers.getDefaultProvider();
     const unicryptBSCPortal = new ethers.Contract(unicryptAddressBSC, unicryptBSCabi, provider);
     let total_tokenNums = await unicryptBSCPortal.getNumLockedTokens();
-  
-    const APIURL = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2';
-    const ethpriceQuery = `
-      query {
-        bundle(id: "1" ) {
-          ethPrice
-        }
-      }
-    `; 
+
+    const APIURL = 'https://api.thegraph.com/subgraphs/name/pancakeswap/pairs';
+ 
     const client = createClient({
-      url: APIURL,
+        url: APIURL,
     });
-    const ethData = await client.query(ethpriceQuery).toPromise();
-    let ethPrice = ethData.data.bundle.ethPrice;
-  
+
     let tokenAddr = [];
     const pancakeswapBSCPortal = [];
     let token0Addr = [];
     let token1Addr = [];
     let LPdecimals = [];
+    let apiurl0 = [];
+    let apiurl1 = [];
+    let datainfo0 = [];
+    let datainfo1 = [];
     const tokensQuery0 = [];
     const tokensQuery1 = [];
     const tokenData0 = [];
     let decimals0 = [];
-    let token0Symbol = [];
-    let token0DerivedETH = [];
     const tokenData1 = [];
     let decimals1 = [];
-    let token1Symbol = [];
-    let token1DerivedETH = [];
     let tokenReserves = [];
     let tokenLockdata = [];
     let total_supply = [];
@@ -442,71 +434,69 @@ async function UnicryptBSC() {
     let token0Price = [];
     let token1Price = [];
     let period = [];
-  
+
     let tokensinfo = [];
-  
-    for (let i = 0; i < 10; i++) {
-      tokenAddr[i] = await unicryptBSCPortal.getLockedTokenAtIndex(total_tokenNums - i - 1);
 
-      pancakeswapBSCPortal[i] = new ethers.Contract(tokenAddr[i], pancakeswapBSCabi, provider);
-      token0Addr[i] = await pancakeswapBSCPortal[i].token0();
-      token1Addr[i] = await pancakeswapBSCPortal[i].token1();
-      LPdecimals[i] = await pancakeswapBSCPortal[i].decimals();
-  
-      // let apiurl = `https://api.coingecko.com/api/v3/coins/ethereum/contract/${token1Addr}`;
-      // const { data: datainfo } = await Axios.get(apiurl);
-      // console.log(datainfo.market_data.current_price.usd);
+    for (let i = 0; i < 2; i++) {
+        tokenAddr[i] = await unicryptBSCPortal.getLockedTokenAtIndex(total_tokenNums - i - 1);
 
-      tokensQuery0[i] = `
+        pancakeswapBSCPortal[i] = new ethers.Contract(tokenAddr[i], pancakeswapBSCabi, provider);
+        token0Addr[i] = await pancakeswapBSCPortal[i].token0();
+        token1Addr[i] = await pancakeswapBSCPortal[i].token1();
+        LPdecimals[i] = await pancakeswapBSCPortal[i].decimals();
+
+        apiurl0[i] = `https://api.pancakeswap.info/api/v2/tokens/${token0Addr[i]}`;
+        await Axios.get(apiurl0[i]).then(entry => 
+            datainfo0.push(entry));
+
+        apiurl1[i] = `https://api.pancakeswap.info/api/v2/tokens/${token1Addr[i]}`;
+        await Axios.get(apiurl1[i]).then(entry => 
+            datainfo1.push(entry));
+            
+        tokensQuery0[i] = `
         query {
           token(id: "${token0Addr[i].toLowerCase()}"){
-            symbol
             decimals
-            derivedETH
           }
         }
       `;
-      tokensQuery1[i] = `
+        tokensQuery1[i] = `
         query {
           token(id: "${token1Addr[i].toLowerCase()}"){
-            symbol
             decimals
-            derivedETH
           }
         }
       `;
 
-      tokenData0[i] = await client.query(tokensQuery0[i]).toPromise();
-      decimals0[i] = tokenData0[i].data.token.decimals;
-      token0Symbol[i] = tokenData0[i].data.token.symbol;
-      token0DerivedETH[i] = tokenData0[i].data.token.derivedETH;
+        tokenData0[i] = await client.query(tokensQuery0[i]).toPromise();
+        decimals0[i] = tokenData0[i].data.token.decimals;
 
-      tokenData1[i] = await client.query(tokensQuery1[i]).toPromise();
-      decimals1[i] = tokenData1[i].data.token.decimals;
-      token1Symbol[i] = tokenData1[i].data.token.symbol;
-      token1DerivedETH[i] = tokenData1[i].data.token.derivedETH;
-      
-      tokenReserves[i] = await pancakeswapBSCPortal[i].getReserves();
-      tokenLockdata[i] = await unicryptBSCPortal.tokenLocks(tokenAddr[i], 0);
-      total_supply[i] = await pancakeswapBSCPortal[i].totalSupply();
+        tokenData1[i] = await client.query(tokensQuery1[i]).toPromise();
+        decimals1[i] = tokenData1[i].data.token.decimals;
 
-      percentage[i] = new BigNumber(tokenLockdata[i][1]._hex).dividedBy(10**LPdecimals[i]).dividedBy(new BigNumber(total_supply[i]._hex).dividedBy(10**LPdecimals[i]));
-      token0Price[i] = new BigNumber(tokenReserves[i][0]._hex).dividedBy(10**decimals0[i]).multipliedBy(new BigNumber(token0DerivedETH[i])).multipliedBy(ethPrice);
-      token1Price[i] = new BigNumber(tokenReserves[i][1]._hex).dividedBy(10**decimals1[i]).multipliedBy(new BigNumber(token1DerivedETH[i])).multipliedBy(ethPrice);
-      period[i] = new BigNumber(tokenLockdata[i][3]._hex).minus(new BigNumber(tokenLockdata[i][0]._hex)).dividedBy(86400);
+        tokenReserves[i] = await pancakeswapBSCPortal[i].getReserves();
+        tokenLockdata[i] = await unicryptBSCPortal.tokenLocks(tokenAddr[i], 0);
+        total_supply[i] = await pancakeswapBSCPortal[i].totalSupply();
+        
+        percentage[i] = new BigNumber(tokenLockdata[i][1]._hex).dividedBy(10 ** LPdecimals[i]).dividedBy(new BigNumber(total_supply[i]._hex).dividedBy(10 ** LPdecimals[i]));
+        token0Price[i] = new BigNumber(tokenReserves[i][0]._hex).dividedBy(10 ** decimals0[i]).multipliedBy(new BigNumber(datainfo0[i].data.data.price));
+        token1Price[i] = new BigNumber(tokenReserves[i][1]._hex).dividedBy(10 ** decimals1[i]).multipliedBy(new BigNumber(datainfo1[i].data.data.price));
+        period[i] = new BigNumber(tokenLockdata[i][3]._hex).minus(new BigNumber(tokenLockdata[i][0]._hex)).dividedBy(86400);
 
-      tokensinfo.push({ tokenName: token0Symbol[i] + " / " + token1Symbol[i], 
-                        blockchain: "Ethereum",
-                        lockedPrice: "$" + token0Price[i].plus(token1Price[i]).multipliedBy(percentage[i]).toFormat(0), 
-                        lockedAmount: new BigNumber(tokenLockdata[i][1]._hex).dividedBy(10**LPdecimals[i]).toFormat(2) + " (" + percentage[i].multipliedBy(100).toFormat(1) + "%)", 
-                        unlockPeriod: period[i].toFormat(0) + "days", 
-                        locker: "Unicrypt", 
-                        marketCap: "$" + token0Price[i].plus(token1Price[i]).toFormat(0), 
-                        rank: " ", 
-                        score: token0Price[i].plus(token1Price[i]).multipliedBy(percentage[i]).multipliedBy(period[i]).multipliedBy(percentage[i]).toFormat(0) });
+        tokensinfo.push({
+            tokenName: datainfo0[i].data.data.symbol + " / " + datainfo1[i].data.data.symbol,
+            blockchain: "BSC",
+            lockedPrice: "$" + token0Price[i].plus(token1Price[i]).multipliedBy(percentage[i]).toFormat(0),
+            lockedAmount: new BigNumber(tokenLockdata[i][1]._hex).dividedBy(10 ** LPdecimals[i]).toFormat(2) + " (" + percentage[i].multipliedBy(100).toFormat(1) + "%)",
+            unlockPeriod: period[i].toFormat(0) + "days",
+            locker: "Unicrypt",
+            marketCap: "$" + token0Price[i].plus(token1Price[i]).toFormat(0),
+            rank: " ",
+            score: token0Price[i].plus(token1Price[i]).multipliedBy(percentage[i]).multipliedBy(period[i]).multipliedBy(percentage[i]).toFormat(0)
+        });
     }
 
     return tokensinfo;
-  }
+}
 
 export default UnicryptBSC;

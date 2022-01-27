@@ -13,7 +13,7 @@ async function UnicryptETH() {
     let provider = ethers.getDefaultProvider();
     const unicryptETHPortal = new ethers.Contract(unicryptAddressETH, unicryptETHabi, provider);
     let total_tokenNums = await unicryptETHPortal.getNumLockedTokens();
-  
+
     const APIURL = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2';
     const ethpriceQuery = `
       query {
