@@ -9,13 +9,16 @@ import Axios from "axios";
 const unicryptAddressBSC = "0xC765bddB93b0D1c1A88282BA0fa6B2d00E3e0c83";
 
 async function UnicryptBSC() {
-
-    let provider = ethers.getDefaultProvider();
-    const unicryptBSCPortal = new ethers.Contract(unicryptAddressBSC, unicryptBSCabi, provider);
-    let total_tokenNums = await unicryptBSCPortal.getNumLockedTokens();
+    let provider, signer, unicryptBSCPortal, total_tokenNums;
+    if (typeof window.ethereum !== 'undefined') {
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner(); // remove this
+        unicryptBSCPortal = new ethers.Contract(unicryptAddressBSC, unicryptBSCabi, signer); // replace signer with provider
+        total_tokenNums = await unicryptBSCPortal.getNumLockedTokens();
+    }
 
     const APIURL = 'https://api.thegraph.com/subgraphs/name/pancakeswap/pairs';
- 
+
     const client = createClient({
         url: APIURL,
     });
@@ -45,7 +48,7 @@ async function UnicryptBSC() {
 
     let tokensinfo = [];
 
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 10; i++) {
         tokenAddr[i] = await unicryptBSCPortal.getLockedTokenAtIndex(total_tokenNums - i - 1);
 
         pancakeswapBSCPortal[i] = new ethers.Contract(tokenAddr[i], pancakeswapBSCabi, provider);

@@ -53,7 +53,7 @@ async function UnicryptETH() {
   
     let tokensinfo = [];
   
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 2; i++) {
       tokenAddr[i] = await unicryptETHPortal.getLockedTokenAtIndex(total_tokenNums - i - 1);
   
       uniswapETHPortal[i] = new ethers.Contract(tokenAddr[i], uniswapETHabi, provider);
