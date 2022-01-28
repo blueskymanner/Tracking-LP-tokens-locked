@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import { useTable, useGlobalFilter, useAsyncDebounce, useSortBy, usePagination } from "react-table";
-// import UnicryptETH from './unicryptETH.js';
+import UnicryptETH from './unicryptETH.js';
 import UnicryptBSC from './unicryptBSC.js';
 import '../Style/style.css';
 
@@ -53,7 +53,7 @@ function Actiontable({ columns, data }) {
     {
       columns,
       data,
-      initialState: { pageSize: 20 }
+      initialState: { pageSize: 10 }
     },
     useGlobalFilter, useSortBy, usePagination
   );
@@ -161,7 +161,7 @@ function Actiontable({ columns, data }) {
               setPageSize(Number(e.target.value));
             }}
           >
-            {[20, 30, 40, 50].map((pageSize) => (
+            {[10, 20, 30, 40].map((pageSize) => (
               <option key={pageSize} value={pageSize}>
                 Show {pageSize}
               </option>
@@ -174,12 +174,19 @@ function Actiontable({ columns, data }) {
 }
 
 function Table() {
-  const [tokenInfo, setTokenInfo] = useState([]);
+  const [ethtoken, setEthtoken] = useState([]);
+  const [bsctoken, setBsctoken] = useState([]);
+  useEffect(() => {
+    UnicryptETH().then(resp =>
+    {
+      setEthtoken(resp);
+    });
     UnicryptBSC().then(resp =>
     {
-      setTokenInfo(resp);
+      setBsctoken(resp);
     });
-    
+  }, []);
+
   const columns = React.useMemo(
     () => [
       {
@@ -223,27 +230,56 @@ function Table() {
   );
 
   const data = React.useMemo(
-    () => { if(tokenInfo.length) {
+    () => { if(bsctoken.length || ethtoken.length) {
               let tokensInfo = [];
-              for(let i = 0; i < tokenInfo.length; i++) {
+              for(let i = 0; i < bsctoken.length; i++) {
                 tokensInfo.push(
                   {
-                    first: tokenInfo[i].tokenName,
-                    second: tokenInfo[i].blockchain,
-                    third: tokenInfo[i].lockedPrice,
-                    fourth: tokenInfo[i].lockedAmount,
-                    fifth: tokenInfo[i].unlockPeriod,
-                    sixth: tokenInfo[i].locker,
-                    seventh: tokenInfo[i].marketCap,
-                    eighth: tokenInfo[i].rank,
-                    ninth: tokenInfo[i].score
+                    first: bsctoken[i].tokenName,
+                    second: bsctoken[i].blockchain,
+                    third: bsctoken[i].lockedPrice,
+                    fourth: bsctoken[i].lockedAmount,
+                    fifth: bsctoken[i].unlockPeriod,
+                    sixth: bsctoken[i].locker,
+                    seventh: bsctoken[i].marketCap,
+                    eighth: bsctoken[i].rank,
+                    ninth: bsctoken[i].score
+                  }
+                );
+              }
+              for(let i = 0; i < ethtoken.length; i++) {
+                tokensInfo.push(
+                  {
+                    first: ethtoken[i].tokenName,
+                    second: ethtoken[i].blockchain,
+                    third: ethtoken[i].lockedPrice,
+                    fourth: ethtoken[i].lockedAmount,
+                    fifth: ethtoken[i].unlockPeriod,
+                    sixth: ethtoken[i].locker,
+                    seventh: ethtoken[i].marketCap,
+                    eighth: ethtoken[i].rank,
+                    ninth: ethtoken[i].score
                   }
                 );
               }
               return tokensInfo;
-            } else { return []; }
+            } else { let empty = []; for (let i = 0; i < 10; i++) {
+                empty.push(
+                  {
+                    first: empty[i],
+                    second: empty[i],
+                    third: empty[i],
+                    fourth: empty[i],
+                    fifth: empty[i],
+                    sixth: empty[i],
+                    seventh: empty[i],
+                    eighth: empty[i],
+                    ninth: empty[i]
+                  }
+                );
+              } return empty; }
           },
-        [tokenInfo]
+        [ethtoken, bsctoken]
   );
 
   return <Actiontable columns={columns} data={data} />;

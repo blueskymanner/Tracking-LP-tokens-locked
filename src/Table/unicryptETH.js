@@ -52,7 +52,7 @@ async function UnicryptETH() {
     let period = [];
   
     let tokensinfo = [];
-  
+
     for (let i = 0; i < 2; i++) {
       tokenAddr[i] = await unicryptETHPortal.getLockedTokenAtIndex(total_tokenNums - i - 1);
   
@@ -64,7 +64,7 @@ async function UnicryptETH() {
       // let apiurl = `https://api.coingecko.com/api/v3/coins/ethereum/contract/${token1Addr}`;
       // const { data: datainfo } = await Axios.get(apiurl);
       // console.log(datainfo.market_data.current_price.usd);
-  
+
       tokensQuery0[i] = `
         query {
           token(id: "${token0Addr[i].toLowerCase()}"){
@@ -93,7 +93,7 @@ async function UnicryptETH() {
       decimals1[i] = tokenData1[i].data.token.decimals;
       token1Symbol[i] = tokenData1[i].data.token.symbol;
       token1DerivedETH[i] = tokenData1[i].data.token.derivedETH;
-      
+
       tokenReserves[i] = await uniswapETHPortal[i].getReserves();
       tokenLockdata[i] = await unicryptETHPortal.tokenLocks(tokenAddr[i], 0);
       total_supply[i] = await uniswapETHPortal[i].totalSupply();
@@ -110,10 +110,10 @@ async function UnicryptETH() {
                         unlockPeriod: period[i].toFormat(0) + "days", 
                         locker: "Unicrypt", 
                         marketCap: "$" + token0Price[i].plus(token1Price[i]).toFormat(0), 
-                        rank: " ", 
+                        rank: "-", 
                         score: token0Price[i].plus(token1Price[i]).multipliedBy(percentage[i]).multipliedBy(period[i]).multipliedBy(percentage[i]).toFormat(0) });
     }
-
+    // console.log('retrived eth token info.....');
     return tokensinfo;
   }
 
