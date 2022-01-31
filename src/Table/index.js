@@ -230,23 +230,8 @@ function Table() {
   );
 
   const data = React.useMemo(
-    () => { if(bsctoken.length || ethtoken.length) {
+    () => { if(ethtoken.length || bsctoken.length) {
               let tokensInfo = [];
-              for(let i = 0; i < bsctoken.length; i++) {
-                tokensInfo.push(
-                  {
-                    first: bsctoken[i].tokenName,
-                    second: bsctoken[i].blockchain,
-                    third: bsctoken[i].lockedPrice,
-                    fourth: bsctoken[i].lockedAmount,
-                    fifth: bsctoken[i].unlockPeriod,
-                    sixth: bsctoken[i].locker,
-                    seventh: bsctoken[i].marketCap,
-                    eighth: bsctoken[i].rank,
-                    ninth: bsctoken[i].score
-                  }
-                );
-              }
               for(let i = 0; i < ethtoken.length; i++) {
                 tokensInfo.push(
                   {
@@ -259,6 +244,21 @@ function Table() {
                     seventh: ethtoken[i].marketCap,
                     eighth: ethtoken[i].rank,
                     ninth: ethtoken[i].score
+                  }
+                );
+              }
+              for(let i = 0; i < bsctoken.length; i++) {
+                tokensInfo.push(
+                  {
+                    first: bsctoken[i].tokenName,
+                    second: bsctoken[i].blockchain,
+                    third: bsctoken[i].lockedPrice,
+                    fourth: bsctoken[i].lockedAmount,
+                    fifth: bsctoken[i].unlockPeriod,
+                    sixth: bsctoken[i].locker,
+                    seventh: bsctoken[i].marketCap,
+                    eighth: bsctoken[i].rank,
+                    ninth: bsctoken[i].score
                   }
                 );
               }

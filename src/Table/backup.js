@@ -391,6 +391,7 @@ export default UnicryptETH;
 
 
 // import React, {useEffect, useState} from "react";
+import Web3 from "web3";
 import { ethers } from "ethers";
 import unicryptBSCabi from "../abi/unicryptBSC_abi.json";
 import pancakeswapBSCabi from "../abi/pancakeswapBSC_abi.json";
@@ -401,13 +402,16 @@ import Axios from "axios";
 const unicryptAddressBSC = "0xC765bddB93b0D1c1A88282BA0fa6B2d00E3e0c83";
 
 async function UnicryptBSC() {
-    let provider, signer, unicryptBSCPortal, total_tokenNums;
-    if (typeof window.ethereum !== 'undefined') {
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner(); // remove this
-        unicryptBSCPortal = new ethers.Contract(unicryptAddressBSC, unicryptBSCabi, signer); // replace signer with provider
-        total_tokenNums = await unicryptBSCPortal.getNumLockedTokens();
-    }
+
+    let currentProvider = new Web3.providers.HttpProvider("https://binance.nodereal.io");
+    let provider = new ethers.providers.Web3Provider(currentProvider);
+    const unicryptBSCPortal = new ethers.Contract(unicryptAddressBSC, unicryptBSCabi, provider);
+    let total_tokenNums = await unicryptBSCPortal.getNumLockedTokens();
+
+    // let httpProvider = new Web3.providers.HttpProvider("https://binance.ankr.com");
+    // let web3 = new Web3(httpProvider);
+    // let unicryptBSCPortal = new web3.eth.Contract(unicryptBSCabi, unicryptAddressBSC);
+    // let total_tokenNums = await unicryptBSCPortal.methods.getNumLockedTokens().call();
 
     const APIURL = 'https://api.thegraph.com/subgraphs/name/pancakeswap/pairs';
 
@@ -440,7 +444,7 @@ async function UnicryptBSC() {
 
     let tokensinfo = [];
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 2; i++) {
         tokenAddr[i] = await unicryptBSCPortal.getLockedTokenAtIndex(total_tokenNums - i - 1);
 
         pancakeswapBSCPortal[i] = new ethers.Contract(tokenAddr[i], pancakeswapBSCabi, provider);
@@ -455,7 +459,6 @@ async function UnicryptBSC() {
         apiurl1[i] = `https://api.pancakeswap.info/api/v2/tokens/${token1Addr[i]}`;
         await Axios.get(apiurl1[i]).then(entry => 
             datainfo1.push(entry));
-            
         tokensQuery0[i] = `
         query {
           token(id: "${token0Addr[i].toLowerCase()}"){
@@ -480,7 +483,7 @@ async function UnicryptBSC() {
         tokenReserves[i] = await pancakeswapBSCPortal[i].getReserves();
         tokenLockdata[i] = await unicryptBSCPortal.tokenLocks(tokenAddr[i], 0);
         total_supply[i] = await pancakeswapBSCPortal[i].totalSupply();
-        
+
         percentage[i] = new BigNumber(tokenLockdata[i][1]._hex).dividedBy(10 ** LPdecimals[i]).dividedBy(new BigNumber(total_supply[i]._hex).dividedBy(10 ** LPdecimals[i]));
         token0Price[i] = new BigNumber(tokenReserves[i][0]._hex).dividedBy(10 ** decimals0[i]).multipliedBy(new BigNumber(datainfo0[i].data.data.price));
         token1Price[i] = new BigNumber(tokenReserves[i][1]._hex).dividedBy(10 ** decimals1[i]).multipliedBy(new BigNumber(datainfo1[i].data.data.price));
@@ -494,7 +497,7 @@ async function UnicryptBSC() {
             unlockPeriod: period[i].toFormat(0) + "days",
             locker: "Unicrypt",
             marketCap: "$" + token0Price[i].plus(token1Price[i]).toFormat(0),
-            rank: " ",
+            rank: "-",
             score: token0Price[i].plus(token1Price[i]).multipliedBy(percentage[i]).multipliedBy(period[i]).multipliedBy(percentage[i]).toFormat(0)
         });
     }
