@@ -1,4 +1,4 @@
-import getETHWeb3 from '../utils/getweb3.js';
+import getETHWeb3 from '../utils/getETHweb3.js';
 import { Interface } from '@ethersproject/abi';
 import multicallETHabi from "../abi/multicallETH_abi.json";
 

@@ -1,4 +1,4 @@
-import getBSCWeb3 from '../utils/getweb3.js';
+import getBSCWeb3 from '../utils/getBSCweb3.js';
 import { Interface } from '@ethersproject/abi';
 import multicallBSCabi from "../abi/multicallBSC_abi.json";
 

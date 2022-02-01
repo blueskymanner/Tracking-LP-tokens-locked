@@ -1,5 +1,5 @@
 // import React, {useEffect, useState} from "react";
-import getETHWeb3 from '../utils/getweb3.js';
+import getETHWeb3 from '../utils/getETHweb3.js';
 import unicryptETHabi from "../abi/unicryptETH_abi.json";
 import uniswapETHabi from "../abi/uniswapETH_abi.json";
 import BigNumber from "bignumber.js";
@@ -114,13 +114,13 @@ async function UnicryptETH() {
     percentage[i] = new BigNumber(tokenLocksArr[i][1]._hex).dividedBy(10**LPtokensArr[i*5+2][0]).dividedBy(new BigNumber(LPtokensArr[i*5+4][0]._hex).dividedBy(10**LPtokensArr[i*5+2][0]));
     token0Price[i] = new BigNumber(LPtokensArr[i*5+3][0]._hex).dividedBy(10**decimals0[i]).multipliedBy(new BigNumber(token0DerivedETH[i])).multipliedBy(ethPrice);
     token1Price[i] = new BigNumber(LPtokensArr[i*5+3][1]._hex).dividedBy(10**decimals1[i]).multipliedBy(new BigNumber(token1DerivedETH[i])).multipliedBy(ethPrice);
-    period[i] = new BigNumber(tokenLocksArr[i][3]._hex).minus(new BigNumber(tokenLocksArr[i][0]._hex)).dividedBy(86400);
+    period[i] = new BigNumber(tokenLocksArr[i][3]._hex).minus(LPtokensArr[i*5+3][2]).dividedBy(86400);
 
     tokensinfo.push({ tokenName: token0Symbol[i] + " / " + token1Symbol[i], 
                       blockchain: "Ethereum",
                       lockedPrice: "$" + token0Price[i].plus(token1Price[i]).multipliedBy(percentage[i]).toFormat(0), 
                       lockedAmount: new BigNumber(tokenLocksArr[i][1]._hex).dividedBy(10**LPtokensArr[i*5+2][0]).toFormat(2) + " (" + percentage[i].multipliedBy(100).toFormat(1) + "%)", 
-                      unlockPeriod: period[i].toFormat(0) + "days", 
+                      unlockPeriod: period[i].toFormat(0) + " days left", 
                       locker: "Unicrypt", 
                       marketCap: "$" + token0Price[i].plus(token1Price[i]).toFormat(0), 
                       rank: "—", 

@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import { useTable, useGlobalFilter, useAsyncDebounce, useSortBy, usePagination } from "react-table";
 import UnicryptETH from './unicryptETH.js';
 import UnicryptBSC from './unicryptBSC.js';
+import DeepLocker from './deepLocker.js';
 import '../Style/style.css';
 
 function GlobalFilter({
@@ -176,6 +177,7 @@ function Actiontable({ columns, data }) {
 function Table() {
   const [ethtoken, setEthtoken] = useState([]);
   const [bsctoken, setBsctoken] = useState([]);
+  const [deeptoken, setDeeptoken] = useState([]);
   useEffect(() => {
     UnicryptETH().then(resp =>
     {
@@ -185,16 +187,20 @@ function Table() {
     {
       setBsctoken(resp);
     });
+    DeepLocker().then(resp =>
+      {
+        setDeeptoken(resp);
+    });
   }, []);
 
   const columns = React.useMemo(
     () => [
       {
-        Header: "Token Name",
+        Header: "Token Name ↓↑",
         accessor: "first"
       },
       {
-        Header: "Blockchain",
+        Header: "Blockchain ↓↑",
         accessor: "second"
       },
       {
@@ -206,11 +212,11 @@ function Table() {
         accessor: "fourth"
       },
       {
-        Header: "Time to unlock",
+        Header: "Time to unlock ↓↑",
         accessor: "fifth"
       },
       {
-        Header: "Locker",
+        Header: "Locker ↓↑",
         accessor: "sixth"
       },
       {
@@ -222,7 +228,7 @@ function Table() {
         accessor: "eighth"
       },
       {
-        Header: "Score",
+        Header: "Score ↓↑",
         accessor: "ninth"
       }
     ],
@@ -230,7 +236,7 @@ function Table() {
   );
 
   const data = React.useMemo(
-    () => { if(ethtoken.length || bsctoken.length) {
+    () => { if(ethtoken.length || bsctoken.length || deeptoken.length) {
               let tokensInfo = [];
               for(let i = 0; i < ethtoken.length; i++) {
                 tokensInfo.push(
@@ -262,6 +268,22 @@ function Table() {
                   }
                 );
               }
+              for(let i = 0; i < deeptoken.length; i++) {
+                tokensInfo.push(
+                  {
+                    first: deeptoken[i].tokenName,
+                    second: deeptoken[i].blockchain,
+                    third: deeptoken[i].lockedPrice,
+                    fourth: deeptoken[i].lockedAmount,
+                    fifth: deeptoken[i].unlockPeriod,
+                    sixth: deeptoken[i].locker,
+                    seventh: deeptoken[i].marketCap,
+                    eighth: deeptoken[i].rank,
+                    ninth: deeptoken[i].score
+                  }
+                );
+              }
+
               return tokensInfo;
             } else { let empty = []; for (let i = 0; i < 10; i++) {
                 empty.push(
@@ -279,7 +301,7 @@ function Table() {
                 );
               } return empty; }
           },
-        [ethtoken, bsctoken]
+        [ethtoken, bsctoken, deeptoken]
   );
 
   return <Actiontable columns={columns} data={data} />;

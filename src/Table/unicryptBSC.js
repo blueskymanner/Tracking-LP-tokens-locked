@@ -1,5 +1,5 @@
 // import React, {useEffect, useState} from "react";
-import getBSCWeb3 from '../utils/getweb3.js';
+import getBSCWeb3 from '../utils/getBSCweb3.js';
 import unicryptBSCabi from "../abi/unicryptBSC_abi.json";
 import pancakeswapBSCabi from "../abi/pancakeswapBSC_abi.json";
 import BigNumber from "bignumber.js";
@@ -45,7 +45,7 @@ async function UnicryptBSC() {
 
   let tokensinfo = [];
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 2; i++) {
     tokenAddrs.push({address: unicryptAddressBSC, name: "getLockedTokenAtIndex", params: [total_tokenNums-i-1]});
   }
   const tokenAddrsArr = await multicallBSC(unicryptBSCabi, tokenAddrs);
@@ -98,13 +98,13 @@ async function UnicryptBSC() {
     percentage[i] = new BigNumber(tokenLocksArr[i][1]._hex).dividedBy(10**LPtokensArr[i*5+2][0]).dividedBy(new BigNumber(LPtokensArr[i*5+4][0]._hex).dividedBy(10**LPtokensArr[i*5+2][0]));
     token0Price[i] = new BigNumber(LPtokensArr[i*5+3][0]._hex).dividedBy(10**decimals0[i]).multipliedBy(new BigNumber(datainfo0[i].data.data.price));
     token1Price[i] = new BigNumber(LPtokensArr[i*5+3][1]._hex).dividedBy(10**decimals1[i]).multipliedBy(new BigNumber(datainfo1[i].data.data.price));
-    period[i] = new BigNumber(tokenLocksArr[i][3]._hex).minus(new BigNumber(tokenLocksArr[i][0]._hex)).dividedBy(86400);
+    period[i] = new BigNumber(tokenLocksArr[i][3]._hex).minus(LPtokensArr[i*5+3][2]).dividedBy(86400);
 
-    tokensinfo.push({ tokenName: datainfo0[i].data.data.symbol + " / " + datainfo1[i].data.data.symbol, 
+    tokensinfo.push({ tokenName : datainfo0[i].data.data.symbol + " / " + datainfo1[i].data.data.symbol, 
                       blockchain: "BSC",
                       lockedPrice: "$" + token0Price[i].plus(token1Price[i]).multipliedBy(percentage[i]).toFormat(0), 
                       lockedAmount: new BigNumber(tokenLocksArr[i][1]._hex).dividedBy(10**LPtokensArr[i*5+2][0]).toFormat(2) + " (" + percentage[i].multipliedBy(100).toFormat(1) + "%)", 
-                      unlockPeriod: period[i].toFormat(0) + "days", 
+                      unlockPeriod: period[i].toFormat(0) + " days left", 
                       locker: "Unicrypt", 
                       marketCap: "$" + token0Price[i].plus(token1Price[i]).toFormat(0), 
                       rank: "—", 
