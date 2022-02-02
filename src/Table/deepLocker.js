@@ -45,7 +45,7 @@ async function DeepLocker() {
 
     let tokensinfo = [];
     
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 2; i++) {
         tokenLocks.push({address: deepLockerAddr, name: "lockedToken", params: [total_tokenNums-i]});
     }
     const tokenLocksArr = await multicallBSC(deepLockerabi, tokenLocks);
@@ -54,6 +54,7 @@ async function DeepLocker() {
         pancakeApiurl[i] = `https://api.pancakeswap.info/api/v2/tokens/${tokenLocksArr[i][0]}`;
         try {
             await Axios.get(pancakeApiurl[i]);
+            console.log("There is new token.");
         } catch(err) {
             LPtokens.push({address: tokenLocksArr[i][0], name: "token0"});
             LPtokens.push({address: tokenLocksArr[i][0], name: "token1"});
@@ -64,7 +65,7 @@ async function DeepLocker() {
     }
     const LPtokensArr = await multicallBSC(pancakeswapBSCabi, LPtokens);
 
-    for (let i = 0; i < tokenLocksArr.length; i++) {
+    for (let i = 0; i < LPtokensArr.length / 5; i++) {
         apiurl0[i] = `https://api.pancakeswap.info/api/v2/tokens/${LPtokensArr[i*5][0]}`;
         await Axios.get(apiurl0[i]).then(entry => 
         datainfo0.push(entry));
@@ -109,7 +110,6 @@ async function DeepLocker() {
                         rank: "—", 
                         score: token0Price[i].plus(token1Price[i]).multipliedBy(percentage[i]).multipliedBy(period[i]).multipliedBy(percentage[i]).toFormat(0) });
     }
-
     return tokensinfo;
 }
 
