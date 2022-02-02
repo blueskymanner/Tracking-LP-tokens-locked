@@ -22,6 +22,7 @@ async function DeepLocker() {
     });
 
     let tokenLocks = [];
+    let pancakeApiurl = [];
     let LPtokens = [];
 
     let tokensQuery0 = [];
@@ -43,18 +44,23 @@ async function DeepLocker() {
     let period = [];
 
     let tokensinfo = [];
-
-    for (let i = 0; i < 2; i++) {
+    
+    for (let i = 0; i < 15; i++) {
         tokenLocks.push({address: deepLockerAddr, name: "lockedToken", params: [total_tokenNums-i]});
     }
     const tokenLocksArr = await multicallBSC(deepLockerabi, tokenLocks);
 
     for (let i = 0; i < tokenLocksArr.length; i++) {
-        LPtokens.push({address: tokenLocksArr[i][0], name: "token0"});
-        LPtokens.push({address: tokenLocksArr[i][0], name: "token1"});
-        LPtokens.push({address: tokenLocksArr[i][0], name: "decimals"});
-        LPtokens.push({address: tokenLocksArr[i][0], name: "getReserves"});
-        LPtokens.push({address: tokenLocksArr[i][0], name: "totalSupply"});
+        pancakeApiurl[i] = `https://api.pancakeswap.info/api/v2/tokens/${tokenLocksArr[i][0]}`;
+        try {
+            await Axios.get(pancakeApiurl[i]);
+        } catch(err) {
+            LPtokens.push({address: tokenLocksArr[i][0], name: "token0"});
+            LPtokens.push({address: tokenLocksArr[i][0], name: "token1"});
+            LPtokens.push({address: tokenLocksArr[i][0], name: "decimals"});
+            LPtokens.push({address: tokenLocksArr[i][0], name: "getReserves"});
+            LPtokens.push({address: tokenLocksArr[i][0], name: "totalSupply"});
+        }
     }
     const LPtokensArr = await multicallBSC(pancakeswapBSCabi, LPtokens);
 

@@ -1,417 +1,19 @@
-import React, {useEffect, useState} from "react";
-import { useTable, useGlobalFilter, useAsyncDebounce, useSortBy, usePagination } from "react-table";
-import UnicryptETH from './unicryptETH.js';
-import '../Style/style.css';
-
-function GlobalFilter({
-  preGlobalFilteredRows,
-  globalFilter,
-  setGlobalFilter
-}) {
-  const count = preGlobalFilteredRows.length;
-  const [value, setValue] = React.useState(globalFilter);
-  const onChange = useAsyncDebounce(async (value) => {
-    setGlobalFilter(value || undefined);
-  }, 200);
-
-  return (
-    <span>
-      Search: {" "}
-      <input
-        value={value || ""}
-        onChange={(e) => {
-          setValue(e.target.value);
-          onChange(e.target.value);
-        }}
-        placeholder={`Enter Keyword`}
-      />
-    </span>
-  );
-}
-
-function Actiontable({ columns, data }) {
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    footerGroups,
-    prepareRow,
-    page,
-    canPreviousPage,
-    canNextPage,
-    pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize,
-    state: { pageIndex, pageSize },
-    state,
-    preGlobalFilteredRows,
-    setGlobalFilter
-  } = useTable(
-    {
-      columns,
-      data,
-      initialState: { pageSize: 20 }
-    },
-    useGlobalFilter, useSortBy, usePagination
-  );
-
-  // Render the UI for your table
-  return (
-    <>
-      <div className="content">
-        <div className="tablesection">
-          <table
-            {...getTableProps()}
-          >
-            <thead>
-              <tr>
-                <th
-                  colSpan={100}
-                  style={{
-                    textAlign: "left",
-                    padding: 10,
-                    background: "yellow"
-                  }}
-                >
-                  <GlobalFilter
-                    preGlobalFilteredRows={preGlobalFilteredRows}
-                    globalFilter={state.globalFilter}
-                    setGlobalFilter={setGlobalFilter}
-                  />
-                </th>
-              </tr>
-
-              {headerGroups.map((group) => (
-                <tr {...group.getHeaderGroupProps()}>
-                  {group.headers.map((column) => (
-                    <th {...column.getHeaderProps(column.getSortByToggleProps())}>{column.render("Header")}
-                    {/* <span>{
-                      column.isSorted
-                          ? column.isSortedDesc
-                                ? ' ?'
-                                : ' ?'
-                          : ''
-                    }</span> */}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody {...getTableBodyProps()}>
-              {page.map((row, i) => {
-                prepareRow(row);
-                return (
-                  <tr {...row.getRowProps()}>
-                    {row.cells.map((cell) => {
-                      return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
-                    })}
-                  </tr>
-                );
-              })}
-            </tbody>
-            {/* <tfoot>
-              {footerGroups.map((group) => (
-                <tr {...group.getFooterGroupProps()}>
-                  {group.headers.map((column) => (
-                    <td {...column.getFooterProps()}>{column.render("Footer")}</td>
-                  ))}
-                </tr>
-              ))}
-            </tfoot> */}
-          </table>
-        </div>
-
-        <div className="pagination">
-          <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-            {"<<"}
-          </button>{" "}
-          <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-            {"<"}
-          </button>{" "}
-          <button onClick={() => nextPage()} disabled={!canNextPage}>
-            {">"}
-          </button>{" "}
-          <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
-            {">>"}
-          </button>{" "}
-          <span>
-            Page{" "}
-            <strong>
-              {pageIndex + 1} of {pageCount}
-            </strong>{" "}
-          </span>
-          <span>
-            | Go to page:{" "}
-            <input
-              type="number"
-              defaultValue={pageIndex + 1}
-              onChange={(e) => {
-                const page = e.target.value ? Number(e.target.value) - 1 : 0;
-                gotoPage(page);
-              }}
-              style={{ width: "100px" }}
-            />
-          </span>{" "}
-          <select
-            value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value));
-            }}
-          >
-            {[20, 30, 40, 50].map((pageSize) => (
-              <option key={pageSize} value={pageSize}>
-                Show {pageSize}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-    </>
-  );
-}
-
-function Table() {
-  const [tokenInfo, setTokenInfo] = useState([]);
-    UnicryptETH().then(resp =>
-    {
-      setTokenInfo(resp);
-    });
-    
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: "Token Name",
-        accessor: "first"
-      },
-      {
-        Header: "Blockchain",
-        accessor: "second"
-      },
-      {
-        Header: "Liquidity Locked $",
-        accessor: "third"
-      },
-      {
-        Header: "Tokens Locked %",
-        accessor: "fourth"
-      },
-      {
-        Header: "Time to unlock",
-        accessor: "fifth"
-      },
-      {
-        Header: "Locker",
-        accessor: "sixth"
-      },
-      {
-        Header: "Marketcap $",
-        accessor: "seventh"
-      },
-      {
-        Header: "Coingecko Rank #",
-        accessor: "eighth"
-      },
-      {
-        Header: "Score",
-        accessor: "ninth"
-      }
-    ],
-    []
-  );
-
-  const data = React.useMemo(
-    () => { if(tokenInfo.length) {
-              let tokensInfo = [];
-              for(let i = 0; i < tokenInfo.length; i++) {
-                tokensInfo.push(
-                  {
-                    first: tokenInfo[i].tokenName,
-                    second: tokenInfo[i].blockchain,
-                    third: tokenInfo[i].lockedPrice,
-                    fourth: tokenInfo[i].lockedAmount,
-                    fifth: tokenInfo[i].unlockPeriod,
-                    sixth: tokenInfo[i].locker,
-                    seventh: tokenInfo[i].marketCap,
-                    eighth: tokenInfo[i].rank,
-                    ninth: tokenInfo[i].score
-                  }
-                );
-              }
-              return tokensInfo;
-            } else { return []; }
-          },
-        [tokenInfo]
-  );
-
-  return <Actiontable columns={columns} data={data} />;
-}
-
-export default Table;
-
-
-
-
-
-
-
-
-
-
-
 // import React, {useEffect, useState} from "react";
-import { ethers } from "ethers";
-import unicryptETHabi from "../abi/unicryptETH_abi.json";
-import uniswapETHabi from "../abi/uniswapETH_abi.json";
-import BigNumber from "bignumber.js";
-import { createClient } from 'urql'
-// import Axios from "axios";
-
-const unicryptAddressETH = "0x663A5C229c09b049E36dCc11a9B0d4a8Eb9db214";
-
-async function UnicryptETH() {
-  
-    let provider = ethers.getDefaultProvider();
-    const unicryptETHPortal = new ethers.Contract(unicryptAddressETH, unicryptETHabi, provider);
-    let total_tokenNums = await unicryptETHPortal.getNumLockedTokens();
-  
-    const APIURL = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2';
-    const ethpriceQuery = `
-      query {
-        bundle(id: "1" ) {
-          ethPrice
-        }
-      }
-    `; 
-    const client = createClient({
-      url: APIURL,
-    });
-    const ethData = await client.query(ethpriceQuery).toPromise();
-    let ethPrice = ethData.data.bundle.ethPrice;
-  
-    let tokenAddr = [];
-    const uniswapETHPortal = [];
-    let token0Addr = [];
-    let token1Addr = [];
-    let LPdecimals = [];
-    const tokensQuery0 = [];
-    const tokensQuery1 = [];
-    const tokenData0 = [];
-    let decimals0 = [];
-    let token0Symbol = [];
-    let token0DerivedETH = [];
-    const tokenData1 = [];
-    let decimals1 = [];
-    let token1Symbol = [];
-    let token1DerivedETH = [];
-    let tokenReserves = [];
-    let tokenLockdata = [];
-    let total_supply = [];
-    let percentage = [];
-    let token0Price = [];
-    let token1Price = [];
-    let period = [];
-  
-    let tokensinfo = [];
-  
-    for (let i = 0; i < 10; i++) {
-      tokenAddr[i] = await unicryptETHPortal.getLockedTokenAtIndex(total_tokenNums - i - 1);
-  
-      uniswapETHPortal[i] = new ethers.Contract(tokenAddr[i], uniswapETHabi, provider);
-      token0Addr[i] = await uniswapETHPortal[i].token0();
-      token1Addr[i] = await uniswapETHPortal[i].token1();
-      LPdecimals[i] = await uniswapETHPortal[i].decimals();
-  
-      // let apiurl = `https://api.coingecko.com/api/v3/coins/ethereum/contract/${token1Addr}`;
-      // const { data: datainfo } = await Axios.get(apiurl);
-      // console.log(datainfo.market_data.current_price.usd);
-  
-      tokensQuery0[i] = `
-        query {
-          token(id: "${token0Addr[i].toLowerCase()}"){
-            symbol
-            decimals
-            derivedETH
-          }
-        }
-      `;
-      tokensQuery1[i] = `
-        query {
-          token(id: "${token1Addr[i].toLowerCase()}"){
-            symbol
-            decimals
-            derivedETH
-          }
-        }
-      `;
-
-      tokenData0[i] = await client.query(tokensQuery0[i]).toPromise();
-      decimals0[i] = tokenData0[i].data.token.decimals;
-      token0Symbol[i] = tokenData0[i].data.token.symbol;
-      token0DerivedETH[i] = tokenData0[i].data.token.derivedETH;
-
-      tokenData1[i] = await client.query(tokensQuery1[i]).toPromise();
-      decimals1[i] = tokenData1[i].data.token.decimals;
-      token1Symbol[i] = tokenData1[i].data.token.symbol;
-      token1DerivedETH[i] = tokenData1[i].data.token.derivedETH;
-      
-      tokenReserves[i] = await uniswapETHPortal[i].getReserves();
-      tokenLockdata[i] = await unicryptETHPortal.tokenLocks(tokenAddr[i], 0);
-      total_supply[i] = await uniswapETHPortal[i].totalSupply();
-
-      percentage[i] = new BigNumber(tokenLockdata[i][1]._hex).dividedBy(10**LPdecimals[i]).dividedBy(new BigNumber(total_supply[i]._hex).dividedBy(10**LPdecimals[i]));
-      token0Price[i] = new BigNumber(tokenReserves[i][0]._hex).dividedBy(10**decimals0[i]).multipliedBy(new BigNumber(token0DerivedETH[i])).multipliedBy(ethPrice);
-      token1Price[i] = new BigNumber(tokenReserves[i][1]._hex).dividedBy(10**decimals1[i]).multipliedBy(new BigNumber(token1DerivedETH[i])).multipliedBy(ethPrice);
-      period[i] = new BigNumber(tokenLockdata[i][3]._hex).minus(new BigNumber(tokenLockdata[i][0]._hex)).dividedBy(86400);
-
-      tokensinfo.push({ tokenName: token0Symbol[i] + " / " + token1Symbol[i], 
-                        blockchain: "Ethereum",
-                        lockedPrice: "$" + token0Price[i].plus(token1Price[i]).multipliedBy(percentage[i]).toFormat(0), 
-                        lockedAmount: new BigNumber(tokenLockdata[i][1]._hex).dividedBy(10**LPdecimals[i]).toFormat(4) + " (" + percentage[i].multipliedBy(100).toFormat(1) + "%)", 
-                        unlockPeriod: period[i].toFormat(0) + "days", 
-                        locker: "Unicrypt", 
-                        marketCap: "$" + token0Price[i].plus(token1Price[i]).toFormat(0), 
-                        rank: " ", 
-                        score: token0Price[i].plus(token1Price[i]).multipliedBy(percentage[i]).multipliedBy(period[i]).multipliedBy(percentage[i]).toFormat(0) });
-    }
-
-    return tokensinfo;
-  }
-
-export default UnicryptETH;
-
-
-
-
-
-
-
-
-
-
-// import React, {useEffect, useState} from "react";
-import Web3 from "web3";
-import { ethers } from "ethers";
-import unicryptBSCabi from "../abi/unicryptBSC_abi.json";
+import getBSCWeb3 from '../utils/getBSCweb3.js';
+import deepLockerabi from "../abi/deepLocker_abi.json";
 import pancakeswapBSCabi from "../abi/pancakeswapBSC_abi.json";
 import BigNumber from "bignumber.js";
+import multicallBSC from "./multicallBSC.js";
 import { createClient } from 'urql'
 import Axios from "axios";
 
-const unicryptAddressBSC = "0xC765bddB93b0D1c1A88282BA0fa6B2d00E3e0c83";
+const deepLockerAddr = "0x3f4D6bf08CB7A003488Ef082102C2e6418a4551e";
 
-async function UnicryptBSC() {
+async function DeepLocker() {
 
-    let currentProvider = new Web3.providers.HttpProvider("https://binance.nodereal.io");
-    let provider = new ethers.providers.Web3Provider(currentProvider);
-    const unicryptBSCPortal = new ethers.Contract(unicryptAddressBSC, unicryptBSCabi, provider);
-    let total_tokenNums = await unicryptBSCPortal.getNumLockedTokens();
-
-    // let httpProvider = new Web3.providers.HttpProvider("https://binance.ankr.com");
-    // let web3 = new Web3(httpProvider);
-    // let unicryptBSCPortal = new web3.eth.Contract(unicryptBSCabi, unicryptAddressBSC);
-    // let total_tokenNums = await unicryptBSCPortal.methods.getNumLockedTokens().call();
+    const web3 = getBSCWeb3();
+    const deepLockerPortal = new web3.eth.Contract(deepLockerabi, deepLockerAddr);
+    let total_tokenNums = await deepLockerPortal.methods.depositId().call();
 
     const APIURL = 'https://api.thegraph.com/subgraphs/name/pancakeswap/pairs';
 
@@ -419,24 +21,22 @@ async function UnicryptBSC() {
         url: APIURL,
     });
 
-    let tokenAddr = [];
-    const pancakeswapBSCPortal = [];
-    let token0Addr = [];
-    let token1Addr = [];
-    let LPdecimals = [];
+    let tokenLocks = [];
+    let LPtokens = [];
+
+    let tokensQuery0 = [];
+    let tokenData0 = [];
+    let decimals0 = [];
+
+    let tokensQuery1 = [];
+    let tokenData1 = [];
+    let decimals1 = [];
+
     let apiurl0 = [];
     let apiurl1 = [];
     let datainfo0 = [];
     let datainfo1 = [];
-    const tokensQuery0 = [];
-    const tokensQuery1 = [];
-    const tokenData0 = [];
-    let decimals0 = [];
-    const tokenData1 = [];
-    let decimals1 = [];
-    let tokenReserves = [];
-    let tokenLockdata = [];
-    let total_supply = [];
+
     let percentage = [];
     let token0Price = [];
     let token1Price = [];
@@ -445,64 +45,66 @@ async function UnicryptBSC() {
     let tokensinfo = [];
 
     for (let i = 0; i < 2; i++) {
-        tokenAddr[i] = await unicryptBSCPortal.getLockedTokenAtIndex(total_tokenNums - i - 1);
+        tokenLocks.push({address: deepLockerAddr, name: "lockedToken", params: [total_tokenNums-i]});
+    }
+    const tokenLocksArr = await multicallBSC(deepLockerabi, tokenLocks);
 
-        pancakeswapBSCPortal[i] = new ethers.Contract(tokenAddr[i], pancakeswapBSCabi, provider);
-        token0Addr[i] = await pancakeswapBSCPortal[i].token0();
-        token1Addr[i] = await pancakeswapBSCPortal[i].token1();
-        LPdecimals[i] = await pancakeswapBSCPortal[i].decimals();
+    for (let i = 0; i < tokenLocksArr.length; i++) {
+        LPtokens.push({address: tokenLocksArr[i][0], name: "token0"});
+        LPtokens.push({address: tokenLocksArr[i][0], name: "token1"});
+        LPtokens.push({address: tokenLocksArr[i][0], name: "decimals"});
+        LPtokens.push({address: tokenLocksArr[i][0], name: "getReserves"});
+        LPtokens.push({address: tokenLocksArr[i][0], name: "totalSupply"});
+    }
+    const LPtokensArr = await multicallBSC(pancakeswapBSCabi, LPtokens);
 
-        apiurl0[i] = `https://api.pancakeswap.info/api/v2/tokens/${token0Addr[i]}`;
+    for (let i = 0; i < tokenLocksArr.length; i++) {
+        apiurl0[i] = `https://api.pancakeswap.info/api/v2/tokens/${LPtokensArr[i*5][0]}`;
         await Axios.get(apiurl0[i]).then(entry => 
-            datainfo0.push(entry));
-
-        apiurl1[i] = `https://api.pancakeswap.info/api/v2/tokens/${token1Addr[i]}`;
+        datainfo0.push(entry));
+  
+        apiurl1[i] = `https://api.pancakeswap.info/api/v2/tokens/${LPtokensArr[i*5+1][0]}`;
         await Axios.get(apiurl1[i]).then(entry => 
-            datainfo1.push(entry));
+        datainfo1.push(entry));
+
         tokensQuery0[i] = `
         query {
-          token(id: "${token0Addr[i].toLowerCase()}"){
+          token(id: "${LPtokensArr[i*5][0].toLowerCase()}"){
             decimals
           }
         }
-      `;
+        `;
         tokensQuery1[i] = `
         query {
-          token(id: "${token1Addr[i].toLowerCase()}"){
+          token(id: "${LPtokensArr[i*5+1][0].toLowerCase()}"){
             decimals
           }
         }
-      `;
+        `;
 
         tokenData0[i] = await client.query(tokensQuery0[i]).toPromise();
         decimals0[i] = tokenData0[i].data.token.decimals;
-
+    
         tokenData1[i] = await client.query(tokensQuery1[i]).toPromise();
         decimals1[i] = tokenData1[i].data.token.decimals;
 
-        tokenReserves[i] = await pancakeswapBSCPortal[i].getReserves();
-        tokenLockdata[i] = await unicryptBSCPortal.tokenLocks(tokenAddr[i], 0);
-        total_supply[i] = await pancakeswapBSCPortal[i].totalSupply();
+        percentage[i] = new BigNumber(tokenLocksArr[i][2]._hex).dividedBy(10**LPtokensArr[i*5+2][0]).dividedBy(new BigNumber(LPtokensArr[i*5+4][0]._hex).dividedBy(10**LPtokensArr[i*5+2][0]));
+        token0Price[i] = new BigNumber(LPtokensArr[i*5+3][0]._hex).dividedBy(10**decimals0[i]).multipliedBy(new BigNumber(datainfo0[i].data.data.price));
+        token1Price[i] = new BigNumber(LPtokensArr[i*5+3][1]._hex).dividedBy(10**decimals1[i]).multipliedBy(new BigNumber(datainfo1[i].data.data.price));
+        period[i] = new BigNumber(tokenLocksArr[i][3]._hex).minus(LPtokensArr[i*5+3][2]).dividedBy(86400);
 
-        percentage[i] = new BigNumber(tokenLockdata[i][1]._hex).dividedBy(10 ** LPdecimals[i]).dividedBy(new BigNumber(total_supply[i]._hex).dividedBy(10 ** LPdecimals[i]));
-        token0Price[i] = new BigNumber(tokenReserves[i][0]._hex).dividedBy(10 ** decimals0[i]).multipliedBy(new BigNumber(datainfo0[i].data.data.price));
-        token1Price[i] = new BigNumber(tokenReserves[i][1]._hex).dividedBy(10 ** decimals1[i]).multipliedBy(new BigNumber(datainfo1[i].data.data.price));
-        period[i] = new BigNumber(tokenLockdata[i][3]._hex).minus(new BigNumber(tokenLockdata[i][0]._hex)).dividedBy(86400);
-
-        tokensinfo.push({
-            tokenName: datainfo0[i].data.data.symbol + " / " + datainfo1[i].data.data.symbol,
-            blockchain: "BSC",
-            lockedPrice: "$" + token0Price[i].plus(token1Price[i]).multipliedBy(percentage[i]).toFormat(0),
-            lockedAmount: new BigNumber(tokenLockdata[i][1]._hex).dividedBy(10 ** LPdecimals[i]).toFormat(2) + " (" + percentage[i].multipliedBy(100).toFormat(1) + "%)",
-            unlockPeriod: period[i].toFormat(0) + "days",
-            locker: "Unicrypt",
-            marketCap: "$" + token0Price[i].plus(token1Price[i]).toFormat(0),
-            rank: "-",
-            score: token0Price[i].plus(token1Price[i]).multipliedBy(percentage[i]).multipliedBy(period[i]).multipliedBy(percentage[i]).toFormat(0)
-        });
+        tokensinfo.push({ tokenName : datainfo0[i].data.data.symbol + " / " + datainfo1[i].data.data.symbol, 
+                        blockchain: "BSC",
+                        lockedPrice: "$" + token0Price[i].plus(token1Price[i]).multipliedBy(percentage[i]).toFormat(0), 
+                        lockedAmount: new BigNumber(tokenLocksArr[i][2]._hex).dividedBy(10**LPtokensArr[i*5+2][0]).toFormat(2) + " (" + percentage[i].multipliedBy(100).toFormat(1) + "%)", 
+                        unlockPeriod: period[i].toFormat(0) + " days left", 
+                        locker: "DeepLocker", 
+                        marketCap: "$" + token0Price[i].plus(token1Price[i]).toFormat(0), 
+                        rank: "—", 
+                        score: token0Price[i].plus(token1Price[i]).multipliedBy(percentage[i]).multipliedBy(period[i]).multipliedBy(percentage[i]).toFormat(0) });
     }
 
     return tokensinfo;
 }
 
-export default UnicryptBSC;
+export default DeepLocker;

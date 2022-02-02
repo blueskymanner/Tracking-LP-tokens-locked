@@ -5,7 +5,7 @@ import uniswapETHabi from "../abi/uniswapETH_abi.json";
 import BigNumber from "bignumber.js";
 import multicallETH from "./multicallETH.js";
 import { createClient } from 'urql'
-// import Axios from "axios";
+import Axios from "axios";
 
 const unicryptAddressETH = "0x663A5C229c09b049E36dCc11a9B0d4a8Eb9db214";
 
@@ -19,9 +19,19 @@ async function UnicryptETH() {
   const unicryptETHPortal = new web3.eth.Contract(unicryptETHabi, unicryptAddressETH);
   let total_tokenNums = await unicryptETHPortal.methods.getNumLockedTokens().call();
 
-  //   // let apiurl = `https://api.coingecko.com/api/v3/coins/ethereum/contract/${token1Addr}`;
-  //   // const { data: datainfo } = await Axios.get(apiurl);
-  //   // console.log(datainfo.market_data.current_price.usd);
+    // let apiurl = `https://api.coingecko.com/api/v3/coins/ethereum/contract/${token1Addr}`;
+    // const { data: datainfo } = await Axios.get(apiurl);
+    // console.log(datainfo.market_data.current_price.usd);
+
+
+    // let apiurl111 = 'https://api.pancakeswap.info/api/v2/tokens/0xE60B4E01b2961ceC49b92d86fC168701ABFcD6C9';
+    // try {
+    //   let datainfo111 = await Axios.get(apiurl111);
+    //   console.log(datainfo111.data.data);
+    // } catch(err) {
+    //   let msg111 = "ERROR"
+    //   console.log(msg111);
+    // }
 
   const APIURL = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2';
   const ethpriceQuery = `
