@@ -48,6 +48,26 @@ async function UnicryptETH() {
   const ethData = await client.query(ethpriceQuery).toPromise();
   let ethPrice = ethData.data.bundle.ethPrice;
 
+
+  // fetch('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2', {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //   },
+  //   body: JSON.stringify({
+  //     query: `
+  //         query {
+  //           bundle(id: "1" ) {
+  //             ethPrice
+  //           }
+  //         }
+  //       `
+  //   }),
+  // })
+  //   .then((res) => res.json())
+  //   .then((result) => console.log(result));
+
+
   let tokenAddrs = [];
   let tokenLocks = [];
   let LPtokens = [];

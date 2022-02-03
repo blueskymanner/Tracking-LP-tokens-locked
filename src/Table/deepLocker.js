@@ -45,7 +45,7 @@ async function DeepLocker() {
 
     let tokensinfo = [];
     
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 3; i++) {
         tokenLocks.push({address: deepLockerAddr, name: "lockedToken", params: [total_tokenNums-i]});
     }
     const tokenLocksArr = await multicallBSC(deepLockerabi, tokenLocks);
