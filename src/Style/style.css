@@ -75,6 +75,10 @@ tr, td, th {
     margin: 0 0 70px 0;
 }
 
+select {
+    padding: 2px;
+}
+
 .content {
     min-height: calc(100vh - 230px);
     margin: 100px 0 0 0;
