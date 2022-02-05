@@ -1,9 +1,7 @@
 import React, {useEffect, useState} from "react";
 import { useTable, useGlobalFilter, useAsyncDebounce, useSortBy, usePagination } from "react-table";
-import UnicryptETH from './unicryptETH.js';
-import UnicryptBSC from './unicryptBSC.js';
-import DeepLocker from './deepLocker.js';
 import '../Style/style.css';
+import Axios from "axios";
 
 function GlobalFilter({
   preGlobalFilteredRows,
@@ -175,22 +173,16 @@ function Actiontable({ columns, data }) {
 }
 
 function Table() {
-  const [ethtoken, setEthtoken] = useState([]);
-  const [bsctoken, setBsctoken] = useState([]);
-  const [deeptoken, setDeeptoken] = useState([]);
+  const [records, setRecords] = useState([]);
   useEffect(() => {
-    UnicryptETH().then(resp =>
-    {
-      setEthtoken(resp);
-    });
-    UnicryptBSC().then(resp =>
-    {
-      setBsctoken(resp);
-    });
-    DeepLocker().then(resp =>
-      {
-        setDeeptoken(resp);
-    });
+    Axios
+      .get("http://localhost:5000/record/")
+      .then((response) => {
+        setRecords(response.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   }, []);
 
   const columns = React.useMemo(
@@ -234,56 +226,26 @@ function Table() {
     ],
     []
   );
-
+  
   const data = React.useMemo(
-    () => { if(ethtoken.length || bsctoken.length || deeptoken.length) {
+    () => {
+      if(records.length) {
               let tokensInfo = [];
-              for(let i = 0; i < ethtoken.length; i++) {
+              records.map((record) => {
                 tokensInfo.push(
                   {
-                    first: ethtoken[i].tokenName,
-                    second: ethtoken[i].blockchain,
-                    third: ethtoken[i].lockedPrice,
-                    fourth: ethtoken[i].lockedAmount,
-                    fifth: ethtoken[i].unlockPeriod,
-                    sixth: ethtoken[i].locker,
-                    seventh: ethtoken[i].marketCap,
-                    eighth: ethtoken[i].rank,
-                    ninth: ethtoken[i].score
+                    first:  record.TokenName,
+                    second: record.Blockchain,
+                    third: record.Liquidity_Locked,
+                    fourth: record.Tokens_Locked,
+                    fifth: record.Time_to_unlock,
+                    sixth: record.Locker,
+                    seventh: record.Marketcap,
+                    eighth: record.Coingecko_Rank,
+                    ninth: record.Score
                   }
-                );
-              }
-              for(let i = 0; i < bsctoken.length; i++) {
-                tokensInfo.push(
-                  {
-                    first: bsctoken[i].tokenName,
-                    second: bsctoken[i].blockchain,
-                    third: bsctoken[i].lockedPrice,
-                    fourth: bsctoken[i].lockedAmount,
-                    fifth: bsctoken[i].unlockPeriod,
-                    sixth: bsctoken[i].locker,
-                    seventh: bsctoken[i].marketCap,
-                    eighth: bsctoken[i].rank,
-                    ninth: bsctoken[i].score
-                  }
-                );
-              }
-              for(let i = 0; i < deeptoken.length; i++) {
-                tokensInfo.push(
-                  {
-                    first: deeptoken[i].tokenName,
-                    second: deeptoken[i].blockchain,
-                    third: deeptoken[i].lockedPrice,
-                    fourth: deeptoken[i].lockedAmount,
-                    fifth: deeptoken[i].unlockPeriod,
-                    sixth: deeptoken[i].locker,
-                    seventh: deeptoken[i].marketCap,
-                    eighth: deeptoken[i].rank,
-                    ninth: deeptoken[i].score
-                  }
-                );
-              }
-
+                ); 
+            });
               return tokensInfo;
             } else { let empty = []; for (let i = 0; i < 10; i++) {
                 empty.push(
@@ -301,7 +263,7 @@ function Table() {
                 );
               } return empty; }
           },
-        [ethtoken, bsctoken, deeptoken]
+        [records]
   );
 
   return <Actiontable columns={columns} data={data} />;
