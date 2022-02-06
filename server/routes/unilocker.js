@@ -6,8 +6,9 @@ const BigNumber = require("bignumber.js");
 const fetch = require("node-fetch");
 const cron = require("node-cron");
 const dbo = require("../db/conn");
-const nodeCache = require("node-cache");
 
+const nodeCache = require("node-cache");
+const myCache = new nodeCache();
 
 const unilockerAddressETH = "0x663A5C229c09b049E36dCc11a9B0d4a8Eb9db214";
 
@@ -97,21 +98,25 @@ module.exports = async function UnilockerETH() {
     let token0Price = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(new BigNumber(tokenData0.derivedETH)).multipliedBy(ethPrice);
     let token1Price = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(new BigNumber(tokenData1.derivedETH)).multipliedBy(ethPrice);
     let period = new BigNumber(tokenLocksArr[3]).minus(LPtokensArr[3][2]).dividedBy(86400);
-
-    // This section will help you create a new record.
-    let db_connect = dbo.getDb("myFirstDatabase");
-    let myobj = {
-        TokenName: "FTF" + " / " + "WETH",
-        Blockchain: "Ethereum",
-        Liquidity_Locked: "$" + 2470.46,
-        Tokens_Locked: 125.07 + " (" + 93.1 + "%)",
-        Time_to_unlock: 118 + " days left",
-        Locker: "Unilocker",
-        Marketcap: "$" +2656.41,
-        Coingecko_Rank: "—",
-        Score: 268810.75
-    };
-    db_connect.collection("records").insertOne(myobj, function (err, res) {
-        if (err) throw err;
-    });
+    if (myCache.has( "unilockerCache")) {
+        return;
+    } else {
+        // This section will help you create a new record.
+        let db_connect = dbo.getDb("myFirstDatabase");
+        let myobj = {
+            TokenName: "FTF" + " / " + "WETH",
+            Blockchain: "Ethereum",
+            Liquidity_Locked: "$" + 2470.46,
+            Tokens_Locked: 125.07 + " (" + 93.1 + "%)",
+            Time_to_unlock: 118 + " days left",
+            Locker: "Unilocker",
+            Marketcap: "$" +2656.41,
+            Coingecko_Rank: "—",
+            Score: 268810.75
+        };
+        db_connect.collection("records").insertOne(myobj, function (err, res) {
+            if (err) throw err;
+        });
+        myCache.set( "unilockerCache", 1 );
+    }
 }
