@@ -21,7 +21,6 @@ module.exports = async function UnicryptETH() {
 
   cron.schedule('* * * * *', async () => {
     let total_tokenNums = await unicryptETHPortal.methods.getNumLockedTokens().call();
-    console.log(total_tokenNums);
 
     let ethPrice;
     await fetch('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2', {

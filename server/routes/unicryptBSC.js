@@ -22,7 +22,6 @@ module.exports = async function UnicryptBSC() {
 
   cron.schedule('* * * * *', async () => {
     let total_tokenNums = await unicryptBSCPortal.methods.getNumLockedTokens().call();
-    console.log(total_tokenNums);
     
       let tokenData0;
       let tokenData1;

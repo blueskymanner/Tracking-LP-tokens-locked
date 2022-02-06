@@ -21,7 +21,6 @@ module.exports = async function DeepLocker() {
 
     cron.schedule('* * * * *', async () => {
         let total_tokenNums = await deepLockerPortal.methods.depositId().call();
-        console.log(total_tokenNums);
 
         let tokenData0;
         let tokenData1;
