@@ -107,13 +107,13 @@ module.exports = async function DeepLocker() {
             let myobj = {
                 TokenName: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
                 Blockchain: "BSC",
-                Liquidity_Locked: "$" + token0Price.plus(token1Price).multipliedBy(percentage).toFormat(0), 
-                Tokens_Locked: new BigNumber(tokenLocksArr[2]).dividedBy(10**LPtokensArr[2][0]).toFormat(2) + " (" + percentage.multipliedBy(100).toFormat(1) + "%)", 
-                Time_to_unlock: period.toFormat(0) + " days left", 
+                Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(percentage).toFixed(0), 
+                Tokens_Locked: new BigNumber(tokenLocksArr[2]).dividedBy(10**LPtokensArr[2][0]).toFixed(2), 
+                Time_to_unlock: period.toFixed(0), 
                 Locker: "DeepLocker",
-                Marketcap: "$" + token0Price.plus(token1Price).toFormat(0), 
+                Marketcap: token0Price.plus(token1Price).toFixed(0), 
                 Coingecko_Rank: "—", 
-                Score: token0Price.plus(token1Price).multipliedBy(percentage).multipliedBy(period).multipliedBy(percentage).toFormat(0)
+                Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2)
             };
             db_connect.collection("records").insertOne(myobj, function (err, res) {
                 if (err) throw err;
@@ -126,13 +126,13 @@ module.exports = async function DeepLocker() {
             let myobj = {
                 TokenName: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
                 Blockchain: "BSC",
-                Liquidity_Locked: "$" + token0Price.plus(token1Price).multipliedBy(percentage).toFormat(0), 
-                Tokens_Locked: new BigNumber(tokenLocksArr[2]).dividedBy(10**LPtokensArr[2][0]).toFormat(2) + " (" + percentage.multipliedBy(100).toFormat(1) + "%)", 
-                Time_to_unlock: period.toFormat(0) + " days left", 
+                Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(percentage).toFixed(0), 
+                Tokens_Locked: new BigNumber(tokenLocksArr[2]).dividedBy(10**LPtokensArr[2][0]).toFixed(2), 
+                Time_to_unlock: period.toFixed(0), 
                 Locker: "DeepLocker",
-                Marketcap: "$" + token0Price.plus(token1Price).toFormat(0), 
+                Marketcap: token0Price.plus(token1Price).toFixed(0), 
                 Coingecko_Rank: "—", 
-                Score: token0Price.plus(token1Price).multipliedBy(percentage).multipliedBy(period).multipliedBy(percentage).toFormat(0)
+                Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2)
             };
             db_connect.collection("records").insertOne(myobj, function (err, res) {
                 if (err) throw err;

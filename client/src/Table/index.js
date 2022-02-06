@@ -193,7 +193,7 @@ function Table() {
       .get("http://localhost:5000/record/")
       .then((response) => {
         setRecords(response.data);
-        setTimeout(dosth, 5000);
+        setTimeout(dosth, 60000);
       })
       .catch(function (error) {
         console.log(error);
@@ -206,7 +206,7 @@ function Table() {
   const columns = React.useMemo(
     () => [
       {
-        Header: "Token Name ↓↑",
+        Header: "Token ↓↑",
         accessor: "first"
       },
       {
@@ -255,12 +255,12 @@ function Table() {
                     first:  record.TokenName,
                     second: record.Blockchain,
                     third: "$" + record.Liquidity_Locked,
-                    fourth: record.Tokens_Locked + " (" + (record.Tokens_Locked/record.Token_TotalAmount) * 100 + "%)",
+                    fourth: record.Tokens_Locked + " (" + (record.Tokens_Locked/record.Token_TotalAmount * 100).toFixed(1) + "%)",
                     fifth: record.Time_to_unlock + " days left",
                     sixth: record.Locker,
-                    seventh: record.Marketcap,
+                    seventh: "$" + record.Marketcap,
                     eighth: record.Coingecko_Rank,
-                    ninth: parseFloat(record.Liquidity_Locked) * parseFloat(record.Tokens_Locked/record.Token_TotalAmount) * parseFloat(record.Time_to_unlock)
+                    ninth: (parseFloat(record.Liquidity_Locked) * parseFloat(record.Tokens_Locked/record.Token_TotalAmount) * parseFloat(record.Time_to_unlock)).toFixed(1)
                   }
                 ); 
             });

@@ -111,13 +111,13 @@ module.exports = async function UnicryptETH() {
           let myobj = {
             TokenName: tokenData0.symbol + " / " + tokenData1.symbol,
             Blockchain: "Ethereum",
-            Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(500).toFormat(0),
-            Tokens_Locked: new BigNumber(tokenLocksArr[1]).dividedBy(10**LPtokensArr[2][0]).toFormat(2),
-            Time_to_unlock: period.toFormat(0),
+            Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(percentage).toFixed(0),
+            Tokens_Locked: new BigNumber(tokenLocksArr[1]).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
+            Time_to_unlock: period.toFixed(0),
             Locker: "Unicrypt",
-            Marketcap: token0Price.plus(token1Price).toFormat(0),
+            Marketcap: token0Price.plus(token1Price).toFixed(0),
             Coingecko_Rank: "—",
-            Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFormat(2)
+            Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2)
           };
           db_connect.collection("records").insertOne(myobj, function (err, res) {
             if (err) throw err;
@@ -130,13 +130,13 @@ module.exports = async function UnicryptETH() {
         let myobj = {
           TokenName: tokenData0.symbol + " / " + tokenData1.symbol,
           Blockchain: "Ethereum",
-          Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(percentage).toFormat(0),
-          Tokens_Locked: new BigNumber(tokenLocksArr[1]).dividedBy(10**LPtokensArr[2][0]).toFormat(2),
-          Time_to_unlock: period.toFormat(0),
+          Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(percentage).toFixed(0),
+          Tokens_Locked: new BigNumber(tokenLocksArr[1]).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
+          Time_to_unlock: period.toFixed(0),
           Locker: "Unicrypt",
-          Marketcap: token0Price.plus(token1Price).toFormat(0),
+          Marketcap: token0Price.plus(token1Price).toFixed(0),
           Coingecko_Rank: "—",
-          Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFormat(0)
+          Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2)
         };
         db_connect.collection("records").insertOne(myobj, function (err, res) {
           if (err) throw err;

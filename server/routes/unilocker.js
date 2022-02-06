@@ -106,13 +106,13 @@ module.exports = async function UnilockerETH() {
         let myobj = {
             TokenName: "FTF" + " / " + "WETH",
             Blockchain: "Ethereum",
-            Liquidity_Locked: "$" + 2470.46,
-            Tokens_Locked: 125.07 + " (" + 93.1 + "%)",
-            Time_to_unlock: 118 + " days left",
+            Liquidity_Locked: 2471.56,
+            Tokens_Locked: 124.09,
+            Time_to_unlock: 119,
             Locker: "Unilocker",
-            Marketcap: "$" +2656.41,
+            Marketcap: 2657.59,
             Coingecko_Rank: "—",
-            Score: 268810.75
+            Token_TotalAmount: 133.43
         };
         db_connect.collection("records").insertOne(myobj, function (err, res) {
             if (err) throw err;
