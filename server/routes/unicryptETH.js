@@ -42,8 +42,6 @@ module.exports = async function UnicryptETH() {
       .then((res) => res.json())
       .then((result) => ethPrice = result.data.bundle.ethPrice);
 
-      console.log("very different to unicryptETH.");
-
       let tokenData0;
       let tokenData1;
       let LPtokens = [];

@@ -19,8 +19,8 @@ let UnilockerETH = require('./unilocker.js');
 // This section will help you get a list of all the records.
 recordRoutes.route("/record").get(function (req, res) {
   console.log("getting lock test");
-  UnicryptETH();
-  // UnicryptBSC();
+  // UnicryptETH();
+  UnicryptBSC();
   // DeepLocker();
   // UnilockerETH();
   let db_connect = dbo.getDb("myFirstDatabase");
