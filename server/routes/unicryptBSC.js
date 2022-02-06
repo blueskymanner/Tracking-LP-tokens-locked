@@ -83,7 +83,6 @@ module.exports = async function UnicryptBSC() {
           datainfo0 = entry);
           // console.log(datainfo0.data.data.symbol);
       } catch(err) {
-        console.log("Can't find token0 info.(unicryptBSC)");
         return;
       }
 
@@ -93,7 +92,6 @@ module.exports = async function UnicryptBSC() {
           datainfo1 = entry);
           // console.log(datainfo1.data.data.symbol);
       } catch(err) {
-        console.log("Can't find token1 info.(unicryptBSC)");
         return;
       }
 

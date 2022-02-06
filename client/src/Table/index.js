@@ -29,7 +29,7 @@ function GlobalFilter({
   );
 }
 
-function Actiontable({ columns, data }) {
+function Actiontable({ columns, data, pageNo, setPageIndex }) {
   const {
     getTableProps,
     getTableBodyProps,
@@ -52,7 +52,7 @@ function Actiontable({ columns, data }) {
     {
       columns,
       data,
-      initialState: { pageSize: 10 }
+      initialState: { pageSize: 10, pageIndex: pageNo }
     },
     useGlobalFilter, useSortBy, usePagination
   );
@@ -124,16 +124,28 @@ function Actiontable({ columns, data }) {
         </div>
 
         <div className="pagination">
-          <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+          <button onClick={() => {
+            gotoPage(0);
+            setPageIndex(0);
+          }} disabled={!canPreviousPage}>
             {"<<"}
           </button>{" "}
-          <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+          <button onClick={() => {
+            previousPage()
+            setPageIndex(pageIndex - 1);
+          }} disabled={!canPreviousPage}>
             {"<"}
           </button>{" "}
-          <button onClick={() => nextPage()} disabled={!canNextPage}>
+          <button onClick={() => {
+            nextPage()
+            setPageIndex(pageIndex + 1);
+          }} disabled={!canNextPage}>
             {">"}
           </button>{" "}
-          <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
+          <button onClick={() => {
+            gotoPage(pageCount - 1)
+            setPageIndex(pageCount - 1);
+          }} disabled={!canNextPage}>
             {">>"}
           </button>{" "}
           <span>
@@ -174,15 +186,21 @@ function Actiontable({ columns, data }) {
 
 function Table() {
   const [records, setRecords] = useState([]);
+  const [pageIndex, setPageIndex] = useState(0);
   useEffect(() => {
-    Axios
+    const dosth = () => {
+      Axios
       .get("http://localhost:5000/record/")
       .then((response) => {
         setRecords(response.data);
+        setTimeout(dosth, 5000);
       })
       .catch(function (error) {
         console.log(error);
       });
+    }
+    dosth();
+    return () => clearTimeout(dosth);
   }, []);
 
   const columns = React.useMemo(
@@ -236,13 +254,13 @@ function Table() {
                   {
                     first:  record.TokenName,
                     second: record.Blockchain,
-                    third: record.Liquidity_Locked,
-                    fourth: record.Tokens_Locked,
-                    fifth: record.Time_to_unlock,
+                    third: "$" + record.Liquidity_Locked,
+                    fourth: record.Tokens_Locked + " (" + (record.Tokens_Locked/record.Token_TotalAmount) * 100 + "%)",
+                    fifth: record.Time_to_unlock + " days left",
                     sixth: record.Locker,
                     seventh: record.Marketcap,
                     eighth: record.Coingecko_Rank,
-                    ninth: record.Score
+                    ninth: parseFloat(record.Liquidity_Locked) * parseFloat(record.Tokens_Locked/record.Token_TotalAmount) * parseFloat(record.Time_to_unlock)
                   }
                 ); 
             });
@@ -266,7 +284,7 @@ function Table() {
         [records]
   );
 
-  return <Actiontable columns={columns} data={data} />;
+  return <Actiontable columns={columns} data={data} pageNo={pageIndex} setPageIndex={(pageIndex) => setPageIndex(pageIndex)}/>;
 }
 
 export default Table;

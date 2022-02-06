@@ -32,7 +32,6 @@ module.exports = async function DeepLocker() {
         let pancakeApiurl = `https://api.pancakeswap.info/api/v2/tokens/${tokenLocksArr[0]}`;
         try {
             await Axios.get(pancakeApiurl);
-            console.log("There is new token.");
         } catch(err) {
             LPtokens.push({address: tokenLocksArr[0], name: "token0"});
             LPtokens.push({address: tokenLocksArr[0], name: "token1"});
@@ -47,7 +46,6 @@ module.exports = async function DeepLocker() {
             await Axios.get(apiurl0).then(entry => 
             datainfo0 = entry);
         } catch(err) {
-            console.log("Can't find token0 info.(deepLocker)");
             return;
         }
 
@@ -56,7 +54,6 @@ module.exports = async function DeepLocker() {
             await Axios.get(apiurl1).then(entry => 
             datainfo1 = entry);
         } catch(err) {
-            console.log("Can't find token1 info.(deepLocker)");
             return;
         }
 
