@@ -20,9 +20,9 @@ let UnilockerETH = require('./unilocker.js');
 recordRoutes.route("/record").get(function (req, res) {
   console.log("getting lock test");
   UnicryptETH();
-  UnicryptBSC();
-  DeepLocker();
-  UnilockerETH();
+  // UnicryptBSC();
+  // DeepLocker();
+  // UnilockerETH();
   let db_connect = dbo.getDb("myFirstDatabase");
   db_connect
     .collection("records")

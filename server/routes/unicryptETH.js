@@ -47,7 +47,7 @@ module.exports = async function UnicryptETH() {
 
       const tokenAddrsArr = await unicryptETHPortal.methods.getLockedTokenAtIndex(total_tokenNums - 1).call();
       const tokenLocksArr = await unicryptETHPortal.methods.tokenLocks(tokenAddrsArr, 0).call();
-      
+
       LPtokens.push({address: tokenAddrsArr, name: "token0"});
       LPtokens.push({address: tokenAddrsArr, name: "token1"});
       LPtokens.push({address: tokenAddrsArr, name: "decimals"});
@@ -101,7 +101,6 @@ module.exports = async function UnicryptETH() {
       let token1Price = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(new BigNumber(tokenData1.derivedETH)).multipliedBy(ethPrice);
       let period = new BigNumber(tokenLocksArr[3]).minus(LPtokensArr[3][2]).dividedBy(86400);
 
-
       if(myCache.has( "unicryptETHCache")) {
         if(myCache.get( "unicryptETHCache" ) == total_tokenNums) {
           return;
@@ -117,7 +116,8 @@ module.exports = async function UnicryptETH() {
             Locker: "Unicrypt",
             Marketcap: token0Price.plus(token1Price).toFixed(0),
             Coingecko_Rank: "—",
-            Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2)
+            Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
+            tokenAddress: tokenAddrsArr
           };
           db_connect.collection("records").insertOne(myobj, function (err, res) {
             if (err) throw err;
@@ -136,7 +136,8 @@ module.exports = async function UnicryptETH() {
           Locker: "Unicrypt",
           Marketcap: token0Price.plus(token1Price).toFixed(0),
           Coingecko_Rank: "—",
-          Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2)
+          Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
+          tokenAddress: tokenAddrsArr
         };
         db_connect.collection("records").insertOne(myobj, function (err, res) {
           if (err) throw err;

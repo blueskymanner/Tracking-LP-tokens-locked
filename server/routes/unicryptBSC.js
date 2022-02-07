@@ -83,6 +83,7 @@ module.exports = async function UnicryptBSC() {
           datainfo0 = entry);
           // console.log(datainfo0.data.data.symbol);
       } catch(err) {
+        console.log("Can't find token0 info.(unicryptBSC)");
         return;
       }
 
@@ -92,6 +93,7 @@ module.exports = async function UnicryptBSC() {
           datainfo1 = entry);
           // console.log(datainfo1.data.data.symbol);
       } catch(err) {
+        console.log("Can't find token1 info.(unicryptBSC)");
         return;
       }
 
@@ -117,7 +119,8 @@ module.exports = async function UnicryptBSC() {
             Locker: "Unicrypt",
             Marketcap: token0Price.plus(token1Price).toFixed(0), 
             Coingecko_Rank: "—", 
-            Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2)
+            Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
+            tokenAddress: tokenAddrsArr
           };
           db_connect.collection("records").insertOne(myobj, function (err, res) {
             if (err) throw err;
@@ -136,7 +139,8 @@ module.exports = async function UnicryptBSC() {
           Locker: "Unicrypt",
           Marketcap: token0Price.plus(token1Price).toFixed(0), 
           Coingecko_Rank: "—", 
-          Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2)
+          Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
+          tokenAddress: tokenAddrsArr
         };
         db_connect.collection("records").insertOne(myobj, function (err, res) {
           if (err) throw err;

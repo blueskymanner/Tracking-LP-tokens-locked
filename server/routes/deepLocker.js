@@ -46,6 +46,7 @@ module.exports = async function DeepLocker() {
             await Axios.get(apiurl0).then(entry => 
             datainfo0 = entry);
         } catch(err) {
+            console.log("Can't find token0 info.(deepLocker)");
             return;
         }
 
@@ -54,6 +55,7 @@ module.exports = async function DeepLocker() {
             await Axios.get(apiurl1).then(entry => 
             datainfo1 = entry);
         } catch(err) {
+            console.log("Can't find token1 info.(deepLocker)");
             return;
         }
 
@@ -113,7 +115,8 @@ module.exports = async function DeepLocker() {
                 Locker: "DeepLocker",
                 Marketcap: token0Price.plus(token1Price).toFixed(0), 
                 Coingecko_Rank: "—", 
-                Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2)
+                Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
+                tokenAddress: tokenLocksArr[0]
             };
             db_connect.collection("records").insertOne(myobj, function (err, res) {
                 if (err) throw err;
@@ -132,7 +135,8 @@ module.exports = async function DeepLocker() {
                 Locker: "DeepLocker",
                 Marketcap: token0Price.plus(token1Price).toFixed(0), 
                 Coingecko_Rank: "—", 
-                Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2)
+                Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
+                tokenAddress: tokenLocksArr[0]
             };
             db_connect.collection("records").insertOne(myobj, function (err, res) {
                 if (err) throw err;

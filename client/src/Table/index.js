@@ -3,6 +3,14 @@ import { useTable, useGlobalFilter, useAsyncDebounce, useSortBy, usePagination }
 import '../Style/style.css';
 import Axios from "axios";
 
+
+const recs = ['aaa', 'bbb', 'ccc', 'ddd', 'eee'];
+
+const scan_link = {
+  Ethereum: "https://etherscan.io/address/",
+  BSC: "https://bscscan.com/address/"
+};
+
 function GlobalFilter({
   preGlobalFilteredRows,
   globalFilter,
@@ -29,7 +37,7 @@ function GlobalFilter({
   );
 }
 
-function Actiontable({ columns, data, pageNo, setPageIndex }) {
+function Actiontable({ columns, data, records, pageNo, setPageIndex }) {
   const {
     getTableProps,
     getTableBodyProps,
@@ -52,6 +60,7 @@ function Actiontable({ columns, data, pageNo, setPageIndex }) {
     {
       columns,
       data,
+      records,
       initialState: { pageSize: 10, pageIndex: pageNo }
     },
     useGlobalFilter, useSortBy, usePagination
@@ -104,7 +113,10 @@ function Actiontable({ columns, data, pageNo, setPageIndex }) {
                 prepareRow(row);
                 return (
                   <tr {...row.getRowProps()}>
-                    {row.cells.map((cell) => {
+                    {row.cells.map((cell, j) => {
+                      if(j == 0) {
+                        return <td><a href={"https://etherscan.io/"} target="_blank">{cell.render("Cell")}</a></td>
+                      }
                       return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
                     })}
                   </tr>
@@ -284,7 +296,7 @@ function Table() {
         [records]
   );
 
-  return <Actiontable columns={columns} data={data} pageNo={pageIndex} setPageIndex={(pageIndex) => setPageIndex(pageIndex)}/>;
+  return <Actiontable columns={columns} data={data} records = {records} pageNo={pageIndex} setPageIndex={(pageIndex) => setPageIndex(pageIndex)}/>;
 }
 
 export default Table;

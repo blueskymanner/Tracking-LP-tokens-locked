@@ -112,7 +112,8 @@ module.exports = async function UnilockerETH() {
             Locker: "Unilocker",
             Marketcap: 2657.59,
             Coingecko_Rank: "—",
-            Token_TotalAmount: 133.43
+            Token_TotalAmount: 133.43,
+            tokenAddress: "0xf19b55d677187423f8031a5bf0ac7b263b9ff76b"
         };
         db_connect.collection("records").insertOne(myobj, function (err, res) {
             if (err) throw err;
