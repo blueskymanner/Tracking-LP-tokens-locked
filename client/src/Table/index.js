@@ -4,8 +4,6 @@ import '../Style/style.css';
 import Axios from "axios";
 
 
-const recs = ['aaa', 'bbb', 'ccc', 'ddd', 'eee'];
-
 const scan_link = {
   Ethereum: "https://etherscan.io/address/",
   BSC: "https://bscscan.com/address/"
@@ -37,7 +35,7 @@ function GlobalFilter({
   );
 }
 
-function Actiontable({ columns, data, records, pageNo, setPageIndex }) {
+function Actiontable({ columns, data, pageNo, setPageIndex }) {
   const {
     getTableProps,
     getTableBodyProps,
@@ -60,7 +58,6 @@ function Actiontable({ columns, data, records, pageNo, setPageIndex }) {
     {
       columns,
       data,
-      records,
       initialState: { pageSize: 10, pageIndex: pageNo }
     },
     useGlobalFilter, useSortBy, usePagination
@@ -110,12 +107,13 @@ function Actiontable({ columns, data, records, pageNo, setPageIndex }) {
             </thead>
             <tbody {...getTableBodyProps()}>
               {page.map((row, i) => {
+                console.log(row);
                 prepareRow(row);
                 return (
                   <tr {...row.getRowProps()}>
                     {row.cells.map((cell, j) => {
-                      if(j == 0) {
-                        return <td><a href={"https://etherscan.io/"} target="_blank">{cell.render("Cell")}</a></td>
+                      if(j === 0) {
+                        return <td key={{j}}><a href={row.values.second === 'BSC' ? scan_link['BSC'] + row.tokenAddress : scan_link['Ethereum'] + row.tokenAddress} target="_blank">{cell.render("Cell")}</a></td>
                       }
                       return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
                     })}
@@ -268,7 +266,7 @@ function Table() {
                     second: record.Blockchain,
                     third: "$" + record.Liquidity_Locked,
                     fourth: record.Tokens_Locked + " (" + (record.Tokens_Locked/record.Token_TotalAmount * 100).toFixed(1) + "%)",
-                    fifth: record.Time_to_unlock + " days left",
+                    fifth: ((Date.parse(record.Time_to_unlock) - Date.now()) / 86400000 > 0 ? (Date.parse(record.Time_to_unlock) - Date.now()) / 86400000 : 0).toFixed(0) + " days left",
                     sixth: record.Locker,
                     seventh: "$" + record.Marketcap,
                     eighth: record.Coingecko_Rank,
@@ -296,7 +294,7 @@ function Table() {
         [records]
   );
 
-  return <Actiontable columns={columns} data={data} records = {records} pageNo={pageIndex} setPageIndex={(pageIndex) => setPageIndex(pageIndex)}/>;
+  return <Actiontable columns={columns} data={data} pageNo={pageIndex} setPageIndex={(pageIndex) => setPageIndex(pageIndex)}/>;
 }
 
 export default Table;

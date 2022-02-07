@@ -83,7 +83,7 @@ module.exports = async function UnicryptBSC() {
           datainfo0 = entry);
           // console.log(datainfo0.data.data.symbol);
       } catch(err) {
-        console.log("Can't find token0 info.(unicryptBSC)");
+        console.log("Can't find token0 info.");
         return;
       }
 
@@ -93,7 +93,7 @@ module.exports = async function UnicryptBSC() {
           datainfo1 = entry);
           // console.log(datainfo1.data.data.symbol);
       } catch(err) {
-        console.log("Can't find token1 info.(unicryptBSC)");
+        console.log("Can't find token1 info.");
         return;
       }
 
@@ -101,9 +101,10 @@ module.exports = async function UnicryptBSC() {
       let percentage = new BigNumber(tokenLocksArr[1]).dividedBy(10**LPtokensArr[2][0]).dividedBy(new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]));
       let token0Price = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(new BigNumber(datainfo0.data.data.price));
       let token1Price = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(new BigNumber(datainfo1.data.data.price));
-      let period = new BigNumber(tokenLocksArr[3]).minus(LPtokensArr[3][2]).dividedBy(86400);
-      
 
+      const epochNum = new Date(tokenLocksArr[3] * 1000);
+      let unlockDate = epochNum.toLocaleDateString();
+      
       if(myCache.has( "unicryptBSCCache")) {
         if(myCache.get( "unicryptBSCCache" ) == total_tokenNums) {
           return;
@@ -115,7 +116,7 @@ module.exports = async function UnicryptBSC() {
             Blockchain: "BSC",
             Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(percentage).toFixed(0), 
             Tokens_Locked: new BigNumber(tokenLocksArr[1]).dividedBy(10**LPtokensArr[2][0]).toFixed(2), 
-            Time_to_unlock: period.toFixed(0), 
+            Time_to_unlock: unlockDate, 
             Locker: "Unicrypt",
             Marketcap: token0Price.plus(token1Price).toFixed(0), 
             Coingecko_Rank: "—", 
@@ -135,7 +136,7 @@ module.exports = async function UnicryptBSC() {
           Blockchain: "BSC",
           Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(percentage).toFixed(0), 
           Tokens_Locked: new BigNumber(tokenLocksArr[1]).dividedBy(10**LPtokensArr[2][0]).toFixed(2), 
-          Time_to_unlock: period.toFixed(0), 
+          Time_to_unlock: unlockDate, 
           Locker: "Unicrypt",
           Marketcap: token0Price.plus(token1Price).toFixed(0), 
           Coingecko_Rank: "—", 

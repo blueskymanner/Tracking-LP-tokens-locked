@@ -108,7 +108,7 @@ module.exports = async function UnilockerETH() {
             Blockchain: "Ethereum",
             Liquidity_Locked: 2471.56,
             Tokens_Locked: 124.09,
-            Time_to_unlock: 119,
+            Time_to_unlock: "6/1/2022",
             Locker: "Unilocker",
             Marketcap: 2657.59,
             Coingecko_Rank: "—",
