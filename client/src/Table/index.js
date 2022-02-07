@@ -93,13 +93,13 @@ function Actiontable({ columns, data, pageNo, setPageIndex }) {
                 <tr {...group.getHeaderGroupProps()}>
                   {group.headers.map((column) => (
                     <th {...column.getHeaderProps(column.getSortByToggleProps())}>{column.render("Header")}
-                    {/* <span>{
+                    <span>{
                       column.isSorted
                           ? column.isSortedDesc
-                                ? ' ?'
-                                : ' ?'
+                                ? ' 🔽'
+                                : ' 🔼'
                           : ''
-                    }</span> */}
+                    }</span>
                     </th>
                   ))}
                 </tr>
@@ -107,13 +107,12 @@ function Actiontable({ columns, data, pageNo, setPageIndex }) {
             </thead>
             <tbody {...getTableBodyProps()}>
               {page.map((row, i) => {
-                console.log(row);
                 prepareRow(row);
                 return (
                   <tr {...row.getRowProps()}>
                     {row.cells.map((cell, j) => {
                       if(j === 0) {
-                        return <td key={{j}}><a href={row.values.second === 'BSC' ? scan_link['BSC'] + row.tokenAddress : scan_link['Ethereum'] + row.tokenAddress} target="_blank">{cell.render("Cell")}</a></td>
+                        return <td key={{j}}><a href={row.values.second === 'BSC' ? scan_link['BSC'] + row.values.first.tokenAddress : scan_link['Ethereum'] + row.values.first.tokenAddress} target="_blank">{row.values.first.tokenName}</a></td>
                       }
                       return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
                     })}
@@ -216,11 +215,11 @@ function Table() {
   const columns = React.useMemo(
     () => [
       {
-        Header: "Token ↓↑",
+        Header: "Token",
         accessor: "first"
       },
       {
-        Header: "Blockchain ↓↑",
+        Header: "Blockchain",
         accessor: "second"
       },
       {
@@ -232,11 +231,11 @@ function Table() {
         accessor: "fourth"
       },
       {
-        Header: "Time to unlock ↓↑",
+        Header: "Time to unlock",
         accessor: "fifth"
       },
       {
-        Header: "Locker ↓↑",
+        Header: "Locker",
         accessor: "sixth"
       },
       {
@@ -248,7 +247,7 @@ function Table() {
         accessor: "eighth"
       },
       {
-        Header: "Score ↓↑",
+        Header: "Score",
         accessor: "ninth"
       }
     ],
@@ -257,12 +256,11 @@ function Table() {
   
   const data = React.useMemo(
     () => {
-      if(records.length) {
               let tokensInfo = [];
               records.map((record) => {
                 tokensInfo.push(
                   {
-                    first:  record.TokenName,
+                    first:  {tokenName: record.TokenName, tokenAddress: record.tokenAddress},
                     second: record.Blockchain,
                     third: "$" + record.Liquidity_Locked,
                     fourth: record.Tokens_Locked + " (" + (record.Tokens_Locked/record.Token_TotalAmount * 100).toFixed(1) + "%)",
@@ -275,21 +273,7 @@ function Table() {
                 ); 
             });
               return tokensInfo;
-            } else { let empty = []; for (let i = 0; i < 10; i++) {
-                empty.push(
-                  {
-                    first: empty[i],
-                    second: empty[i],
-                    third: empty[i],
-                    fourth: empty[i],
-                    fifth: empty[i],
-                    sixth: empty[i],
-                    seventh: empty[i],
-                    eighth: empty[i],
-                    ninth: empty[i]
-                  }
-                );
-              } return empty; }
+
           },
         [records]
   );
