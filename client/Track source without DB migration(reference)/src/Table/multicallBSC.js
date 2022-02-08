@@ -1,10 +1,10 @@
-const getBSCWeb3 = require('../utils/getBSCweb3.js');
-const multicallBSCabi = require("../abi/multicallBSC_abi.json");
-const { Interface } = require("@ethersproject/abi");
+import getBSCWeb3 from '../utils/getBSCweb3.js';
+import { Interface } from '@ethersproject/abi';
+import multicallBSCabi from "../abi/multicallBSC_abi.json";
 
 let multiBSCAddr = "0x1ee38d535d541c55c9dae27b12edf090c608e6fb";
 
-module.exports = multicallBSC = async (abi, calls) => {
+const multicallBSC = async (abi, calls) => {
 
   const web3 = getBSCWeb3();
   const multiETHPortal = new web3.eth.Contract(multicallBSCabi, multiBSCAddr);
@@ -16,3 +16,5 @@ module.exports = multicallBSC = async (abi, calls) => {
 
   return res;
 }
+
+export default multicallBSC

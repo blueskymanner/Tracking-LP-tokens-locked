@@ -1,0 +1,93 @@
+
+.navbar {
+    width: 80%;
+    margin: 0 auto;
+    background-color: #1e1e2f;
+    overflow: auto;
+    box-shadow: 5px 5px 5px rgb(117, 117, 163);
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+}
+
+a.left {
+    float: left;
+}
+
+a.logo {
+    padding: 20px;
+}
+
+b {
+    font-size: 33px;
+}
+
+a.right {
+    float: right;
+    padding: 30px 15px;
+}
+
+.navbar a:hover {
+    background-color: #000;
+}
+
+.active {
+    background-color: #04AA6D;
+    padding: 25px 15px;
+}
+  
+@media screen and (max-width: 500px) {
+    .navbar a {
+      float: none;
+      display: block;
+    }
+}
+
+table {
+    border-collapse: collapse;
+    width: 80%;
+    margin: 0 auto;
+    border: 1px solid;
+    text-align: center;
+}
+
+input {
+    font-size: 1rem;
+    border: 0;
+    height: 25px;
+    width: 470px;
+}
+
+tr, td, th {
+    border: 1px solid;
+    height: 40px;
+    padding: 5px;
+}
+
+.tablesection {
+    margin: 0 0 20px 0;
+}
+
+.pagination {
+    text-align: center;
+    margin: 0 0 70px 0;
+}
+
+.content {
+    min-height: calc(100vh - 230px);
+    margin: 100px 0 0 0;
+}
+
+.footer {
+    width: 80%;
+    margin: 0 auto;
+    background-color: #1e1e2f;
+    padding: 10px 0;
+}
+
+.footer p {
+    text-align: center;
+    color: white;
+}

@@ -1,10 +1,10 @@
-const getETHWeb3 = require('../utils/getETHweb3.js');
-const multicallETHabi = require("../abi/multicallETH_abi.json");
-const { Interface } = require("@ethersproject/abi");
+import getETHWeb3 from '../utils/getETHweb3.js';
+import { Interface } from '@ethersproject/abi';
+import multicallETHabi from "../abi/multicallETH_abi.json";
 
 let multiETHAddr = "0xeefBa1e63905eF1D7ACbA5a8513c70307C1cE441";
 
-module.exports = multicallETH = async (abi, calls) => {
+const multicallETH = async (abi, calls) => {
 
   // let provider = new ethers.providers.Web3Provider(window.ethereum);
   // let signer = provider.getSigner();
@@ -24,3 +24,5 @@ module.exports = multicallETH = async (abi, calls) => {
 
   return res;
 }
+
+export default multicallETH
