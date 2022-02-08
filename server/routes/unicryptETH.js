@@ -45,6 +45,9 @@ module.exports = async function UnicryptETH() {
       let tokenData1;
       let LPtokens = [];
 
+      let storingTokenName;
+      let storingTokenAddr;
+
       const tokenAddrsArr = await unicryptETHPortal.methods.getLockedTokenAtIndex(total_tokenNums - 1).call();
       const tokenLocksArr = await unicryptETHPortal.methods.tokenLocks(tokenAddrsArr, 0).call();
 
@@ -65,6 +68,7 @@ module.exports = async function UnicryptETH() {
           query: `
             query {
               token(id: "${LPtokensArr[0][0].toLowerCase()}"){
+                name
                 symbol
                 decimals
                 derivedETH
@@ -85,6 +89,7 @@ module.exports = async function UnicryptETH() {
           query: `
             query {
               token(id: "${LPtokensArr[1][0].toLowerCase()}"){
+                name
                 symbol
                 decimals
                 derivedETH
@@ -96,6 +101,14 @@ module.exports = async function UnicryptETH() {
         .then((res) => res.json())
         .then((result) => tokenData1 = result.data.token);
 
+      if (tokenData0.symbol == "WETH" || tokenData0.symbol == "USDT" || tokenData0.symbol == "USDC") {
+        storingTokenName = tokenData1.name;
+        storingTokenAddr = LPtokensArr[1][0];
+      } else if (tokenData1.symbol == "WETH" || tokenData1.symbol == "USDT" || tokenData1.symbol == "USDC") {
+        storingTokenName = tokenData0.name;
+        storingTokenAddr = LPtokensArr[0][0];
+      }
+      
       let percentage = new BigNumber(tokenLocksArr[1]).dividedBy(10**LPtokensArr[2][0]).dividedBy(new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]));
       let token0Price = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(new BigNumber(tokenData0.derivedETH)).multipliedBy(ethPrice);
       let token1Price = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(new BigNumber(tokenData1.derivedETH)).multipliedBy(ethPrice);
@@ -110,7 +123,7 @@ module.exports = async function UnicryptETH() {
           // This section will help you create a new record.
           let db_connect = dbo.getDb("myFirstDatabase");
           let myobj = {
-            TokenName: tokenData0.symbol + " / " + tokenData1.symbol,
+            PairToken: tokenData0.symbol + " / " + tokenData1.symbol,
             Blockchain: "Ethereum",
             Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(percentage).toFixed(0),
             Tokens_Locked: new BigNumber(tokenLocksArr[1]).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
@@ -119,7 +132,9 @@ module.exports = async function UnicryptETH() {
             Marketcap: token0Price.plus(token1Price).toFixed(0),
             Coingecko_Rank: "—",
             Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
-            tokenAddress: tokenAddrsArr
+            PairTokenAddress: tokenAddrsArr,
+            TokenName: storingTokenName,
+            TokenAddress: storingTokenAddr
           };
           db_connect.collection("records").insertOne(myobj, function (err, res) {
             if (err) throw err;
@@ -130,7 +145,7 @@ module.exports = async function UnicryptETH() {
         // This section will help you create a new record.
         let db_connect = dbo.getDb("myFirstDatabase");
         let myobj = {
-          TokenName: tokenData0.symbol + " / " + tokenData1.symbol,
+          PairToken: tokenData0.symbol + " / " + tokenData1.symbol,
           Blockchain: "Ethereum",
           Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(percentage).toFixed(0),
           Tokens_Locked: new BigNumber(tokenLocksArr[1]).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
@@ -139,7 +154,9 @@ module.exports = async function UnicryptETH() {
           Marketcap: token0Price.plus(token1Price).toFixed(0),
           Coingecko_Rank: "—",
           Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
-          tokenAddress: tokenAddrsArr
+          PairTokenAddress: tokenAddrsArr,
+          TokenName: storingTokenName,
+          TokenAddress: storingTokenAddr
         };
         db_connect.collection("records").insertOne(myobj, function (err, res) {
           if (err) throw err;

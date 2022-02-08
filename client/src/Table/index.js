@@ -5,8 +5,8 @@ import Axios from "axios";
 
 
 const scan_link = {
-  Ethereum: "https://etherscan.io/address/",
-  BSC: "https://bscscan.com/address/"
+  Ethereum: "https://etherscan.io/",
+  BSC: "https://bscscan.com/"
 };
 
 function GlobalFilter({
@@ -111,8 +111,11 @@ function Actiontable({ columns, data, pageNo, setPageIndex }) {
                 return (
                   <tr {...row.getRowProps()}>
                     {row.cells.map((cell, j) => {
-                      if(j === 0) {
-                        return <td key={{j}}><a href={row.values.second === 'BSC' ? scan_link['BSC'] + row.values.first.tokenAddress : scan_link['Ethereum'] + row.values.first.tokenAddress} target="_blank">{row.values.first.tokenName}</a></td>
+                      if (j === 0) {
+                        return <td key={{j}}><a href={row.values.third === 'BSC' ? scan_link['BSC'] + "token/" + row.values.first[1] : scan_link['Ethereum'] + "token/" + row.values.first[1]} target="_blank">{row.values.first[0]}</a></td>
+                      }
+                      else if (j === 1) {
+                        return <td key={{j}}><a href={row.values.third === 'BSC' ? scan_link['BSC'] + "address/" + row.values.second[1] : scan_link['Ethereum'] + "address/" + row.values.second[1]} target="_blank">{row.values.second[0]}</a></td>
                       }
                       return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
                     })}
@@ -215,40 +218,44 @@ function Table() {
   const columns = React.useMemo(
     () => [
       {
-        Header: "Token",
+        Header: "TokenName",
         accessor: "first"
       },
       {
-        Header: "Blockchain",
+        Header: "PairToken",
         accessor: "second"
       },
       {
-        Header: "Liquidity Locked $",
+        Header: "Blockchain",
         accessor: "third"
       },
       {
-        Header: "Tokens Locked %",
+        Header: "Liquidity Locked $",
         accessor: "fourth"
       },
       {
-        Header: "Time to unlock",
+        Header: "Tokens Locked %",
         accessor: "fifth"
       },
       {
-        Header: "Locker",
+        Header: "Time to unlock",
         accessor: "sixth"
       },
       {
-        Header: "Marketcap $",
+        Header: "Locker",
         accessor: "seventh"
       },
       {
-        Header: "Coingecko Rank #",
+        Header: "Marketcap $",
         accessor: "eighth"
       },
       {
-        Header: "Score",
+        Header: "Coingecko Rank #",
         accessor: "ninth"
+      },
+      {
+        Header: "Score",
+        accessor: "tenth"
       }
     ],
     []
@@ -260,15 +267,16 @@ function Table() {
             records.map((record) => {
               tokensInfo.push(
                 {
-                  first:  {tokenName: record.TokenName, tokenAddress: record.tokenAddress},
-                  second: record.Blockchain,
-                  third: "$" + record.Liquidity_Locked,
-                  fourth: record.Tokens_Locked + " (" + (record.Tokens_Locked/record.Token_TotalAmount * 100).toFixed(1) + "%)",
-                  fifth: ((Date.parse(record.Time_to_unlock) - Date.now()) / 86400000 > 0 ? (Date.parse(record.Time_to_unlock) - Date.now()) / 86400000 : 0).toFixed(0) + " days left",
-                  sixth: record.Locker,
-                  seventh: "$" + record.Marketcap,
-                  eighth: record.Coingecko_Rank,
-                  ninth: (parseFloat(record.Liquidity_Locked) * parseFloat(record.Tokens_Locked/record.Token_TotalAmount) * parseFloat(record.Time_to_unlock)).toFixed(1)
+                  first: [record.TokenName, record.TokenAddress],
+                  second: [record.PairToken, record.PairTokenAddress],
+                  third: record.Blockchain,
+                  fourth: "$" + record.Liquidity_Locked,
+                  fifth: record.Tokens_Locked + " (" + (record.Tokens_Locked/record.Token_TotalAmount * 100).toFixed(1) + "%)",
+                  sixth: ((Date.parse(record.Time_to_unlock) - Date.now()) / 86400000 > 0 ? (Date.parse(record.Time_to_unlock) - Date.now()) / 86400000 : 0).toFixed(0) + " days left",
+                  seventh: record.Locker,
+                  eighth: "$" + record.Marketcap,
+                  ninth: record.Coingecko_Rank,
+                  tenth: (parseFloat(record.Liquidity_Locked) * parseFloat(record.Tokens_Locked/record.Token_TotalAmount) * parseFloat(record.Time_to_unlock)).toFixed(1)
                 }
               ); 
             });

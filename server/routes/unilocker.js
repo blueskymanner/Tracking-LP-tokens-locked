@@ -38,10 +38,12 @@ module.exports = async function UnilockerETH() {
       .then((res) => res.json())
       .then((result) => ethPrice = result.data.bundle.ethPrice);
 
-
     let tokenData0;
     let tokenData1;
     let LPtokens = [];
+
+    let storingTokenName;
+    let storingTokenAddr;
 
     const tokenAddrsArr = await unilockerETHPortal.methods.getLockedTokenAtIndex(total_tokenNums - 1).call();
     const tokenLocksArr = await unilockerETHPortal.methods.tokenLocks(tokenAddrsArr, 0).call();
@@ -63,6 +65,7 @@ module.exports = async function UnilockerETH() {
         query: `
         query {
             token(id: "${LPtokensArr[0][0].toLowerCase()}"){
+            name
             symbol
             decimals
             derivedETH
@@ -83,6 +86,7 @@ module.exports = async function UnilockerETH() {
         query: `
         query {
             token(id: "${LPtokensArr[1][0].toLowerCase()}"){
+            name
             symbol
             decimals
             derivedETH
@@ -94,6 +98,14 @@ module.exports = async function UnilockerETH() {
     .then((res) => res.json())
     .then((result) => tokenData1 = result.data.token);
 
+    if (tokenData0.symbol == "WETH" || tokenData0.symbol == "USDT" || tokenData0.symbol == "USDC") {
+        storingTokenName = tokenData1.name;
+        storingTokenAddr = LPtokensArr[1][0];
+    } else if (tokenData1.symbol == "WETH" || tokenData1.symbol == "USDT" || tokenData1.symbol == "USDC") {
+        storingTokenName = tokenData0.name;
+        storingTokenAddr = LPtokensArr[0][0];
+    }
+
     let percentage = new BigNumber(tokenLocksArr[1]).dividedBy(10**LPtokensArr[2][0]).dividedBy(new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]));
     let token0Price = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(new BigNumber(tokenData0.derivedETH)).multipliedBy(ethPrice);
     let token1Price = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(new BigNumber(tokenData1.derivedETH)).multipliedBy(ethPrice);
@@ -104,16 +116,18 @@ module.exports = async function UnilockerETH() {
         // This section will help you create a new record.
         let db_connect = dbo.getDb("myFirstDatabase");
         let myobj = {
-            TokenName: "FTF" + " / " + "WETH",
+            PairToken: "FTF" + " / " + "WETH",
             Blockchain: "Ethereum",
-            Liquidity_Locked: 2471.56,
+            Liquidity_Locked: 2470.36,
             Tokens_Locked: 124.09,
             Time_to_unlock: "6/1/2022",
             Locker: "Unilocker",
-            Marketcap: 2657.59,
+            Marketcap: 2653.46,
             Coingecko_Rank: "—",
             Token_TotalAmount: 133.43,
-            tokenAddress: "0xf19b55d677187423f8031a5bf0ac7b263b9ff76b"
+            PairTokenAddress: "0xf19b55d677187423f8031a5bf0ac7b263b9ff76b",
+            TokenName: "French Toast Friday",
+            TokenAddress: "0x7DFFdEe13D9A5562d0fb9cF942bd4E7800800AdA"
         };
         db_connect.collection("records").insertOne(myobj, function (err, res) {
             if (err) throw err;

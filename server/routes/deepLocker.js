@@ -28,6 +28,9 @@ module.exports = async function DeepLocker() {
         let datainfo1;
         let LPtokens = [];
 
+        let storingTokenName;
+        let storingTokenAddr;
+
         let tokenLocksArr = await deepLockerPortal.methods.lockedToken(total_tokenNums).call();
         let pancakeApiurl = `https://api.pancakeswap.info/api/v2/tokens/${tokenLocksArr[0]}`;
         try {
@@ -93,6 +96,14 @@ module.exports = async function DeepLocker() {
             .then((res) => res.json())
             .then((result) => tokenData1 = result.data.token);
 
+        if (datainfo0.data.data.symbol == "WBNB" || datainfo0.data.data.symbol == "BUSD") {
+            storingTokenName = datainfo1.data.data.name;
+            storingTokenAddr = LPtokensArr[1][0];
+        } else if (datainfo1.data.data.symbol == "WBNB" || datainfo1.data.data.symbol == "BUSD") {
+            storingTokenName = datainfo0.data.data.name;
+            storingTokenAddr = LPtokensArr[0][0];
+        }
+
         let percentage = new BigNumber(tokenLocksArr[2]).dividedBy(10**LPtokensArr[2][0]).dividedBy(new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]));
         let token0Price = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(new BigNumber(datainfo0.data.data.price));
         let token1Price = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(new BigNumber(datainfo1.data.data.price));
@@ -107,7 +118,7 @@ module.exports = async function DeepLocker() {
             // This section will help you create a new record.
             let db_connect = dbo.getDb("myFirstDatabase");
             let myobj = {
-                TokenName: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
+                PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
                 Blockchain: "BSC",
                 Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(percentage).toFixed(0), 
                 Tokens_Locked: new BigNumber(tokenLocksArr[2]).dividedBy(10**LPtokensArr[2][0]).toFixed(2), 
@@ -116,7 +127,9 @@ module.exports = async function DeepLocker() {
                 Marketcap: token0Price.plus(token1Price).toFixed(0), 
                 Coingecko_Rank: "—", 
                 Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
-                tokenAddress: tokenLocksArr[0]
+                PairTokenAddress: tokenLocksArr[0],
+                TokenName: storingTokenName,
+                TokenAddress: storingTokenAddr
             };
             db_connect.collection("records").insertOne(myobj, function (err, res) {
                 if (err) throw err;
@@ -127,7 +140,7 @@ module.exports = async function DeepLocker() {
             // This section will help you create a new record.
             let db_connect = dbo.getDb("myFirstDatabase");
             let myobj = {
-                TokenName: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
+                PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
                 Blockchain: "BSC",
                 Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(percentage).toFixed(0), 
                 Tokens_Locked: new BigNumber(tokenLocksArr[2]).dividedBy(10**LPtokensArr[2][0]).toFixed(2), 
@@ -136,7 +149,9 @@ module.exports = async function DeepLocker() {
                 Marketcap: token0Price.plus(token1Price).toFixed(0), 
                 Coingecko_Rank: "—", 
                 Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
-                tokenAddress: tokenLocksArr[0]
+                PairTokenAddress: tokenLocksArr[0],
+                TokenName: storingTokenName,
+                TokenAddress: storingTokenAddr
             };
             db_connect.collection("records").insertOne(myobj, function (err, res) {
                 if (err) throw err;
