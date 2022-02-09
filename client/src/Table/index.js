@@ -112,10 +112,10 @@ function Actiontable({ columns, data, pageNo, setPageIndex }) {
                   <tr {...row.getRowProps()}>
                     {row.cells.map((cell, j) => {
                       if (j === 0) {
-                        return <td key={{j}}><a href={row.values.third === 'BSC' ? scan_link['BSC'] + "token/" + row.values.first[1] : scan_link['Ethereum'] + "token/" + row.values.first[1]} target="_blank">{row.values.first[0]}</a></td>
+                        return <td key={j}><a href={row.values.third === 'BSC' ? scan_link['BSC'] + "token/" + row.values.first[1] : scan_link['Ethereum'] + "token/" + row.values.first[1]} target="_blank">{row.values.first[0]}</a></td>
                       }
                       else if (j === 1) {
-                        return <td key={{j}}><a href={row.values.third === 'BSC' ? scan_link['BSC'] + "address/" + row.values.second[1] : scan_link['Ethereum'] + "address/" + row.values.second[1]} target="_blank">{row.values.second[0]}</a></td>
+                        return <td key={j}><a href={row.values.third === 'BSC' ? scan_link['BSC'] + "address/" + row.values.second[1] : scan_link['Ethereum'] + "address/" + row.values.second[1]} target="_blank">{row.values.second[0]}</a></td>
                       }
                       return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
                     })}

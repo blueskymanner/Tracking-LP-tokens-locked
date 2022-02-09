@@ -111,6 +111,10 @@ module.exports = async function DeepLocker() {
         const epochNum = new Date(tokenLocksArr[3] * 1000);
         let unlockDate = epochNum.toLocaleDateString();
 
+
+        console.log(myCache.get( "deeplockerCache" ), "****************");
+        console.log("sdfsdfsdfsdff");
+
         if(myCache.has( "deeplockerCache")) {
             if(myCache.get( "deeplockerCache" ) == total_tokenNums) {
               return;
