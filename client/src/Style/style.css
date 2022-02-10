@@ -20,7 +20,7 @@ a.logo {
     padding: 20px;
 }
 
-b {
+.navbar b {
     font-size: 33px;
 }
 
@@ -37,13 +37,6 @@ a.right {
     background-color: #04AA6D;
     padding: 25px 15px;
 }
-  
-@media screen and (max-width: 500px) {
-    .navbar a {
-      float: none;
-      display: block;
-    }
-}
 
 table {
     border-collapse: collapse;
@@ -54,7 +47,7 @@ table {
 }
 
 input {
-    font-size: 1rem;
+    /* font-size: 1.2em; */
     border: 0;
     height: 25px;
     width: 470px;
@@ -85,7 +78,7 @@ select {
 }
 
 .content {
-    min-height: calc(100vh - 230px);
+    min-height: calc(100vh - 200px);
     margin: 100px 0 0 0;
 }
 
@@ -99,4 +92,39 @@ select {
 .footer p {
     text-align: center;
     color: white;
+}
+
+@media screen and (max-width: 1000px) {
+    html {
+        font-size: 13px;
+    }
+
+    table {
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    tr, td, th {
+        padding: 0px;
+    }
+
+    .navbar {
+        width: 100%;
+    }
+
+    /* .navbar a {
+        float: none;
+        display: block;
+    } */
+
+    .footer {
+        width: 100%;
+        margin: 33px 0 0 0;
+    }
+}
+
+@media screen and (max-width: 750px) {
+    html {
+        font-size: 11px;
+    }
 }

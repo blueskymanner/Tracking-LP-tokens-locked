@@ -8,9 +8,6 @@ const cron = require("node-cron");
 const dbo = require("../db/conn");
 const Axios = require('axios');
 
-const nodeCache = require("node-cache");
-const myCache = new nodeCache();
-
 
 const deepLockerAddr = "0x3f4D6bf08CB7A003488Ef082102C2e6418a4551e";
 
@@ -28,6 +25,7 @@ module.exports = async function DeepLocker() {
         let datainfo1;
         let LPtokens = [];
 
+        let lastIndex;
         let storingTokenName;
         let storingTokenAddr;
 
@@ -49,6 +47,7 @@ module.exports = async function DeepLocker() {
             await Axios.get(apiurl0).then(entry => 
             datainfo0 = entry);
         } catch(err) {
+            console.log("Finding a first token info on pancakeswap API.");
             return;
         }
 
@@ -57,9 +56,11 @@ module.exports = async function DeepLocker() {
             await Axios.get(apiurl1).then(entry => 
             datainfo1 = entry);
         } catch(err) {
+            console.log("Finding a second token info on pancakeswap API.");
             return;
         }
 
+        try {
         await fetch('https://api.thegraph.com/subgraphs/name/pancakeswap/pairs', {
             method: 'POST',
             headers: {
@@ -77,7 +78,12 @@ module.exports = async function DeepLocker() {
         })
             .then((res) => res.json())
             .then((result) => tokenData0 = result.data.token);
+        } catch(err) {
+            console.log("Finding a first token info on thegraph.");
+            return;
+        }
 
+        try {
         await fetch('https://api.thegraph.com/subgraphs/name/pancakeswap/pairs', {
             method: 'POST',
             headers: {
@@ -95,6 +101,10 @@ module.exports = async function DeepLocker() {
             })
             .then((res) => res.json())
             .then((result) => tokenData1 = result.data.token);
+        } catch(err) {
+            console.log("Finding a second token info on thegraph.");
+            return;
+        }
 
         if (datainfo0.data.data.symbol == "WBNB" || datainfo0.data.data.symbol == "BUSD") {
             storingTokenName = datainfo1.data.data.name;
@@ -108,24 +118,29 @@ module.exports = async function DeepLocker() {
         let token0Price = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(new BigNumber(datainfo0.data.data.price));
         let token1Price = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(new BigNumber(datainfo1.data.data.price));
 
-        const epochNum = new Date(tokenLocksArr[3] * 1000);
-        let unlockDate = epochNum.toLocaleDateString();
+        const epochNum1 = new Date(tokenLocksArr[3] * 1000);
+        let unlockDate = epochNum1.toLocaleDateString();
+
+        const epochNum2 = new Date();
+        let lockDate = epochNum2.toLocaleDateString();
 
 
-        console.log(myCache.get( "deeplockerCache" ), "****************");
-        console.log("sdfsdfsdfsdff");
+        let db_connect = dbo.getDb("myFirstDatabase");
+        await db_connect.collection("lastIndexes").findOne({Locker: "DeepLocker"}).then(function(result) {
+            lastIndex = result;
+        });
+        console.log(lastIndex);
 
-        if(myCache.has( "deeplockerCache")) {
-            if(myCache.get( "deeplockerCache" ) == total_tokenNums) {
-              return;
-            } else {
-            // This section will help you create a new record.
-            let db_connect = dbo.getDb("myFirstDatabase");
+        if (lastIndex === null) {
+            db_connect.collection("lastIndexes").insertOne({Locker: "DeepLocker", LastId: total_tokenNums}).then(function(res) {
+
+            });
             let myobj = {
                 PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
                 Blockchain: "BSC",
                 Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(percentage).toFixed(0), 
                 Tokens_Locked: new BigNumber(tokenLocksArr[2]).dividedBy(10**LPtokensArr[2][0]).toFixed(2), 
+                Locked_Date: lockDate, 
                 Time_to_unlock: unlockDate, 
                 Locker: "DeepLocker",
                 Marketcap: token0Price.plus(token1Price).toFixed(0), 
@@ -135,19 +150,21 @@ module.exports = async function DeepLocker() {
                 TokenName: storingTokenName,
                 TokenAddress: storingTokenAddr
             };
-            db_connect.collection("records").insertOne(myobj, function (err, res) {
-                if (err) throw err;
+            db_connect.collection("records").insertOne(myobj).then(function(res) {
+
             });
-            myCache.set( "deeplockerCache", total_tokenNums );
-            }
-          } else {
-            // This section will help you create a new record.
-            let db_connect = dbo.getDb("myFirstDatabase");
+        } else if (lastIndex.LastId >= total_tokenNums) {
+            return;
+        } else {
+            db_connect.collection("lastIndexes").updateOne({Locker: "DeepLocker"}, {$set: {LastId: total_tokenNums}}).then(function(res) {
+
+            });
             let myobj = {
                 PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
                 Blockchain: "BSC",
                 Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(percentage).toFixed(0), 
                 Tokens_Locked: new BigNumber(tokenLocksArr[2]).dividedBy(10**LPtokensArr[2][0]).toFixed(2), 
+                Locked_Date: lockDate, 
                 Time_to_unlock: unlockDate, 
                 Locker: "DeepLocker",
                 Marketcap: token0Price.plus(token1Price).toFixed(0), 
@@ -157,10 +174,9 @@ module.exports = async function DeepLocker() {
                 TokenName: storingTokenName,
                 TokenAddress: storingTokenAddr
             };
-            db_connect.collection("records").insertOne(myobj, function (err, res) {
-                if (err) throw err;
+            db_connect.collection("records").insertOne(myobj).then(function(res) {
+
             });
-            myCache.set( "deeplockerCache", total_tokenNums );
-          }
+        }
     });
 }

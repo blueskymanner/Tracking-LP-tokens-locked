@@ -238,24 +238,28 @@ function Table() {
         accessor: "fifth"
       },
       {
-        Header: "Time to unlock",
+        Header: "Locked Date",
         accessor: "sixth"
       },
       {
-        Header: "Locker",
+        Header: "Time to unlock",
         accessor: "seventh"
       },
       {
-        Header: "Marketcap $",
+        Header: "Locker",
         accessor: "eighth"
       },
       {
-        Header: "Coingecko Rank #",
+        Header: "Marketcap $",
         accessor: "ninth"
       },
       {
-        Header: "Score",
+        Header: "Coin gecko Rank #",
         accessor: "tenth"
+      },
+      {
+        Header: "Score",
+        accessor: "eleventh"
       }
     ],
     []
@@ -272,11 +276,12 @@ function Table() {
                   third: record.Blockchain,
                   fourth: "$" + record.Liquidity_Locked,
                   fifth: record.Tokens_Locked + " (" + (record.Tokens_Locked/record.Token_TotalAmount * 100).toFixed(1) + "%)",
-                  sixth: ((Date.parse(record.Time_to_unlock) - Date.now()) / 86400000 > 0 ? (Date.parse(record.Time_to_unlock) - Date.now()) / 86400000 : 0).toFixed(0) + " days left",
-                  seventh: record.Locker,
-                  eighth: "$" + record.Marketcap,
-                  ninth: record.Coingecko_Rank,
-                  tenth: (parseFloat(record.Liquidity_Locked) * parseFloat(record.Tokens_Locked/record.Token_TotalAmount) * parseFloat(record.Time_to_unlock)).toFixed(1)
+                  sixth: record.Locked_Date,
+                  seventh: ((Date.parse(record.Time_to_unlock) - Date.now()) / 86400000 > 0 ? (Date.parse(record.Time_to_unlock) - Date.now()) / 86400000 : 0).toFixed(0) + " days left",
+                  eighth: record.Locker,
+                  ninth: "$" + record.Marketcap,
+                  tenth: record.Coingecko_Rank,
+                  eleventh: (parseFloat(record.Liquidity_Locked) * parseFloat(record.Tokens_Locked/record.Token_TotalAmount) * parseFloat(record.Time_to_unlock)).toFixed(1)
                 }
               ); 
             });

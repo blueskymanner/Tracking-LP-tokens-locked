@@ -3,7 +3,7 @@ import React from "react";
 function Footer() {
     return (
         <div className="footer">
-            <p>© 2022 Track Loker Inc.  All Rights Reserved.</p>
+            <p><b>© 2022 Track Loker Inc.  All Rights Reserved.</b></p>
         </div>
     );
 }
