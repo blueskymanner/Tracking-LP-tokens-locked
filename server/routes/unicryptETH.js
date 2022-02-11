@@ -127,10 +127,10 @@ module.exports = async function UnicryptETH() {
     let token1Price = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(new BigNumber(tokenData1.derivedETH)).multipliedBy(ethPrice);
 
     const epochNum1 = new Date(tokenLocksArr[3] * 1000);
-    let unlockDate = epochNum1.toLocaleDateString();
+    let unlockDate = epochNum1.toLocaleString();
 
     const epochNum2 = new Date(tokenLocksArr[0] * 1000);
-    let lockDate = epochNum2.toLocaleDateString();
+    let lockDate = epochNum2.toLocaleString();
 
 
     let db_connect = dbo.getDb("myFirstDatabase");
