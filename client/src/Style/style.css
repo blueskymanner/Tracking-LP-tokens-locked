@@ -68,6 +68,23 @@ table a {
     margin: 0 0 20px 0;
 }
 
+.progress1, .progress2 {
+    background-color: rgb(191, 191, 191);
+    margin-top: 3px;
+}
+
+.progress1 .progress-bar {
+    height: 5px;
+    border-radius: 2px;
+    background-color: green;
+}
+
+.progress2 .progress-bar {
+    height: 5px;
+    border-radius: 2px;
+    background-color: red;
+}
+
 .pagination {
     text-align: center;
     margin: 0 0 70px 0;

@@ -1,5 +1,7 @@
 import React, {useEffect, useState} from "react";
 import { useTable, useGlobalFilter, useAsyncDebounce, useSortBy, usePagination } from "react-table";
+// import Bootstrap from 'bootstrap/dist/css/bootstrap.min.css';
+import { ProgressBar } from "react-bootstrap";
 import '../Style/style.css';
 import Axios from "axios";
 
@@ -32,6 +34,14 @@ function GlobalFilter({
         placeholder={`Enter Keyword`}
       />
     </span>
+  );
+}
+
+function ProgressInstance({now}) {
+  return (
+    <div className={now > 0.5 ? "progress1" : "progress2"}>
+      <ProgressBar now={now * 100} />
+    </div>
   );
 }
 
@@ -116,6 +126,12 @@ function Actiontable({ columns, data, pageNo, setPageIndex }) {
                       }
                       else if (j === 1) {
                         return <td key={j}><a href={row.values.third === 'BSC' ? scan_link['BSC'] + "address/" + row.values.second[1] : scan_link['Ethereum'] + "address/" + row.values.second[1]} target="_blank">{row.values.second[0]}</a></td>
+                      }
+                      else if (j === 5) {
+                        return <td key={j}>{row.values.sixth[0]}</td>
+                      }
+                      else if (j === 6) {
+                      return <td key={j}>{row.values.seventh}<ProgressInstance now={row.values.sixth[1]} /></td>
                       }
                       return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
                     })}
@@ -276,7 +292,7 @@ function Table() {
                   third: record.Blockchain,
                   fourth: "$" + record.Liquidity_Locked,
                   fifth: record.Tokens_Locked + " (" + (record.Tokens_Locked/record.Token_TotalAmount * 100).toFixed(1) + "%)",
-                  sixth: record.Locked_Date,
+                  sixth: [record.Locked_Date, (Date.now() < Date.parse(record.Time_to_unlock) ? (Date.now() - Date.parse(record.Locked_Date)) / (Date.parse(record.Time_to_unlock) - Date.parse(record.Locked_Date)) : 1)],
                   seventh: ((Date.parse(record.Time_to_unlock) - Date.now()) / 86400000 > 0 ? (Date.parse(record.Time_to_unlock) - Date.now()) / 86400000 : 0).toFixed(0) + " days left",
                   eighth: record.Locker,
                   ninth: "$" + record.Marketcap,
