@@ -29,10 +29,12 @@ module.exports = async function DeepLocker() {
         let storingTokenName;
         let storingTokenAddr;
 
+        let isData;
+        let LPtokensArr;
         let tokenLocksArr = await deepLockerPortal.methods.lockedToken(total_tokenNums).call();
         let pancakeApiurl = `https://api.pancakeswap.info/api/v2/tokens/${tokenLocksArr[0]}`;
         try {
-            await Axios.get(pancakeApiurl);
+            await Axios.get(pancakeApiurl).then(entry => isData = entry);
         } catch(err) {
             LPtokens.push({address: tokenLocksArr[0], name: "token0"});
             LPtokens.push({address: tokenLocksArr[0], name: "token1"});
@@ -40,7 +42,14 @@ module.exports = async function DeepLocker() {
             LPtokens.push({address: tokenLocksArr[0], name: "getReserves"});
             LPtokens.push({address: tokenLocksArr[0], name: "totalSupply"});
         }
-        const LPtokensArr = await multicallBSC(pancakeswapBSCabi, LPtokens);
+
+        if(isData) { return; }
+
+        try {
+            LPtokensArr = await multicallBSC(pancakeswapBSCabi, LPtokens);
+        } catch (err) {
+            return;
+        }
 
         let apiurl0 = `https://api.pancakeswap.info/api/v2/tokens/${LPtokensArr[0][0]}`;
         try {
