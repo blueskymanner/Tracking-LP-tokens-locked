@@ -4,6 +4,7 @@ import { useTable, useGlobalFilter, useAsyncDebounce, useSortBy, usePagination }
 import { ProgressBar } from "react-bootstrap";
 import '../Style/style.css';
 import Axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 
 
 const scan_link = {
@@ -37,6 +38,23 @@ function GlobalFilter({
   );
 }
 
+// function ProgressInstance(props) {
+//   const {now} = props;
+//   return (
+//     <div className={now > 0.5 ? "progress1" : "progress2"}>
+//       <ProgressBar now={now * 100} />
+//     </div>
+//   );
+// }
+
+// function ProgressInstance(props) {
+//   return (
+//     <div className={props.now > 0.5 ? "progress1" : "progress2"}>
+//       <ProgressBar now={props.now * 100} />
+//     </div>
+//   );
+// }
+
 function ProgressInstance({now}) {
   return (
     <div className={now > 0.5 ? "progress1" : "progress2"}>
@@ -45,12 +63,14 @@ function ProgressInstance({now}) {
   );
 }
 
-function Actiontable({ columns, data, pageNo, setPageIndex }) {
+function Actiontable({ columns, data, pageNo, rowsNum}) {
+  const navigate = useNavigate();
+  
   const {
     getTableProps,
     getTableBodyProps,
     headerGroups,
-    footerGroups,
+    // footerGroups,
     prepareRow,
     page,
     canPreviousPage,
@@ -68,10 +88,14 @@ function Actiontable({ columns, data, pageNo, setPageIndex }) {
     {
       columns,
       data,
-      initialState: { pageSize: 10, pageIndex: pageNo }
+      initialState: { pageSize: rowsNum, pageIndex: pageNo }
     },
     useGlobalFilter, useSortBy, usePagination
   );
+
+  useEffect(() => {
+    navigate("/" + Number(pageIndex + 1)  + "/" + pageSize);
+  }, [pageIndex, pageSize]);
 
   // Render the UI for your table
   return (
@@ -155,32 +179,33 @@ function Actiontable({ columns, data, pageNo, setPageIndex }) {
           <div className="leftpagebar">
             <button onClick={() => {
               gotoPage(0);
-              setPageIndex(0);
+              // setPageIndex(0);
             }} disabled={!canPreviousPage}>
               {"<<"}
             </button>{" "}
             <button onClick={() => {
               previousPage()
-              setPageIndex(pageIndex - 1);
+              // setPageIndex(pageIndex - 1);
             }} disabled={!canPreviousPage}>
               {"<"}
             </button>{" "}
             <button onClick={() => {
               nextPage()
-              setPageIndex(pageIndex + 1);
+              // setPageIndex(pageIndex + 1);
             }} disabled={!canNextPage}>
               {">"}
             </button>{" "}
             <button onClick={() => {
               gotoPage(pageCount - 1)
-              setPageIndex(pageCount - 1);
+              // setPageIndex(pageCount - 1);
             }} disabled={!canNextPage}>
               {">>"}
             </button>{" "}
+
             <span>
               Page{" "}
-              <strong>
-                {pageIndex + 1} of {pageCount}
+              <strong id="showPage">
+                {Number(pageIndex) + 1} of {pageCount}
               </strong>{" "}
             </span>
           </div>
@@ -189,7 +214,7 @@ function Actiontable({ columns, data, pageNo, setPageIndex }) {
               Go to page:{" "}
               <input
                 type="number"
-                defaultValue={pageIndex + 1}
+                defaultValue={Number(pageIndex) + 1}
                 onChange={(e) => {
                   const page = e.target.value ? Number(e.target.value) - 1 : 0;
                   gotoPage(page);
@@ -197,7 +222,7 @@ function Actiontable({ columns, data, pageNo, setPageIndex }) {
                 style={{ width: "70px" }}
               />
             </span>{" "}
-            <select
+            <select 
               value={pageSize}
               onChange={(e) => {
                 setPageSize(Number(e.target.value));
@@ -217,15 +242,20 @@ function Actiontable({ columns, data, pageNo, setPageIndex }) {
 }
 
 function Table() {
+  let { page, rows } = useParams();
+
+  page = !page ? 0 : Number(page) - 1;
+  rows = !rows ? 10 : Number(rows);
+
   const [records, setRecords] = useState([]);
-  const [pageIndex, setPageIndex] = useState(0);
+
   useEffect(() => {
     const dosth = () => {
       Axios
       .get("http://localhost:5000/record/")
       .then((response) => {
         setRecords(response.data);
-        setTimeout(dosth, 60000);
+        setTimeout(dosth, 120000);
       })
       .catch(function (error) {
         console.log(error);
@@ -310,7 +340,7 @@ function Table() {
         [records]
   );
 
-  return <Actiontable columns={columns} data={data} pageNo={pageIndex} setPageIndex={(pageIndex) => setPageIndex(pageIndex)}/>;
+  return <Actiontable columns={columns} data={data} pageNo={page} rowsNum={rows} />;
 }
 
 export default Table;

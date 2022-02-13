@@ -68,7 +68,7 @@ module.exports = async function DeepLocker() {
             console.log("Finding a second token info on pancakeswap API.");
             return;
         }
-
+  
         try {
         await fetch('https://api.thegraph.com/subgraphs/name/pancakeswap/pairs', {
             method: 'POST',
