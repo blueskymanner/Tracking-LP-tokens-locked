@@ -95,6 +95,7 @@ function Actiontable({ columns, data, pageNo, rowsNum}) {
 
   useEffect(() => {
     navigate("/" + Number(pageIndex + 1)  + "/" + pageSize);
+    // navigate("/records/" + Number(pageIndex + 1)  + "/" + pageSize);
   }, [pageIndex, pageSize]);
 
   // Render the UI for your table

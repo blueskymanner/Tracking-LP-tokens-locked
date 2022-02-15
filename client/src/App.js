@@ -11,7 +11,8 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Table />} />
-        <Route path=":page/:rows" element={<Table />} />
+        <Route path="/:page/:rows" element={<Table />} />
+        {/* <Route path="/records/:page/:rows" element={<Table />} /> */}
       </Routes>
       <Footer />
     </>
