@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useCallback, useRef} from "react";
 import { useTable, useGlobalFilter, useAsyncDebounce, useSortBy, usePagination } from "react-table";
 // import Bootstrap from 'bootstrap/dist/css/bootstrap.min.css';
 import { ProgressBar } from "react-bootstrap";
@@ -30,6 +30,7 @@ function GlobalFilter({
         value={value || ""}
         onChange={(e) => {
           setValue(e.target.value);
+          console.log(value);
           onChange(e.target.value);
         }}
         placeholder={`Enter Keyword`}
@@ -63,7 +64,7 @@ function ProgressInstance({now}) {
   );
 }
 
-function Actiontable({ columns, data, pageNo, rowsNum}) {
+function Actiontable({ columns, data, pageNo, rowsNum, fetchData, pageCount: controlledPageCount }) {
   const navigate = useNavigate();
   
   const {
@@ -88,7 +89,9 @@ function Actiontable({ columns, data, pageNo, rowsNum}) {
     {
       columns,
       data,
-      initialState: { pageSize: rowsNum, pageIndex: pageNo }
+      initialState: { pageSize: rowsNum, pageIndex: pageNo },
+      manualPagination: true,
+      pageCount: controlledPageCount
     },
     useGlobalFilter, useSortBy, usePagination
   );
@@ -96,7 +99,24 @@ function Actiontable({ columns, data, pageNo, rowsNum}) {
   useEffect(() => {
     navigate("/" + Number(pageIndex + 1)  + "/" + pageSize);
     // navigate("/records/" + Number(pageIndex + 1)  + "/" + pageSize);
-  }, [pageIndex, pageSize]);
+
+    // const dosth = () => {
+    //   Axios
+    //   .get("http://localhost:5000/record/", {params: {page: pageIndex, rows: pageSize}})
+    //   .then((response) => {
+    //     setRecords(response.data);
+    //     setTimeout(dosth, 120000);
+    //   })
+    //   .catch(function (error) {
+    //     console.log(error);
+    //   });
+    // }
+    // dosth();
+    // return () => clearTimeout(dosth);
+
+    fetchData({ pageIndex, pageSize });
+
+  }, [fetchData, pageIndex, pageSize]);
 
   // Render the UI for your table
   return (
@@ -244,26 +264,34 @@ function Actiontable({ columns, data, pageNo, rowsNum}) {
 
 function Table() {
   let { page, rows } = useParams();
-
   page = !page ? 0 : Number(page) - 1;
   rows = !rows ? 10 : Number(rows);
 
   const [records, setRecords] = useState([]);
+  const [pageCount, setPageCount] = useState(0);
+  const fetchIdRef = useRef(0);
+  let totalRecords;
 
-  useEffect(() => {
-    const dosth = () => {
-      Axios
-      .get("http://localhost:5000/record/")
+  const fetchData = useCallback(({ pageSize, pageIndex }) => {
+    // Give this fetch an ID
+    const fetchId = ++fetchIdRef.current
+    // We'll even set a delay to simulate a server here
+    setTimeout(async () => {
+      // Only update the data if this is the latest fetch
+      if (fetchId === fetchIdRef.current) {
+      await Axios
+      .get("http://localhost:5000/record/", {params: {page: pageIndex, rows: pageSize}})
       .then((response) => {
+        totalRecords = response.data[response.data.length-1];
+        response.data.pop();
         setRecords(response.data);
-        setTimeout(dosth, 120000);
       })
       .catch(function (error) {
         console.log(error);
       });
-    }
-    dosth();
-    return () => clearTimeout(dosth);
+        setPageCount(Math.ceil(totalRecords / pageSize));
+      }
+    }, 1000)
   }, []);
 
   const columns = React.useMemo(
@@ -341,7 +369,7 @@ function Table() {
         [records]
   );
 
-  return <Actiontable columns={columns} data={data} pageNo={page} rowsNum={rows} />;
+  return <Actiontable columns={columns} data={data} pageNo={page} rowsNum={rows} fetchData={fetchData} pageCount={pageCount} />;
 }
 
 export default Table;

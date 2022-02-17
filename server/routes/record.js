@@ -18,7 +18,8 @@ let CryptexLock = require('./cryptexlock.js');
 let UnilockerETH = require('./unilocker.js');
 
 // This section will help you get a list of all the records.
-recordRoutes.route("/record").get(function (req, res) {
+recordRoutes.route("/record/").get(async function (req, res) {
+
   console.log("getting lock test");
   UnicryptETH();
   UnicryptBSC();
@@ -26,13 +27,30 @@ recordRoutes.route("/record").get(function (req, res) {
   CryptexLock();
   UnilockerETH();
   let db_connect = dbo.getDb("myFirstDatabase");
+  let recordsNum;
+
+  await db_connect
+  .collection("records").countDocuments().then((count) => {
+    recordsNum = count;
+  });
+
+  // db_connect
+  //   .collection("records")
+  //   .find({})
+  //   .toArray(function (err, result) {
+  //     if (err) throw err;
+  //     res.json(result);
+  //   });
+
   db_connect
     .collection("records")
-    .find({})
+    .find({}).skip(Number(req.query.page) * Number(req.query.rows)).limit(Number(req.query.rows))
     .toArray(function (err, result) {
       if (err) throw err;
+      result.push(recordsNum);
       res.json(result);
     });
+
 });
 
 module.exports = recordRoutes;
