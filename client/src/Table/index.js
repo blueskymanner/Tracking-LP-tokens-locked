@@ -273,7 +273,6 @@ function Table() {
   const [searchTerm, setSearchTerm] = useState("");
   const fetchIdRef = useRef(0);
   let totalRecords;
-  let searchRecords;
 
   
   const fetchData = useCallback(({ pageSize, pageIndex, searchTerm }) => {
@@ -288,15 +287,13 @@ function Table() {
       .then((response) => {
         totalRecords = response.data[response.data.length-1];
         response.data.pop();
-        searchRecords= response.data[response.data.length-1];
-        response.data.pop();
         setRecords(response.data);
       })
       .catch(function (error) {
         console.log(error);
       });
+      
         setPageCount(Math.ceil(totalRecords / pageSize));
-        // searchRecords ? setPageCount(Math.ceil(records.length / pageSize) + 1) : setPageCount(Math.ceil(totalRecords / pageSize));
       }
     }, 1000)
   }, []);

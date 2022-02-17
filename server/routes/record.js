@@ -29,28 +29,25 @@ recordRoutes.route("/record/").get(async function (req, res) {
   let db_connect = dbo.getDb("myFirstDatabase");
   let recordsNum;
 
-  await db_connect
-  .collection("records").countDocuments().then((count) => {
-    recordsNum = count;
-  });
-
-  // db_connect
-  //   .collection("records")
-  //   .find({})
-  //   .toArray(function (err, result) {
-  //     if (err) throw err;
-  //     res.json(result);
-  //   });
+  // await db_connect
+  // .collection("records").countDocuments().then((count) => {
+  //   recordsNum = count;
+  // });
 
   // let query = {$or: [{"Marketcap": {"$in": ["16688", "479"]}}, {"Blockchain": {"$in": ["Ethereum"]}}]};
   let query = req.query.search ? {"Blockchain": req.query.search} : {};
+
+
+  await db_connect
+  .collection("records").find(query).count().then((count) => {
+    recordsNum = count;
+  });
 
   db_connect
     .collection("records")
     .find(query).skip(Number(req.query.page) * Number(req.query.rows)).limit(Number(req.query.rows))
     .toArray(function (err, result) {
       if (err) throw err;
-      result.push(req.query.search);
       result.push(recordsNum);
       res.json(result);
     });
