@@ -114,7 +114,6 @@ function Actiontable({ columns, data, pageNo, rowsNum, fetchData, pageCount: con
     // dosth();
     // return () => clearTimeout(dosth);
 
-    console.log($("#filterRecords").val());
     fetchData({ pageIndex, pageSize, searchTerm: $("#filterRecords").val() });
 
   }, [$("#filterRecords").val(), pageIndex, pageSize]);
@@ -292,7 +291,7 @@ function Table() {
       .catch(function (error) {
         console.log(error);
       });
-      
+
         setPageCount(Math.ceil(totalRecords / pageSize));
       }
     }, 1000)

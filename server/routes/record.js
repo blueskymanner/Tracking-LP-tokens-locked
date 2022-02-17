@@ -19,7 +19,6 @@ let UnilockerETH = require('./unilocker.js');
 
 // This section will help you get a list of all the records.
 recordRoutes.route("/record/").get(async function (req, res) {
-
   console.log("getting lock test");
   UnicryptETH();
   UnicryptBSC();
@@ -34,9 +33,19 @@ recordRoutes.route("/record/").get(async function (req, res) {
   //   recordsNum = count;
   // });
 
-  // let query = {$or: [{"Marketcap": {"$in": ["16688", "479"]}}, {"Blockchain": {"$in": ["Ethereum"]}}]};
-  let query = req.query.search ? {"Blockchain": req.query.search} : {};
-
+  let query = req.query.search ? { $or: [
+                                          {"PairToken": {"$regex": req.query.search, '$options' : 'i'}}, 
+                                          {"Blockchain": {"$regex": req.query.search, '$options' : 'i'}},
+                                          {"Liquidity_Locked": {"$regex": req.query.search, '$options' : 'i'}},
+                                          {"Tokens_Locked": {"$regex": req.query.search, '$options' : 'i'}},
+                                          {"Locked_Date": {"$regex": req.query.search, '$options' : 'i'}},
+                                          {"Time_to_unlock": {"$regex": req.query.search, '$options' : 'i'}},
+                                          {"Locker": {"$regex": req.query.search, '$options' : 'i'}},
+                                          {"Marketcap": {"$regex": req.query.search, '$options' : 'i'}},
+                                          {"Coingecko_Rank": {"$regex": req.query.search, '$options' : 'i'}},
+                                          {"TokenName": {"$regex": req.query.search, '$options' : 'i'}},
+                                        ] 
+                                  } : {};
 
   await db_connect
   .collection("records").find(query).count().then((count) => {
