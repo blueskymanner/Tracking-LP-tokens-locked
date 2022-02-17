@@ -5,6 +5,7 @@ import { ProgressBar } from "react-bootstrap";
 import '../Style/style.css';
 import Axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import $ from "jquery";
 
 
 const scan_link = {
@@ -18,7 +19,7 @@ function GlobalFilter({
   setGlobalFilter
 }) {
   const count = preGlobalFilteredRows.length;
-  const [value, setValue] = React.useState(globalFilter);
+  const [value, setValue] = useState(globalFilter);
   const onChange = useAsyncDebounce(async (value) => {
     setGlobalFilter(value || undefined);
   }, 200);
@@ -26,11 +27,10 @@ function GlobalFilter({
   return (
     <span>
       Search: {" "}
-      <input
+      <input id="filterRecords" 
         value={value || ""}
         onChange={(e) => {
           setValue(e.target.value);
-          console.log(value);
           onChange(e.target.value);
         }}
         placeholder={`Enter Keyword`}
@@ -114,9 +114,10 @@ function Actiontable({ columns, data, pageNo, rowsNum, fetchData, pageCount: con
     // dosth();
     // return () => clearTimeout(dosth);
 
-    fetchData({ pageIndex, pageSize });
+    console.log($("#filterRecords").val());
+    fetchData({ pageIndex, pageSize, searchTerm: $("#filterRecords").val() });
 
-  }, [fetchData, pageIndex, pageSize]);
+  }, [$("#filterRecords").val(), pageIndex, pageSize]);
 
   // Render the UI for your table
   return (
@@ -269,10 +270,13 @@ function Table() {
 
   const [records, setRecords] = useState([]);
   const [pageCount, setPageCount] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
   const fetchIdRef = useRef(0);
   let totalRecords;
+  let searchRecords;
 
-  const fetchData = useCallback(({ pageSize, pageIndex }) => {
+  
+  const fetchData = useCallback(({ pageSize, pageIndex, searchTerm }) => {
     // Give this fetch an ID
     const fetchId = ++fetchIdRef.current
     // We'll even set a delay to simulate a server here
@@ -280,9 +284,11 @@ function Table() {
       // Only update the data if this is the latest fetch
       if (fetchId === fetchIdRef.current) {
       await Axios
-      .get("http://localhost:5000/record/", {params: {page: pageIndex, rows: pageSize}})
+      .get("http://localhost:5000/record/", {params: {page: pageIndex, rows: pageSize, search: searchTerm}})
       .then((response) => {
         totalRecords = response.data[response.data.length-1];
+        response.data.pop();
+        searchRecords= response.data[response.data.length-1];
         response.data.pop();
         setRecords(response.data);
       })
@@ -290,6 +296,7 @@ function Table() {
         console.log(error);
       });
         setPageCount(Math.ceil(totalRecords / pageSize));
+        // searchRecords ? setPageCount(Math.ceil(records.length / pageSize) + 1) : setPageCount(Math.ceil(totalRecords / pageSize));
       }
     }, 1000)
   }, []);

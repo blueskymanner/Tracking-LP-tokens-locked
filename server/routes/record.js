@@ -42,11 +42,15 @@ recordRoutes.route("/record/").get(async function (req, res) {
   //     res.json(result);
   //   });
 
+  // let query = {$or: [{"Marketcap": {"$in": ["16688", "479"]}}, {"Blockchain": {"$in": ["Ethereum"]}}]};
+  let query = req.query.search ? {"Blockchain": req.query.search} : {};
+
   db_connect
     .collection("records")
-    .find({}).skip(Number(req.query.page) * Number(req.query.rows)).limit(Number(req.query.rows))
+    .find(query).skip(Number(req.query.page) * Number(req.query.rows)).limit(Number(req.query.rows))
     .toArray(function (err, result) {
       if (err) throw err;
+      result.push(req.query.search);
       result.push(recordsNum);
       res.json(result);
     });
