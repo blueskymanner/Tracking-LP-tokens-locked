@@ -146,13 +146,13 @@ function Actiontable({ columns, data, pageNo, rowsNum, fetchData, pageCount: con
 
               {headerGroups.map((group) => (
                 <tr {...group.getHeaderGroupProps()}>
-                  {group.headers.map((column) => (
+                  {group.headers.map((column, i) => (
                     <th {...column.getHeaderProps(column.getSortByToggleProps())}>{column.render("Header")}
                     <span>{
                       column.isSorted
                           ? column.isSortedDesc
-                                ? ' 🔽'
-                                : ' 🔼'
+                            ? ' 🔽'
+                            : ' 🔼'
                           : ''
                     }</span>
                     </th>
@@ -269,7 +269,7 @@ function Table() {
 
   const [records, setRecords] = useState([]);
   const [pageCount, setPageCount] = useState(0);
-  const [searchTerm, setSearchTerm] = useState("");
+  // const [searchTerm, setSearchTerm] = useState("");
   const fetchIdRef = useRef(0);
   let totalRecords;
 

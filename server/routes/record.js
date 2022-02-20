@@ -32,7 +32,7 @@ recordRoutes.route("/record/").get(async function (req, res) {
   // .collection("records").countDocuments().then((count) => {
   //   recordsNum = count;
   // });
-
+  
   let query = req.query.search ? { $or: [
                                           {"PairToken": {"$regex": req.query.search, '$options' : 'i'}}, 
                                           {"Blockchain": {"$regex": req.query.search, '$options' : 'i'}},
