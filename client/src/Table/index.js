@@ -272,29 +272,49 @@ function Table() {
   // const [searchTerm, setSearchTerm] = useState("");
   const fetchIdRef = useRef(0);
   let totalRecords;
-
   
   const fetchData = useCallback(({ pageSize, pageIndex, searchTerm }) => {
     // Give this fetch an ID
-    const fetchId = ++fetchIdRef.current
+    const fetchId = ++fetchIdRef.current;
     // We'll even set a delay to simulate a server here
-    setTimeout(async () => {
-      // Only update the data if this is the latest fetch
+
+    // setTimeout(async () => {
+    //   // Only update the data if this is the latest fetch
+    //   if (fetchId === fetchIdRef.current) {
+    //   await Axios
+    //   .get("http://localhost:5000/record/", {params: {page: pageIndex, rows: pageSize, search: searchTerm}})
+    //   .then((response) => {
+    //     totalRecords = response.data[response.data.length-1];
+    //     response.data.pop();
+    //     setRecords(response.data);
+    //   })
+    //   .catch(function (error) {
+    //     console.log(error);
+    //   });
+
+    //     setPageCount(Math.ceil(totalRecords / pageSize));
+    //   }
+    // }, 1000)
+
+    const dosth = async () => {
       if (fetchId === fetchIdRef.current) {
-      await Axios
-      .get("http://localhost:5000/record/", {params: {page: pageIndex, rows: pageSize, search: searchTerm}})
-      .then((response) => {
-        totalRecords = response.data[response.data.length-1];
-        response.data.pop();
-        setRecords(response.data);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+        await Axios
+        .get("http://localhost:5000/record/", {params: {page: pageIndex, rows: pageSize, search: searchTerm}})
+        .then((response) => {
+          totalRecords = response.data[response.data.length-1];
+          response.data.pop();
+          setRecords(response.data);
+          setTimeout(dosth, 120000);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
 
         setPageCount(Math.ceil(totalRecords / pageSize));
       }
-    }, 1000)
+    }
+    dosth();
+    return () => clearTimeout(dosth);
   }, []);
 
   const columns = React.useMemo(
