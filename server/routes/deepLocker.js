@@ -136,9 +136,6 @@ module.exports = async function DeepLocker() {
         let token0Price = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(new BigNumber(datainfo0.data.data.price));
         let token1Price = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(new BigNumber(datainfo1.data.data.price));
 
-        console.log(percentage);
-        console.log(token0Price);
-        console.log(token1Price);
         
         const epochNum1 = new Date(tokenLocksArr[3] * 1000);
         let unlockDate = epochNum1.toLocaleString();
@@ -155,7 +152,7 @@ module.exports = async function DeepLocker() {
 
         if (lastIndex === null) {
             await db_connect.collection("lastIndexes").insertOne({Locker: "DeepLocker", LastId: total_tokenNums});
-            console.log("////////////////////////////////");
+            
             let myobj = {
                 PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
                 Blockchain: "BSC",
@@ -172,13 +169,13 @@ module.exports = async function DeepLocker() {
                 TokenAddress: storingTokenAddr
             };
             await db_connect.collection("records").insertOne(myobj);
-            console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            
         } else if (lastIndex.LastId >= total_tokenNums) {
-            console.log("###############################");
+            
             return;
         } else {
             await db_connect.collection("lastIndexes").updateOne({Locker: "DeepLocker"}, {$set: {LastId: total_tokenNums}});
-            console.log("******************************");
+            
             let myobj = {
                 PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
                 Blockchain: "BSC",
@@ -195,7 +192,7 @@ module.exports = async function DeepLocker() {
                 TokenAddress: storingTokenAddr
             };
             await db_connect.collection("records").insertOne(myobj);
-            console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+            
         }
     });
 }

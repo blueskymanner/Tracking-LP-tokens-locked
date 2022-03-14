@@ -377,7 +377,7 @@ function Table() {
                   second: [record.PairToken, record.PairTokenAddress],
                   third: record.Blockchain,
                   fourth: "$" + record.Liquidity_Locked,
-                  fifth: record.Tokens_Locked + " (" + (record.Tokens_Locked/record.Token_TotalAmount * 100).toFixed(1) + "%)",
+                  fifth: record.Tokens_Locked + " (" + (record.Tokens_Locked/record.Token_TotalAmount > 100 ? record.Tokens_Locked/record.Token_TotalAmount : record.Tokens_Locked/record.Token_TotalAmount * 100).toFixed(1) + "%)",
                   sixth: [record.Locked_Date, (Date.now() < Date.parse(record.Time_to_unlock) ? (Date.now() - Date.parse(record.Locked_Date)) / (Date.parse(record.Time_to_unlock) - Date.parse(record.Locked_Date)) : 1)],
                   seventh: ((Date.parse(record.Time_to_unlock) - Date.now()) / 86400000 > 0 ? (Date.parse(record.Time_to_unlock) - Date.now()) / 86400000 : 0).toFixed(0) + " days left",
                   eighth: record.Locker,
