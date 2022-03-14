@@ -1,3 +1,5 @@
+
+
 const express = require("express");
 const app = express();
 const cors = require("cors");
@@ -17,3 +19,15 @@ app.listen(port, () => {
   });
   console.log(`Server is running on port: ${port}`);
 });
+
+const UnicryptETH = require('./routes/unicryptETH.js');
+const UnicryptBSC = require('./routes/unicryptBSC.js');
+const DeepLocker = require('./routes/deepLocker.js');
+const CryptexLock = require('./routes/cryptexlock.js');
+const UnilockerETH = require('./routes/unilocker.js');
+
+UnicryptETH();
+UnicryptBSC();
+DeepLocker();
+CryptexLock();
+UnilockerETH();

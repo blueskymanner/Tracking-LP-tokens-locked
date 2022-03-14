@@ -140,9 +140,7 @@ module.exports = async function UnicryptETH() {
     console.log(lastIndex);
 
     if (lastIndex === null) {
-      db_connect.collection("lastIndexes").insertOne({Locker: "UnicryptETH", LastId: total_tokenNums}).then(function(res) {
-
-      });
+      await db_connect.collection("lastIndexes").insertOne({Locker: "UnicryptETH", LastId: total_tokenNums});
       let myobj = {
         PairToken: tokenData0.symbol + " / " + tokenData1.symbol,
         Blockchain: "Ethereum",
@@ -158,15 +156,11 @@ module.exports = async function UnicryptETH() {
         TokenName: storingTokenName,
         TokenAddress: storingTokenAddr
       };
-      db_connect.collection("records").insertOne(myobj).then(function(res) {
-
-      });
+      await db_connect.collection("records").insertOne(myobj);
     } else if (lastIndex.LastId >= total_tokenNums) {
       return;
     } else {
-      db_connect.collection("lastIndexes").updateOne({Locker: "UnicryptETH"}, {$set: {LastId: total_tokenNums}}).then(function(res) {
-
-      });
+      await db_connect.collection("lastIndexes").updateOne({Locker: "UnicryptETH"}, {$set: {LastId: total_tokenNums}});
       let myobj = {
         PairToken: tokenData0.symbol + " / " + tokenData1.symbol,
         Blockchain: "Ethereum",
@@ -182,9 +176,7 @@ module.exports = async function UnicryptETH() {
         TokenName: storingTokenName,
         TokenAddress: storingTokenAddr
       };
-      db_connect.collection("records").insertOne(myobj).then(function(res) {
-
-      });
+      await db_connect.collection("records").insertOne(myobj);
     }
   });
 }

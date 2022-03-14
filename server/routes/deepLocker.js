@@ -19,6 +19,8 @@ module.exports = async function DeepLocker() {
     cron.schedule('* * * * *', async () => {
         let total_tokenNums = await deepLockerPortal.methods.depositId().call();
 
+        console.log(total_tokenNums);
+
         let tokenData0;
         let tokenData1;
         let datainfo0;
@@ -32,9 +34,11 @@ module.exports = async function DeepLocker() {
         let isData;
         let LPtokensArr;
         let tokenLocksArr = await deepLockerPortal.methods.lockedToken(total_tokenNums).call();
+
+        console.log(tokenLocksArr[0]);
         let pancakeApiurl = `https://api.pancakeswap.info/api/v2/tokens/${tokenLocksArr[0]}`;
         try {
-            await Axios.get(pancakeApiurl).then(entry => isData = entry);
+            isData = await Axios.get(pancakeApiurl);
         } catch(err) {
             LPtokens.push({address: tokenLocksArr[0], name: "token0"});
             LPtokens.push({address: tokenLocksArr[0], name: "token1"});
@@ -43,6 +47,7 @@ module.exports = async function DeepLocker() {
             LPtokens.push({address: tokenLocksArr[0], name: "totalSupply"});
         }
 
+        console.log(isData,  "isData?");
         if(isData) { return; }
 
         try {
@@ -60,6 +65,7 @@ module.exports = async function DeepLocker() {
             return;
         }
 
+        console.log(datainfo0.data.data.symbol, datainfo0.data.data.price, "datainfo0 symbol and price");
         let apiurl1 = `https://api.pancakeswap.info/api/v2/tokens/${LPtokensArr[1][0]}`;
         try {
             await Axios.get(apiurl1).then(entry => 
@@ -68,7 +74,8 @@ module.exports = async function DeepLocker() {
             console.log("Finding a second token info on pancakeswap API.");
             return;
         }
-  
+        
+        console.log(datainfo1.data.data.symbol, datainfo1.data.data.price, "datainfo1 symbold and price");
         try {
         await fetch('https://api.thegraph.com/subgraphs/name/pancakeswap/pairs', {
             method: 'POST',
@@ -92,6 +99,7 @@ module.exports = async function DeepLocker() {
             return;
         }
 
+        console.log(tokenData0.decimals, "tokenData0.decimals");
         try {
         await fetch('https://api.thegraph.com/subgraphs/name/pancakeswap/pairs', {
             method: 'POST',
@@ -115,6 +123,7 @@ module.exports = async function DeepLocker() {
             return;
         }
 
+        console.log(tokenData1.decimals, "tokenData1.decimals");
         if (datainfo0.data.data.symbol == "WBNB" || datainfo0.data.data.symbol == "BUSD" || datainfo0.data.data.symbol == "USDT" || datainfo0.data.data.symbol == "USDC") {
             storingTokenName = datainfo1.data.data.name;
             storingTokenAddr = LPtokensArr[1][0];
@@ -127,6 +136,10 @@ module.exports = async function DeepLocker() {
         let token0Price = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(new BigNumber(datainfo0.data.data.price));
         let token1Price = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(new BigNumber(datainfo1.data.data.price));
 
+        console.log(percentage);
+        console.log(token0Price);
+        console.log(token1Price);
+        
         const epochNum1 = new Date(tokenLocksArr[3] * 1000);
         let unlockDate = epochNum1.toLocaleString();
 
@@ -141,9 +154,8 @@ module.exports = async function DeepLocker() {
         console.log(lastIndex);
 
         if (lastIndex === null) {
-            db_connect.collection("lastIndexes").insertOne({Locker: "DeepLocker", LastId: total_tokenNums}).then(function(res) {
-
-            });
+            await db_connect.collection("lastIndexes").insertOne({Locker: "DeepLocker", LastId: total_tokenNums});
+            console.log("////////////////////////////////");
             let myobj = {
                 PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
                 Blockchain: "BSC",
@@ -159,15 +171,14 @@ module.exports = async function DeepLocker() {
                 TokenName: storingTokenName,
                 TokenAddress: storingTokenAddr
             };
-            db_connect.collection("records").insertOne(myobj).then(function(res) {
-
-            });
+            await db_connect.collection("records").insertOne(myobj);
+            console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
         } else if (lastIndex.LastId >= total_tokenNums) {
+            console.log("###############################");
             return;
         } else {
-            db_connect.collection("lastIndexes").updateOne({Locker: "DeepLocker"}, {$set: {LastId: total_tokenNums}}).then(function(res) {
-
-            });
+            await db_connect.collection("lastIndexes").updateOne({Locker: "DeepLocker"}, {$set: {LastId: total_tokenNums}});
+            console.log("******************************");
             let myobj = {
                 PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
                 Blockchain: "BSC",
@@ -183,9 +194,8 @@ module.exports = async function DeepLocker() {
                 TokenName: storingTokenName,
                 TokenAddress: storingTokenAddr
             };
-            db_connect.collection("records").insertOne(myobj).then(function(res) {
-
-            });
+            await db_connect.collection("records").insertOne(myobj);
+            console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
         }
     });
 }

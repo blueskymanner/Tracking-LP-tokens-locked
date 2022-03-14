@@ -141,9 +141,7 @@ module.exports = async function CryptexLock() {
         console.log(lastIndex);
 
         if (lastIndex === null) {
-            db_connect.collection("lastIndexes").insertOne({Locker: "CryptexLock", LastId: total_tokenNums}).then(function(res) {
-
-            });
+            await db_connect.collection("lastIndexes").insertOne({Locker: "CryptexLock", LastId: total_tokenNums});
             let myobj = {
                 PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
                 Blockchain: "BSC",
@@ -159,15 +157,11 @@ module.exports = async function CryptexLock() {
                 TokenName: storingTokenName,
                 TokenAddress: storingTokenAddr
             };
-            db_connect.collection("records").insertOne(myobj).then(function(res) {
-
-            });
+            await db_connect.collection("records").insertOne(myobj);
         } else if (lastIndex.LastId >= total_tokenNums) {
             return;
         } else {
-            db_connect.collection("lastIndexes").updateOne({Locker: "CryptexLock"}, {$set: {LastId: total_tokenNums}}).then(function(res) {
-
-            });
+            await db_connect.collection("lastIndexes").updateOne({Locker: "CryptexLock"}, {$set: {LastId: total_tokenNums}});
             let myobj = {
                 PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
                 Blockchain: "BSC",
@@ -183,9 +177,7 @@ module.exports = async function CryptexLock() {
                 TokenName: storingTokenName,
                 TokenAddress: storingTokenAddr
             };
-            db_connect.collection("records").insertOne(myobj).then(function(res) {
-
-            });
+            await db_connect.collection("records").insertOne(myobj);
         }
     });
 }

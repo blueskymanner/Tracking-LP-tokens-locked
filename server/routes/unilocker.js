@@ -138,15 +138,13 @@ module.exports = async function UnilockerETH() {
         console.log(lastIndex);
 
         if (lastIndex === null) {
-            db_connect.collection("lastIndexes").insertOne({Locker: "Unilocker", LastId: 3}).then(function(res) {
-
-            });
+            await db_connect.collection("lastIndexes").insertOne({Locker: "Unilocker", LastId: 3});
             let myobj = {
                 PairToken: "FTF" + " / " + "WETH",
                 Blockchain: "Ethereum",
                 Liquidity_Locked: 2470.36,
                 Tokens_Locked: 124.09,
-                Locked_Date: "2/10/2022", 
+                Locked_Date: new Date().toLocaleString(), 
                 Time_to_unlock: "6/1/2022",
                 Locker: "Unilocker",
                 Marketcap: 2653.46,
@@ -156,9 +154,7 @@ module.exports = async function UnilockerETH() {
                 TokenName: "French Toast Friday",
                 TokenAddress: "0x7DFFdEe13D9A5562d0fb9cF942bd4E7800800AdA"
             };
-            db_connect.collection("records").insertOne(myobj).then(function(res) {
-
-            });
+            await db_connect.collection("records").insertOne(myobj);
         } else {
             return;
         }

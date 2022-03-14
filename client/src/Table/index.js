@@ -305,6 +305,7 @@ function Table() {
           response.data.pop();
           setRecords(response.data);
           setTimeout(dosth, 120000);
+          console.log("Is is rerender?");
         })
         .catch(function (error) {
           console.log(error);
