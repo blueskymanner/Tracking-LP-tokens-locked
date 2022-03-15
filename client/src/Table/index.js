@@ -378,10 +378,10 @@ function Table() {
                 return (time_basedDate / 365).toFixed(0) + " years left";
               }
               else if (time_basedDate >= 30 && time_basedDate < 365) {
-                return (time_basedDate / 30).toFixed(0) + "months left";
+                return (time_basedDate / 30).toFixed(0) + " months left";
               }
               else if (time_basedDate >= 0 && time_basedDate < 30) {
-                return time_basedDate.toFixed(0) + "days left";
+                return time_basedDate.toFixed(0) + " days left";
               }
               else {
                 return 0 + "days left";
