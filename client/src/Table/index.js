@@ -384,7 +384,7 @@ function Table() {
                 return time_basedDate.toFixed(0) + " days left";
               }
               else {
-                return 0 + "days left";
+                return 0 + " days left";
               }
             }
 
