@@ -176,7 +176,7 @@ function Actiontable({ columns, data, pageNo, rowsNum, fetchData, pageCount: con
                         return <td key={j}>{row.values.sixth[0]}</td>
                       }
                       else if (j === 6) {
-                      return <td key={j}>{row.values.seventh}<ProgressInstance now={row.values.sixth[1]} /></td>
+                        return <td key={j}>{row.values.seventh}<ProgressInstance now={row.values.sixth[1]} /></td>
                       }
                       return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
                     })}
@@ -370,6 +370,24 @@ function Table() {
   const data = React.useMemo(
     () => {
             let tokensInfo = [];
+
+            function unlockTime(unlock_time) {
+              let time_basedDate = (Date.parse(unlock_time) - Date.now()) / 86400000;
+
+              if (time_basedDate >= 365) {
+                return (time_basedDate / 365).toFixed(0) + " years left";
+              }
+              else if (time_basedDate >= 30 && time_basedDate < 365) {
+                return (time_basedDate / 30).toFixed(0) + "months left";
+              }
+              else if (time_basedDate >= 0 && time_basedDate < 30) {
+                return time_basedDate.toFixed(0) + "days left";
+              }
+              else {
+                return 0 + "days left";
+              }
+            }
+
             records.map((record) => {
               tokensInfo.push(
                 {
@@ -379,7 +397,7 @@ function Table() {
                   fourth: "$" + record.Liquidity_Locked,
                   fifth: record.Tokens_Locked + " (" + (record.Tokens_Locked/record.Token_TotalAmount > 100 ? record.Tokens_Locked/record.Token_TotalAmount : record.Tokens_Locked/record.Token_TotalAmount * 100).toFixed(1) + "%)",
                   sixth: [record.Locked_Date, (Date.now() < Date.parse(record.Time_to_unlock) ? (Date.now() - Date.parse(record.Locked_Date)) / (Date.parse(record.Time_to_unlock) - Date.parse(record.Locked_Date)) : 1)],
-                  seventh: ((Date.parse(record.Time_to_unlock) - Date.now()) / 86400000 > 0 ? (Date.parse(record.Time_to_unlock) - Date.now()) / 86400000 : 0).toFixed(0) + " days left",
+                  seventh: unlockTime(record.Time_to_unlock),
                   eighth: record.Locker,
                   ninth: "$" + record.Marketcap,
                   tenth: record.Coingecko_Rank,
