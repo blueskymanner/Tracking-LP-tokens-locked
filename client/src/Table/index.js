@@ -8,6 +8,7 @@ import { createClient } from 'urql';
 import { useNavigate, useParams } from "react-router-dom";
 import $ from "jquery";
 
+
 async function ETH_price() {
   const APIURL = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2';
   const ethpriceQuery = `
@@ -25,14 +26,12 @@ async function ETH_price() {
   return ethData.data.bundle.ethPrice;
 }
 
-
 async function BNB_price() {
   let bnbprice;
   await Axios.get(`https://api.pancakeswap.info/api/v2/tokens/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c`).then(entry =>
     bnbprice = entry.data.data.price);
   return bnbprice;
 }
-
 
 const scan_link = {
   Ethereum: "https://etherscan.io/",
@@ -299,6 +298,16 @@ function Table() {
   const [ethprice, setEthprice] = useState(0);
   const [bnbprice, setBnbprice] = useState(0);
 
+  // useEffect(() => {
+  //   ETH_price().then(result => {
+  //     setEthprice(result);
+  //   });
+  //   BNB_price().then(result => {
+  //     setBnbprice(result);
+  //   });
+  // }, []);
+
+  console.log(ethprice, bnbprice);
 
   // const [searchTerm, setSearchTerm] = useState("");
   const fetchIdRef = useRef(0);
@@ -328,8 +337,6 @@ function Table() {
     // }, 1000)
 
     const dosth = async () => {
-      setEthprice(ETH_price());
-      setBnbprice(BNB_price());
 
       if (fetchId === fetchIdRef.current) {
         await Axios
@@ -344,8 +351,16 @@ function Table() {
             console.log(error);
           });
 
+          ETH_price().then(result => {
+            setEthprice(result);
+          });
+          BNB_price().then(result => {
+            setBnbprice(result);
+          });
+
         setPageCount(Math.ceil(totalRecords / pageSize));
       }
+
     }
     dosth();
     return () => clearTimeout(dosth);
@@ -450,9 +465,6 @@ function Table() {
         }
       }
 
-      console.log(ethprice);
-      console.log(bnbprice);
-
       function liquidity_locked(symbol, amount) {
         if (symbol == "WETH") {
           return amount * ethprice * 2;
@@ -465,19 +477,18 @@ function Table() {
         }
       }
 
-
       records.map((record) => {
         tokensInfo.push(
           {
             first: [record.TokenName, record.TokenAddress],
             second: [record.PairToken, record.PairTokenAddress],
             third: record.Blockchain,
-            fourth: "$" + liquidity_locked(record.NativeSymbol, record.NativeAmount),
+            fourth: "$" + liquidity_locked(record.NativeSymbol, record.NativeAmount).toFixed(2),
             fifth: (record.Tokens_Locked > 1000000000 ? (record.Tokens_Locked / 1000000000).toFixed(3) + " B" : record.Tokens_Locked) + " (" + record.Liquidity_Percentage * 100 + "%)",
             sixth: [record.Locked_Date, (Date.now() < Date.parse(record.Time_to_unlock) ? (Date.now() - Date.parse(record.Locked_Date)) / (Date.parse(record.Time_to_unlock) - Date.parse(record.Locked_Date)) : 1)],
             seventh: unlockTime(record.Time_to_unlock),
             eighth: record.Locker,
-            ninth: "$" + record.Marketcap,
+            ninth: "—",
             tenth: record.Coingecko_Rank,
             eleventh: (liquidity_locked(record.NativeSymbol, record.NativeAmount) * parseFloat(record.Liquidity_Percentage) * parseFloat(record.Time_to_unlock)).toFixed(1)
           }
