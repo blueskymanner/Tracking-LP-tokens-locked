@@ -295,6 +295,11 @@ function Table() {
 
   const [records, setRecords] = useState([]);
   const [pageCount, setPageCount] = useState(0);
+
+  const [ethprice, setEthprice] = useState(0);
+  const [bnbprice, setBnbprice] = useState(0);
+
+
   // const [searchTerm, setSearchTerm] = useState("");
   const fetchIdRef = useRef(0);
   let totalRecords;
@@ -323,6 +328,9 @@ function Table() {
     // }, 1000)
 
     const dosth = async () => {
+      setEthprice(ETH_price());
+      setBnbprice(BNB_price());
+
       if (fetchId === fetchIdRef.current) {
         await Axios
           .get("http://localhost:5000/record/", { params: { page: pageIndex, rows: pageSize, search: searchTerm } })
@@ -442,16 +450,15 @@ function Table() {
         }
       }
 
-
-      console.log(ETH_price());
-      console.log(BNB_price());
+      console.log(ethprice);
+      console.log(bnbprice);
 
       function liquidity_locked(symbol, amount) {
         if (symbol == "WETH") {
-          return amount * ETH_price() * 2;
+          return amount * ethprice * 2;
         }
         else if (symbol == "WBNB") {
-          return amount * BNB_price() * 2;
+          return amount * bnbprice * 2;
         }
         else {
           return amount * 2;
@@ -466,7 +473,7 @@ function Table() {
             second: [record.PairToken, record.PairTokenAddress],
             third: record.Blockchain,
             fourth: "$" + liquidity_locked(record.NativeSymbol, record.NativeAmount),
-            fifth: record.Tokens_Locked + " (" + record.Liquidity_Percentage * 100 + "%)",
+            fifth: (record.Tokens_Locked > 1000000000 ? (record.Tokens_Locked / 1000000000).toFixed(3) + " B" : record.Tokens_Locked) + " (" + record.Liquidity_Percentage * 100 + "%)",
             sixth: [record.Locked_Date, (Date.now() < Date.parse(record.Time_to_unlock) ? (Date.now() - Date.parse(record.Locked_Date)) / (Date.parse(record.Time_to_unlock) - Date.parse(record.Locked_Date)) : 1)],
             seventh: unlockTime(record.Time_to_unlock),
             eighth: record.Locker,
