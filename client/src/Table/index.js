@@ -370,6 +370,37 @@ function Table() {
   const data = React.useMemo(
     () => {
             let tokensInfo = [];
+            // let ethprice;
+            // let bnbprice;
+
+            let apiurls = [`https://api.coingecko.com/api/v3/coins/ethereum/contract/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2`,
+                            `https://api.coingecko.com/api/v3/coins/binance-smart-chain/contract/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c`];
+
+            Promise.all(apiurls.map(apiurl => fetch(apiurl))).then(responses => responses.forEach(response => {console.log(response)}));
+
+            // const { data: datainfo } = await Axios.get(apiurl);
+            // console.log(datainfo.market_data.current_price.usd);
+
+            
+            // await fetch('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2', {
+            //   method: 'POST',
+            //   headers: {
+            //     'Content-Type': 'application/json',
+            //   },
+            //   body: JSON.stringify({
+            //     query: `
+            //       query {
+            //         bundle(id: "1" ) {
+            //           ethPrice
+            //         }
+            //       }
+            //     `
+            //   }),
+            // })
+            //   .then((res) => res.json())
+            //   .then((result) => ethPrice = result.data.bundle.ethPrice);
+
+
 
             function unlockTime(unlock_time) {
               let time_basedDate = (Date.parse(unlock_time) - Date.now()) / 86400000;
@@ -387,6 +418,20 @@ function Table() {
                 return 0 + " days left";
               }
             }
+
+
+            // function liquidity_locked(symbol, amount) {
+            //   if(symbol == "WETH") {
+            //      return "$" + amount * ethprice * 2;
+            //   }
+            //   else if(symbol == "WBNB") {
+            //     return "$" + amount * bnbprice * 2;
+            //   }
+            //   else {
+            //     return "$" + amount * 2;
+            //   }
+            // }
+
 
             records.map((record) => {
               tokensInfo.push(

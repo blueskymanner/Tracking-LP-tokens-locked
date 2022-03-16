@@ -50,6 +50,8 @@ module.exports = async function UnicryptETH() {
     let lastIndex;
     let storingTokenName;
     let storingTokenAddr;
+    let nativeSymbol;
+    let nativeAmount;
 
     const tokenAddrsArr = await unicryptETHPortal.methods.getLockedTokenAtIndex(total_tokenNums - 1).call();
     const tokenLocksArr = await unicryptETHPortal.methods.tokenLocks(tokenAddrsArr, 0).call();
@@ -114,12 +116,16 @@ module.exports = async function UnicryptETH() {
       return;
     }
 
-    if (tokenData0.symbol == "WETH" || tokenData0.symbol == "USDT" || tokenData0.symbol == "USDC" || tokenData0.symbol == "BUSD") {
+    if (tokenData0.symbol == "WETH" || tokenData0.symbol == "WBNB" || tokenData0.symbol == "USDT" || tokenData0.symbol == "USDC" || tokenData0.symbol == "BUSD") {
       storingTokenName = tokenData1.name;
       storingTokenAddr = LPtokensArr[1][0];
-    } else if (tokenData1.symbol == "WETH" || tokenData1.symbol == "USDT" || tokenData1.symbol == "USDC" || tokenData1.symbol == "BUSD") {
+      nativeSymbol = tokenData0.symbol;
+      nativeAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).toFixed(2);
+    } else if (tokenData1.symbol == "WETH" || tokenData1.symbol == "WBNB" || tokenData1.symbol == "USDT" || tokenData1.symbol == "USDC" || tokenData1.symbol == "BUSD") {
       storingTokenName = tokenData0.name;
       storingTokenAddr = LPtokensArr[0][0];
+      nativeSymbol = tokenData1.symbol;
+      nativeAmount = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).toFixed(2);
     }
     
     let percentage = new BigNumber(tokenLocksArr[1]).dividedBy(10**LPtokensArr[2][0]).dividedBy(new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]));
@@ -154,7 +160,9 @@ module.exports = async function UnicryptETH() {
         Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
         PairTokenAddress: tokenAddrsArr,
         TokenName: storingTokenName,
-        TokenAddress: storingTokenAddr
+        TokenAddress: storingTokenAddr,
+        NativeSymbol: nativeSymbol,
+        NativeAmount: nativeAmount
       };
       await db_connect.collection("records").insertOne(myobj);
     } else if (lastIndex.LastId >= total_tokenNums) {
@@ -174,7 +182,9 @@ module.exports = async function UnicryptETH() {
         Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
         PairTokenAddress: tokenAddrsArr,
         TokenName: storingTokenName,
-        TokenAddress: storingTokenAddr
+        TokenAddress: storingTokenAddr,
+        NativeSymbol: nativeSymbol,
+        NativeAmount: nativeAmount
       };
       await db_connect.collection("records").insertOne(myobj);
     }

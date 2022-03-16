@@ -30,6 +30,8 @@ module.exports = async function DeepLocker() {
         let lastIndex;
         let storingTokenName;
         let storingTokenAddr;
+        let nativeSymbol;
+        let nativeAmount;
 
         let isData;
         let LPtokensArr;
@@ -124,12 +126,16 @@ module.exports = async function DeepLocker() {
         }
 
         console.log(tokenData1.decimals, "tokenData1.decimals");
-        if (datainfo0.data.data.symbol == "WBNB" || datainfo0.data.data.symbol == "BUSD" || datainfo0.data.data.symbol == "USDT" || datainfo0.data.data.symbol == "USDC") {
+        if (datainfo0.data.data.symbol == "WETH" || datainfo0.data.data.symbol == "WBNB" || datainfo0.data.data.symbol == "BUSD" || datainfo0.data.data.symbol == "USDT" || datainfo0.data.data.symbol == "USDC") {
             storingTokenName = datainfo1.data.data.name;
             storingTokenAddr = LPtokensArr[1][0];
-        } else if (datainfo1.data.data.symbol == "WBNB" || datainfo1.data.data.symbol == "BUSD" || datainfo1.data.data.symbol == "USDT" || datainfo1.data.data.symbol == "USDC") {
+            nativeSymbol = datainfo0.data.data.symbol;
+            nativeAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).toFixed(2);
+        } else if (datainfo1.data.data.symbol == "WETH" || datainfo1.data.data.symbol == "WBNB" || datainfo1.data.data.symbol == "BUSD" || datainfo1.data.data.symbol == "USDT" || datainfo1.data.data.symbol == "USDC") {
             storingTokenName = datainfo0.data.data.name;
             storingTokenAddr = LPtokensArr[0][0];
+            nativeSymbol = datainfo1.data.data.symbol;
+            nativeAmount = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).toFixed(2);
         }
 
         let percentage = new BigNumber(tokenLocksArr[2]).dividedBy(10**LPtokensArr[2][0]).dividedBy(new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]));
@@ -166,7 +172,9 @@ module.exports = async function DeepLocker() {
                 Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
                 PairTokenAddress: tokenLocksArr[0],
                 TokenName: storingTokenName,
-                TokenAddress: storingTokenAddr
+                TokenAddress: storingTokenAddr,
+                NativeSymbol: nativeSymbol,
+                NativeAmount: nativeAmount
             };
             await db_connect.collection("records").insertOne(myobj);
             
@@ -189,7 +197,9 @@ module.exports = async function DeepLocker() {
                 Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
                 PairTokenAddress: tokenLocksArr[0],
                 TokenName: storingTokenName,
-                TokenAddress: storingTokenAddr
+                TokenAddress: storingTokenAddr,
+                NativeSymbol: nativeSymbol,
+                NativeAmount: nativeAmount
             };
             await db_connect.collection("records").insertOne(myobj);
             

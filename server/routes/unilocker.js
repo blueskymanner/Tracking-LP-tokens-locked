@@ -113,10 +113,10 @@ module.exports = async function UnilockerETH() {
             return;
         }
 
-        if (tokenData0.symbol == "WETH" || tokenData0.symbol == "USDT" || tokenData0.symbol == "USDC" || tokenData0.symbol == "BUSD") {
+        if (tokenData0.symbol == "WETH" || tokenData0.symbol == "WBNB" || tokenData0.symbol == "USDT" || tokenData0.symbol == "USDC" || tokenData0.symbol == "BUSD") {
             storingTokenName = tokenData1.name;
             storingTokenAddr = LPtokensArr[1][0];
-        } else if (tokenData1.symbol == "WETH" || tokenData1.symbol == "USDT" || tokenData1.symbol == "USDC" || tokenData1.symbol == "BUSD") {
+        } else if (tokenData1.symbol == "WETH" || tokenData1.symbol == "WBNB" || tokenData1.symbol == "USDT" || tokenData1.symbol == "USDC" || tokenData1.symbol == "BUSD") {
             storingTokenName = tokenData0.name;
             storingTokenAddr = LPtokensArr[0][0];
         }
@@ -152,7 +152,9 @@ module.exports = async function UnilockerETH() {
                 Token_TotalAmount: 133.43,
                 PairTokenAddress: "0xf19b55d677187423f8031a5bf0ac7b263b9ff76b",
                 TokenName: "French Toast Friday",
-                TokenAddress: "0x7DFFdEe13D9A5562d0fb9cF942bd4E7800800AdA"
+                TokenAddress: "0x7DFFdEe13D9A5562d0fb9cF942bd4E7800800AdA",
+                NativeSymbol: "WETH",
+                NativeAmount: 1.00
             };
             await db_connect.collection("records").insertOne(myobj);
         } else {
