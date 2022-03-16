@@ -286,7 +286,6 @@ function Actiontable({ columns, data, pageNo, rowsNum, fetchData, pageCount: con
     </>
   );
 }
-    const promises = [ETH_price(), BNB_price()];
 
 function Table() {
   let { page, rows } = useParams();
@@ -301,6 +300,7 @@ function Table() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    const promises = [ETH_price(), BNB_price()];
 
     Promise.all(promises).then(responses => {
       responses.forEach((response, index) => {
@@ -356,13 +356,6 @@ function Table() {
           .catch(function (error) {
             console.log(error);
           });
-
-        // ETH_price().then(result => {
-        //   setEthprice(result);
-        // });
-        // BNB_price().then(result => {
-        //   setBnbprice(result);
-        // });
 
         setPageCount(Math.ceil(totalRecords / pageSize));
       }
@@ -425,34 +418,6 @@ function Table() {
   const data = React.useMemo(
     () => {
       let tokensInfo = [];
-      // let ethprice;
-      // let bnbprice;
-
-      // let apiurls = [`https://api.coingecko.com/api/v3/coins/ethereum/contract/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2`,
-      //                 `https://api.coingecko.com/api/v3/coins/binance-smart-chain/contract/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c`];
-
-      // Promise.all(apiurls.map(apiurl => fetch(apiurl))).then(responses => responses.forEach(response => {console.log(response)}));
-
-
-      // const APIURL = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2';
-      // const ethpriceQuery = `
-      //     query {
-      //       bundle(id: "1" ) {
-      //         ethPrice
-      //       }
-      //     }
-      //   `;
-
-      // const client = createClient({
-      //   url: APIURL,
-      // });
-      // const ethData = await client.query(ethpriceQuery).toPromise();
-      // let ethPrice = ethData.data.bundle.ethPrice;
-
-
-      // await Axios.get(`https://api.pancakeswap.info/api/v2/tokens/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c`).then(entry => 
-      //   bnbprice = entry.data.data.price);
-
 
       function unlockTime(unlock_time) {
         let time_basedDate = (Date.parse(unlock_time) - Date.now()) / 86400000;
