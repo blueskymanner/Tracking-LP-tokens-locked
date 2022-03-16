@@ -286,6 +286,7 @@ function Actiontable({ columns, data, pageNo, rowsNum, fetchData, pageCount: con
     </>
   );
 }
+    const promises = [ETH_price(), BNB_price()];
 
 function Table() {
   let { page, rows } = useParams();
@@ -297,17 +298,22 @@ function Table() {
 
   const [ethprice, setEthprice] = useState(0);
   const [bnbprice, setBnbprice] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // useEffect(() => {
-  //   ETH_price().then(result => {
-  //     setEthprice(result);
-  //   });
-  //   BNB_price().then(result => {
-  //     setBnbprice(result);
-  //   });
-  // }, []);
+  useEffect(() => {
 
-  console.log(ethprice, bnbprice);
+    Promise.all(promises).then(responses => {
+      responses.forEach((response, index) => {
+        if(index === 0) {
+          setEthprice(response);
+        }
+        else if (index === 1) {
+          setBnbprice(response);
+        }
+        setIsLoaded(true);
+      })
+    });
+  }, [records]);
 
   // const [searchTerm, setSearchTerm] = useState("");
   const fetchIdRef = useRef(0);
@@ -351,12 +357,12 @@ function Table() {
             console.log(error);
           });
 
-          ETH_price().then(result => {
-            setEthprice(result);
-          });
-          BNB_price().then(result => {
-            setBnbprice(result);
-          });
+        // ETH_price().then(result => {
+        //   setEthprice(result);
+        // });
+        // BNB_price().then(result => {
+        //   setBnbprice(result);
+        // });
 
         setPageCount(Math.ceil(totalRecords / pageSize));
       }
@@ -477,29 +483,37 @@ function Table() {
         }
       }
 
-      records.map((record) => {
-        tokensInfo.push(
-          {
-            first: [record.TokenName, record.TokenAddress],
-            second: [record.PairToken, record.PairTokenAddress],
-            third: record.Blockchain,
-            fourth: "$" + liquidity_locked(record.NativeSymbol, record.NativeAmount).toFixed(2),
-            fifth: (record.Tokens_Locked > 1000000000 ? (record.Tokens_Locked / 1000000000).toFixed(3) + " B" : record.Tokens_Locked) + " (" + record.Liquidity_Percentage * 100 + "%)",
-            sixth: [record.Locked_Date, (Date.now() < Date.parse(record.Time_to_unlock) ? (Date.now() - Date.parse(record.Locked_Date)) / (Date.parse(record.Time_to_unlock) - Date.parse(record.Locked_Date)) : 1)],
-            seventh: unlockTime(record.Time_to_unlock),
-            eighth: record.Locker,
-            ninth: "—",
-            tenth: record.Coingecko_Rank,
-            eleventh: (liquidity_locked(record.NativeSymbol, record.NativeAmount) * parseFloat(record.Liquidity_Percentage) * parseFloat(record.Time_to_unlock)).toFixed(1)
-          }
-        );
-      });
+      if (isLoaded) {
+        records.map((record) => {
+          tokensInfo.push(
+            {
+              first: [record.TokenName, record.TokenAddress],
+              second: [record.PairToken, record.PairTokenAddress],
+              third: record.Blockchain,
+              fourth: "$" + liquidity_locked(record.NativeSymbol, record.NativeAmount).toFixed(2),
+              fifth: (record.Tokens_Locked > 1000000000 ? (record.Tokens_Locked / 1000000000).toFixed(3) + " B" : record.Tokens_Locked) + " (" + record.Liquidity_Percentage * 100 + "%)",
+              sixth: [record.Locked_Date, (Date.now() < Date.parse(record.Time_to_unlock) ? (Date.now() - Date.parse(record.Locked_Date)) / (Date.parse(record.Time_to_unlock) - Date.parse(record.Locked_Date)) : 1)],
+              seventh: unlockTime(record.Time_to_unlock),
+              eighth: record.Locker,
+              ninth: "—",
+              tenth: record.Coingecko_Rank,
+              eleventh: (liquidity_locked(record.NativeSymbol, record.NativeAmount) * parseFloat(record.Liquidity_Percentage) * parseFloat(record.Time_to_unlock)).toFixed(1)
+            }
+          );
+        });
+      }
+
       return tokensInfo;
     },
-    [records]
+    [records, isLoaded]
   );
 
-  return <Actiontable columns={columns} data={data} pageNo={page} rowsNum={rows} fetchData={fetchData} pageCount={pageCount} />;
+  return (
+    isLoaded ?
+      <Actiontable columns={columns} data={data} pageNo={page} rowsNum={rows} fetchData={fetchData} pageCount={pageCount} />
+    :
+      <div></div>
+  )
 }
 
 export default Table;

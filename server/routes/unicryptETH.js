@@ -121,14 +121,27 @@ module.exports = async function UnicryptETH() {
       storingTokenName = tokenData1.name;
       storingTokenAddr = LPtokensArr[1][0];
       nativeSymbol = tokenData0.symbol;
+
+      console.log(LPtokensArr[3][0]._hex, "00000000000000000000000-if", LPtokensArr[3][0]);
+      console.log(LPtokensArr)
       nativeAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).toFixed(2);
+      console.log(nativeAmount, "00000000000000000000000-if");
+      console.log(LPtokensArr[3][1]._hex, "11111111111111111111111-if", LPtokensArr[3][1]);
       newAmount = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).toFixed(2);
+      console.log(newAmount, "111111111111111111111-if");
+
     } else if (tokenData1.symbol == "WETH" || tokenData1.symbol == "WBNB" || tokenData1.symbol == "USDT" || tokenData1.symbol == "USDC" || tokenData1.symbol == "BUSD") {
       storingTokenName = tokenData0.name;
       storingTokenAddr = LPtokensArr[0][0];
       nativeSymbol = tokenData1.symbol;
+
+      console.log(LPtokensArr[3][1]._hex, "111111111111111111111111-elseif", LPtokensArr[3][1]);
       nativeAmount = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).toFixed(2);
+      console.log(nativeAmount, "111111111111111111111111-elseif");
+      console.log(LPtokensArr[3][0]._hex, "000000000000000000000-elseif", LPtokensArr[3][0]);
       newAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).toFixed(2);
+      console.log(newAmount, "000000000000000000000000-elseif");
+
     }
     
     let percentage = new BigNumber(tokenLocksArr[1]).dividedBy(10**LPtokensArr[2][0]).dividedBy(new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]));
