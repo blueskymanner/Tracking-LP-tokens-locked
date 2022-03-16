@@ -126,15 +126,12 @@ module.exports = async function UnicryptETH() {
       storingTokenAddr = LPtokensArr[1][0];
       nativeSymbol = tokenData0.symbol;
 
-      console.log(LPtokensArr);
-
       console.log("00000000000000000000000-if", LPtokensArr[3][0]);
       nativeAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(percentage).toFixed(2);
       console.log(nativeAmount, "00000000000000000000000-if");
       console.log("11111111111111111111111-if", LPtokensArr[3][1]);
       newAmount = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(percentage).toFixed(2);
       console.log(newAmount, "111111111111111111111-if");
-
     } else if (tokenData1.symbol == "WETH" || tokenData1.symbol == "WBNB" || tokenData1.symbol == "USDT" || tokenData1.symbol == "USDC" || tokenData1.symbol == "BUSD") {
       storingTokenName = tokenData0.name;
       storingTokenAddr = LPtokensArr[0][0];
@@ -146,7 +143,6 @@ module.exports = async function UnicryptETH() {
       console.log("000000000000000000000-elseif", LPtokensArr[3][0]);
       newAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(percentage).toFixed(2);
       console.log(newAmount, "000000000000000000000000-elseif");
-
     }
 
     const epochNum1 = new Date(tokenLocksArr[3] * 1000);

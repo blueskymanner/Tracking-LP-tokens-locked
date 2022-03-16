@@ -456,7 +456,7 @@ function Table() {
               second: [record.PairToken, record.PairTokenAddress],
               third: record.Blockchain,
               fourth: "$" + liquidity_locked(record.NativeSymbol, record.NativeAmount).toFixed(2),
-              fifth: (record.Tokens_Locked > 1000000000 ? (record.Tokens_Locked / 1000000000).toFixed(3) + " B" : record.Tokens_Locked) + " (" + record.Liquidity_Percentage * 100 + "%)",
+              fifth: (record.Tokens_Locked > 1000000000 ? (record.Tokens_Locked / 1000000000).toFixed(2) + " B" : record.Tokens_Locked) + " (" + record.Liquidity_Percentage * 100 + "%)",
               sixth: [record.Locked_Date, (Date.now() < Date.parse(record.Time_to_unlock) ? (Date.now() - Date.parse(record.Locked_Date)) / (Date.parse(record.Time_to_unlock) - Date.parse(record.Locked_Date)) : 1)],
               seventh: unlockTime(record.Time_to_unlock),
               eighth: record.Locker,
