@@ -1,11 +1,37 @@
-import React, {useEffect, useState, useCallback, useRef} from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useTable, useGlobalFilter, useAsyncDebounce, useSortBy, usePagination } from "react-table";
 // import Bootstrap from 'bootstrap/dist/css/bootstrap.min.css';
 import { ProgressBar } from "react-bootstrap";
 import '../Style/style.css';
 import Axios from "axios";
+import { createClient } from 'urql';
 import { useNavigate, useParams } from "react-router-dom";
 import $ from "jquery";
+
+async function ETH_price() {
+  const APIURL = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2';
+  const ethpriceQuery = `
+      query {
+        bundle(id: "1" ) {
+          ethPrice
+        }
+      }
+    `;
+
+  const client = createClient({
+    url: APIURL,
+  });
+  const ethData = await client.query(ethpriceQuery).toPromise();
+  return ethData.data.bundle.ethPrice;
+}
+
+
+async function BNB_price() {
+  let bnbprice;
+  await Axios.get(`https://api.pancakeswap.info/api/v2/tokens/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c`).then(entry =>
+    bnbprice = entry.data.data.price);
+  return bnbprice;
+}
 
 
 const scan_link = {
@@ -27,7 +53,7 @@ function GlobalFilter({
   return (
     <span>
       Search: {" "}
-      <input id="filterRecords" 
+      <input id="filterRecords"
         value={value || ""}
         onChange={(e) => {
           setValue(e.target.value);
@@ -56,7 +82,7 @@ function GlobalFilter({
 //   );
 // }
 
-function ProgressInstance({now}) {
+function ProgressInstance({ now }) {
   return (
     <div className={now > 0.5 ? "progress1" : "progress2"}>
       <ProgressBar now={now * 100} />
@@ -66,7 +92,7 @@ function ProgressInstance({now}) {
 
 function Actiontable({ columns, data, pageNo, rowsNum, fetchData, pageCount: controlledPageCount }) {
   const navigate = useNavigate();
-  
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -97,7 +123,7 @@ function Actiontable({ columns, data, pageNo, rowsNum, fetchData, pageCount: con
   );
 
   useEffect(() => {
-    navigate("/" + Number(pageIndex + 1)  + "/" + pageSize);
+    navigate("/" + Number(pageIndex + 1) + "/" + pageSize);
     // navigate("/records/" + Number(pageIndex + 1)  + "/" + pageSize);
 
     // const dosth = () => {
@@ -148,13 +174,13 @@ function Actiontable({ columns, data, pageNo, rowsNum, fetchData, pageCount: con
                 <tr {...group.getHeaderGroupProps()}>
                   {group.headers.map((column, i) => (
                     <th {...column.getHeaderProps(column.getSortByToggleProps())}>{column.render("Header")}
-                    <span>{
-                      column.isSorted
+                      <span>{
+                        column.isSorted
                           ? column.isSortedDesc
                             ? ' 🔽'
                             : ' 🔼'
                           : ''
-                    }</span>
+                      }</span>
                     </th>
                   ))}
                 </tr>
@@ -243,7 +269,7 @@ function Actiontable({ columns, data, pageNo, rowsNum, fetchData, pageCount: con
                 style={{ width: "70px" }}
               />
             </span>{" "}
-            <select 
+            <select
               value={pageSize}
               onChange={(e) => {
                 setPageSize(Number(e.target.value));
@@ -272,7 +298,7 @@ function Table() {
   // const [searchTerm, setSearchTerm] = useState("");
   const fetchIdRef = useRef(0);
   let totalRecords;
-  
+
   const fetchData = useCallback(({ pageSize, pageIndex, searchTerm }) => {
     // Give this fetch an ID
     const fetchId = ++fetchIdRef.current;
@@ -299,16 +325,16 @@ function Table() {
     const dosth = async () => {
       if (fetchId === fetchIdRef.current) {
         await Axios
-        .get("http://localhost:5000/record/", {params: {page: pageIndex, rows: pageSize, search: searchTerm}})
-        .then((response) => {
-          totalRecords = response.data[response.data.length-1];
-          response.data.pop();
-          setRecords(response.data);
-          setTimeout(dosth, 120000);
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+          .get("http://localhost:5000/record/", { params: { page: pageIndex, rows: pageSize, search: searchTerm } })
+          .then((response) => {
+            totalRecords = response.data[response.data.length - 1];
+            response.data.pop();
+            setRecords(response.data);
+            setTimeout(dosth, 120000);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
 
         setPageCount(Math.ceil(totalRecords / pageSize));
       }
@@ -366,93 +392,93 @@ function Table() {
     ],
     []
   );
-  
+
   const data = React.useMemo(
     () => {
-            let tokensInfo = [];
-            // let ethprice;
-            // let bnbprice;
+      let tokensInfo = [];
+      // let ethprice;
+      // let bnbprice;
 
-            let apiurls = [`https://api.coingecko.com/api/v3/coins/ethereum/contract/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2`,
-                            `https://api.coingecko.com/api/v3/coins/binance-smart-chain/contract/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c`];
+      // let apiurls = [`https://api.coingecko.com/api/v3/coins/ethereum/contract/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2`,
+      //                 `https://api.coingecko.com/api/v3/coins/binance-smart-chain/contract/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c`];
 
-            Promise.all(apiurls.map(apiurl => fetch(apiurl))).then(responses => responses.forEach(response => {console.log(response)}));
-
-            // const { data: datainfo } = await Axios.get(apiurl);
-            // console.log(datainfo.market_data.current_price.usd);
-
-            
-            // await fetch('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2', {
-            //   method: 'POST',
-            //   headers: {
-            //     'Content-Type': 'application/json',
-            //   },
-            //   body: JSON.stringify({
-            //     query: `
-            //       query {
-            //         bundle(id: "1" ) {
-            //           ethPrice
-            //         }
-            //       }
-            //     `
-            //   }),
-            // })
-            //   .then((res) => res.json())
-            //   .then((result) => ethPrice = result.data.bundle.ethPrice);
+      // Promise.all(apiurls.map(apiurl => fetch(apiurl))).then(responses => responses.forEach(response => {console.log(response)}));
 
 
+      // const APIURL = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2';
+      // const ethpriceQuery = `
+      //     query {
+      //       bundle(id: "1" ) {
+      //         ethPrice
+      //       }
+      //     }
+      //   `;
 
-            function unlockTime(unlock_time) {
-              let time_basedDate = (Date.parse(unlock_time) - Date.now()) / 86400000;
-
-              if (time_basedDate >= 365) {
-                return (time_basedDate / 365).toFixed(0) + " years left";
-              }
-              else if (time_basedDate >= 30 && time_basedDate < 365) {
-                return (time_basedDate / 30).toFixed(0) + " months left";
-              }
-              else if (time_basedDate >= 0 && time_basedDate < 30) {
-                return time_basedDate.toFixed(0) + " days left";
-              }
-              else {
-                return 0 + " days left";
-              }
-            }
+      // const client = createClient({
+      //   url: APIURL,
+      // });
+      // const ethData = await client.query(ethpriceQuery).toPromise();
+      // let ethPrice = ethData.data.bundle.ethPrice;
 
 
-            // function liquidity_locked(symbol, amount) {
-            //   if(symbol == "WETH") {
-            //      return "$" + amount * ethprice * 2;
-            //   }
-            //   else if(symbol == "WBNB") {
-            //     return "$" + amount * bnbprice * 2;
-            //   }
-            //   else {
-            //     return "$" + amount * 2;
-            //   }
-            // }
+      // await Axios.get(`https://api.pancakeswap.info/api/v2/tokens/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c`).then(entry => 
+      //   bnbprice = entry.data.data.price);
 
 
-            records.map((record) => {
-              tokensInfo.push(
-                {
-                  first: [record.TokenName, record.TokenAddress],
-                  second: [record.PairToken, record.PairTokenAddress],
-                  third: record.Blockchain,
-                  fourth: "$" + record.Liquidity_Locked,
-                  fifth: record.Tokens_Locked + " (" + (record.Tokens_Locked/record.Token_TotalAmount > 100 ? record.Tokens_Locked/record.Token_TotalAmount : record.Tokens_Locked/record.Token_TotalAmount * 100).toFixed(1) + "%)",
-                  sixth: [record.Locked_Date, (Date.now() < Date.parse(record.Time_to_unlock) ? (Date.now() - Date.parse(record.Locked_Date)) / (Date.parse(record.Time_to_unlock) - Date.parse(record.Locked_Date)) : 1)],
-                  seventh: unlockTime(record.Time_to_unlock),
-                  eighth: record.Locker,
-                  ninth: "$" + record.Marketcap,
-                  tenth: record.Coingecko_Rank,
-                  eleventh: (parseFloat(record.Liquidity_Locked) * parseFloat(record.Tokens_Locked/record.Token_TotalAmount) * parseFloat(record.Time_to_unlock)).toFixed(1)
-                }
-              ); 
-            });
-            return tokensInfo;
-          },
-        [records]
+      function unlockTime(unlock_time) {
+        let time_basedDate = (Date.parse(unlock_time) - Date.now()) / 86400000;
+
+        if (time_basedDate >= 365) {
+          return (time_basedDate / 365).toFixed(0) + " years left";
+        }
+        else if (time_basedDate >= 30 && time_basedDate < 365) {
+          return (time_basedDate / 30).toFixed(0) + " months left";
+        }
+        else if (time_basedDate >= 0 && time_basedDate < 30) {
+          return time_basedDate.toFixed(0) + " days left";
+        }
+        else {
+          return 0 + " days left";
+        }
+      }
+
+
+      console.log(ETH_price());
+      console.log(BNB_price());
+
+      function liquidity_locked(symbol, amount) {
+        if (symbol == "WETH") {
+          return amount * ETH_price() * 2;
+        }
+        else if (symbol == "WBNB") {
+          return amount * BNB_price() * 2;
+        }
+        else {
+          return amount * 2;
+        }
+      }
+
+
+      records.map((record) => {
+        tokensInfo.push(
+          {
+            first: [record.TokenName, record.TokenAddress],
+            second: [record.PairToken, record.PairTokenAddress],
+            third: record.Blockchain,
+            fourth: "$" + liquidity_locked(record.NativeSymbol, record.NativeAmount),
+            fifth: record.Tokens_Locked + " (" + record.Liquidity_Percentage * 100 + "%)",
+            sixth: [record.Locked_Date, (Date.now() < Date.parse(record.Time_to_unlock) ? (Date.now() - Date.parse(record.Locked_Date)) / (Date.parse(record.Time_to_unlock) - Date.parse(record.Locked_Date)) : 1)],
+            seventh: unlockTime(record.Time_to_unlock),
+            eighth: record.Locker,
+            ninth: "$" + record.Marketcap,
+            tenth: record.Coingecko_Rank,
+            eleventh: (liquidity_locked(record.NativeSymbol, record.NativeAmount) * parseFloat(record.Liquidity_Percentage) * parseFloat(record.Time_to_unlock)).toFixed(1)
+          }
+        );
+      });
+      return tokensInfo;
+    },
+    [records]
   );
 
   return <Actiontable columns={columns} data={data} pageNo={page} rowsNum={rows} fetchData={fetchData} pageCount={pageCount} />;

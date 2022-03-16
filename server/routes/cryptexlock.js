@@ -30,6 +30,7 @@ module.exports = async function CryptexLock() {
         let storingTokenAddr;
         let nativeSymbol;
         let nativeAmount;
+        let newAmount;
 
         let isData;
         let LPtokensArr;
@@ -122,11 +123,13 @@ module.exports = async function CryptexLock() {
             storingTokenAddr = LPtokensArr[1][0];
             nativeSymbol = datainfo0.data.data.symbol;
             nativeAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).toFixed(2);
+            newAmount = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).toFixed(2);
         } else if (datainfo1.data.data.symbol == "WETH" || datainfo1.data.data.symbol == "WBNB" || datainfo1.data.data.symbol == "BUSD" || datainfo1.data.data.symbol == "USDT" || datainfo1.data.data.symbol == "USDC") {
             storingTokenName = datainfo0.data.data.name;
             storingTokenAddr = LPtokensArr[0][0];
             nativeSymbol = datainfo1.data.data.symbol;
             nativeAmount = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).toFixed(2);
+            newAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).toFixed(2);
         }
 
         let percentage = new BigNumber(tokenLocksArr[2]).dividedBy(10**LPtokensArr[2][0]).dividedBy(new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]));
@@ -151,8 +154,8 @@ module.exports = async function CryptexLock() {
             let myobj = {
                 PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
                 Blockchain: "BSC",
-                Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(percentage).toFixed(0), 
-                Tokens_Locked: new BigNumber(tokenLocksArr[2]).dividedBy(10**LPtokensArr[2][0]).toFixed(2), 
+                Liquidity_Percentage: percentage.toFixed(3),
+                Tokens_Locked: newAmount, 
                 Locked_Date: lockDate, 
                 Time_to_unlock: unlockDate, 
                 Locker: "CryptexLock",
@@ -173,8 +176,8 @@ module.exports = async function CryptexLock() {
             let myobj = {
                 PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
                 Blockchain: "BSC",
-                Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(percentage).toFixed(0), 
-                Tokens_Locked: new BigNumber(tokenLocksArr[2]).dividedBy(10**LPtokensArr[2][0]).toFixed(2), 
+                Liquidity_Percentage: percentage.toFixed(3),
+                Tokens_Locked: newAmount, 
                 Locked_Date: lockDate, 
                 Time_to_unlock: unlockDate, 
                 Locker: "CryptexLock",

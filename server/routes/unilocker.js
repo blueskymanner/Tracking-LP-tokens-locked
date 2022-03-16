@@ -142,7 +142,7 @@ module.exports = async function UnilockerETH() {
             let myobj = {
                 PairToken: "FTF" + " / " + "WETH",
                 Blockchain: "Ethereum",
-                Liquidity_Locked: 2470.36,
+                Liquidity_Percentage: 0.92,
                 Tokens_Locked: 124.09,
                 Locked_Date: new Date().toLocaleString(), 
                 Time_to_unlock: "6/1/2022",

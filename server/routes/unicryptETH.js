@@ -52,6 +52,7 @@ module.exports = async function UnicryptETH() {
     let storingTokenAddr;
     let nativeSymbol;
     let nativeAmount;
+    let newAmount;
 
     const tokenAddrsArr = await unicryptETHPortal.methods.getLockedTokenAtIndex(total_tokenNums - 1).call();
     const tokenLocksArr = await unicryptETHPortal.methods.tokenLocks(tokenAddrsArr, 0).call();
@@ -121,11 +122,13 @@ module.exports = async function UnicryptETH() {
       storingTokenAddr = LPtokensArr[1][0];
       nativeSymbol = tokenData0.symbol;
       nativeAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).toFixed(2);
+      newAmount = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).toFixed(2);
     } else if (tokenData1.symbol == "WETH" || tokenData1.symbol == "WBNB" || tokenData1.symbol == "USDT" || tokenData1.symbol == "USDC" || tokenData1.symbol == "BUSD") {
       storingTokenName = tokenData0.name;
       storingTokenAddr = LPtokensArr[0][0];
       nativeSymbol = tokenData1.symbol;
       nativeAmount = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).toFixed(2);
+      newAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).toFixed(2);
     }
     
     let percentage = new BigNumber(tokenLocksArr[1]).dividedBy(10**LPtokensArr[2][0]).dividedBy(new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]));
@@ -150,8 +153,8 @@ module.exports = async function UnicryptETH() {
       let myobj = {
         PairToken: tokenData0.symbol + " / " + tokenData1.symbol,
         Blockchain: "Ethereum",
-        Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(percentage).toFixed(0),
-        Tokens_Locked: new BigNumber(tokenLocksArr[1]).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
+        Liquidity_Percentage: percentage.toFixed(3),
+        Tokens_Locked: newAmount,
         Locked_Date: lockDate,
         Time_to_unlock: unlockDate,
         Locker: "Unicrypt",
@@ -172,8 +175,8 @@ module.exports = async function UnicryptETH() {
       let myobj = {
         PairToken: tokenData0.symbol + " / " + tokenData1.symbol,
         Blockchain: "Ethereum",
-        Liquidity_Locked: token0Price.plus(token1Price).multipliedBy(percentage).toFixed(0),
-        Tokens_Locked: new BigNumber(tokenLocksArr[1]).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
+        Liquidity_Percentage: percentage.toFixed(3),
+        Tokens_Locked: newAmount,
         Locked_Date: lockDate,
         Time_to_unlock: unlockDate,
         Locker: "Unicrypt",
