@@ -161,7 +161,7 @@ module.exports = async function UnicryptETH() {
     if (lastIndex === null) {
       await db_connect.collection("lastIndexes").insertOne({Locker: "UnicryptETH", LastId: total_tokenNums});
       console.log(nativeAmount, newAmount);
-      
+
       let myobj = {
         PairToken: tokenData0.symbol + " / " + tokenData1.symbol,
         Blockchain: "Ethereum",
@@ -182,8 +182,24 @@ module.exports = async function UnicryptETH() {
       await db_connect.collection("records").insertOne(myobj);
     } else if (lastIndex.LastId >= total_tokenNums) {
       console.log(nativeAmount, newAmount);
-
-      return;
+      
+      await db_connect.collection("records").updateOne({PairTokenAddress: tokenAddrsArr}, {$set: {
+        PairToken: tokenData0.symbol + " / " + tokenData1.symbol,
+        Blockchain: "Ethereum",
+        Liquidity_Percentage: percentage.toFixed(3),
+        Tokens_Locked: newAmount,
+        Locked_Date: lockDate,
+        Time_to_unlock: unlockDate,
+        Locker: "Unicrypt",
+        Marketcap: token0Price.plus(token1Price).toFixed(0),
+        Coingecko_Rank: "—",
+        Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
+        PairTokenAddress: tokenAddrsArr,
+        TokenName: storingTokenName,
+        TokenAddress: storingTokenAddr,
+        NativeSymbol: nativeSymbol,
+        NativeAmount: nativeAmount
+      }});
     } else {
       await db_connect.collection("lastIndexes").updateOne({Locker: "UnicryptETH"}, {$set: {LastId: total_tokenNums}});
       console.log(nativeAmount, newAmount);

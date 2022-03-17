@@ -170,7 +170,23 @@ module.exports = async function CryptexLock() {
             };
             await db_connect.collection("records").insertOne(myobj);
         } else if (lastIndex.LastId >= total_tokenNums) {
-            return;
+            await db_connect.collection("records").updateOne({PairTokenAddress: tokenLocksArr[0]}, {$set: {
+                PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
+                Blockchain: "BSC",
+                Liquidity_Percentage: percentage.toFixed(3),
+                Tokens_Locked: newAmount, 
+                Locked_Date: lockDate, 
+                Time_to_unlock: unlockDate, 
+                Locker: "CryptexLock",
+                Marketcap: token0Price.plus(token1Price).toFixed(0), 
+                Coingecko_Rank: "—", 
+                Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
+                PairTokenAddress: tokenLocksArr[0],
+                TokenName: storingTokenName,
+                TokenAddress: storingTokenAddr,
+                NativeSymbol: nativeSymbol,
+                NativeAmount: nativeAmount
+            }});
         } else {
             await db_connect.collection("lastIndexes").updateOne({Locker: "CryptexLock"}, {$set: {LastId: total_tokenNums}});
             let myobj = {
