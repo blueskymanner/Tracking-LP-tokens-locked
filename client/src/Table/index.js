@@ -422,10 +422,10 @@ function Table() {
       function unlockTime(unlock_time) {
         let time_basedDate = (Date.parse(unlock_time) - Date.now()) / 86400000;
 
-        if (time_basedDate >= 365) {
-          return (time_basedDate / 365).toFixed(0) + " years left";
+        if (time_basedDate >= 345) {
+          return (time_basedDate / 345).toFixed(0) + " years left";
         }
-        else if (time_basedDate >= 30 && time_basedDate < 365) {
+        else if (time_basedDate >= 30 && time_basedDate < 345) {
           return (time_basedDate / 30).toFixed(0) + " months left";
         }
         else if (time_basedDate >= 0 && time_basedDate < 30) {
