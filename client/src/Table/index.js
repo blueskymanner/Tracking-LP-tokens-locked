@@ -460,7 +460,7 @@ function Table() {
               sixth: [record.Locked_Date, (Date.now() < Date.parse(record.Time_to_unlock) ? (Date.now() - Date.parse(record.Locked_Date)) / (Date.parse(record.Time_to_unlock) - Date.parse(record.Locked_Date)) : 1)],
               seventh: unlockTime(record.Time_to_unlock),
               eighth: record.Locker,
-              ninth: "—",
+              ninth: "$" + (liquidity_locked(record.NativeSymbol, record.NativeAmount) / record.Liquidity_Percentage).toFixed(2),
               tenth: record.Coingecko_Rank,
               eleventh: (liquidity_locked(record.NativeSymbol, record.NativeAmount) * parseFloat(record.Liquidity_Percentage) * parseFloat(record.Time_to_unlock)).toFixed(1)
             }
