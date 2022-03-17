@@ -448,6 +448,19 @@ function Table() {
         }
       }
 
+      function progress(unlockDate, lockedDate) {
+        if (Date.now() < Date.parse(unlockDate)) {
+          if (Date.now() > Date.parse(lockedDate)) {
+            return (Date.now() - Date.parse(lockedDate)) / (Date.parse(unlockDate) - Date.parse(lockedDate));
+          } else {
+            return 0;
+          }
+        }
+        else {
+          return 1;
+        }
+      }
+
       if (isLoaded) {
         records.map((record) => {
           tokensInfo.push(
@@ -457,7 +470,7 @@ function Table() {
               third: record.Blockchain,
               fourth: "$" + liquidity_locked(record.NativeSymbol, record.NativeAmount).toFixed(2),
               fifth: (record.Tokens_Locked > 1000000000 ? (record.Tokens_Locked / 1000000000).toFixed(2) + " B" : record.Tokens_Locked) + " (" + (record.Liquidity_Percentage * 100).toFixed(1) + "%)",
-              sixth: [record.Locked_Date, (Date.now() < Date.parse(record.Time_to_unlock) ? (Date.now() - Date.parse(record.Locked_Date)) / (Date.parse(record.Time_to_unlock) - Date.parse(record.Locked_Date)) : 1)],
+              sixth: [record.Locked_Date, progress(record.Time_to_unlock, record.Locked_Date)],
               seventh: unlockTime(record.Time_to_unlock),
               eighth: record.Locker,
               ninth: "$" + (liquidity_locked(record.NativeSymbol, record.NativeAmount) / record.Liquidity_Percentage).toFixed(2),
