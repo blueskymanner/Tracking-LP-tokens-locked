@@ -160,6 +160,8 @@ module.exports = async function UnicryptETH() {
 
     if (lastIndex === null) {
       await db_connect.collection("lastIndexes").insertOne({Locker: "UnicryptETH", LastId: total_tokenNums});
+      console.log(nativeAmount, newAmount);
+      
       let myobj = {
         PairToken: tokenData0.symbol + " / " + tokenData1.symbol,
         Blockchain: "Ethereum",
@@ -179,9 +181,13 @@ module.exports = async function UnicryptETH() {
       };
       await db_connect.collection("records").insertOne(myobj);
     } else if (lastIndex.LastId >= total_tokenNums) {
+      console.log(nativeAmount, newAmount);
+
       return;
     } else {
       await db_connect.collection("lastIndexes").updateOne({Locker: "UnicryptETH"}, {$set: {LastId: total_tokenNums}});
+      console.log(nativeAmount, newAmount);
+
       let myobj = {
         PairToken: tokenData0.symbol + " / " + tokenData1.symbol,
         Blockchain: "Ethereum",
