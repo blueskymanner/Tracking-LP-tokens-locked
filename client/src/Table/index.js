@@ -6,6 +6,7 @@ import pancakeswapBSCabi from "../abi/pancakeswapBSC_abi.json";
 import uniswapETHabi from "../abi/uniswapETH_abi.json";
 import getBSCWeb3 from '../utils/getBSCweb3.js';
 import getETHWeb3 from '../utils/getETHweb3.js';
+import BigNumber from "bignumber.js";
 import '../Style/style.css';
 import Axios from "axios";
 import { createClient } from 'urql';
@@ -453,62 +454,62 @@ function Table() {
       // }
 
 
-      function new_liquidity(pairAddress, chain, new_decimals, index) {
-        if(chain == "BSC") {
+      async function new_liquidity(pairAddress, chain, new_decimals, index) {
+        if(chain === "BSC") {
           const web3 = getBSCWeb3();
           const pancakePortal = new web3.eth.Contract(pancakeswapBSCabi, pairAddress);
           let amount1 = await pancakePortal.methods.getReserves().call();
-          if(index == "token0") {
-            return new BigNumber(amount1[1]._hex).dividedBy(10**new_decimals).toFixed(2);
+          if(index === "token0") {
+            return (new BigNumber(amount1[1]._hex).dividedBy(10**new_decimals)).toFixed(2);
           } else {
-            return new BigNumber(amount1[0]._hex).dividedBy(10**new_decimals).toFixed(2);
+            return (new BigNumber(amount1[0]._hex).dividedBy(10**new_decimals)).toFixed(2);
           }
         } else {
           const web3 = getETHWeb3();
           const uniPortal = new web3.eth.Contract(uniswapETHabi, pairAddress);
           let amount2 = await uniPortal.methods.getReserves().call();
-          if(index == "token0") {
-            return new BigNumber(amount2[1]._hex).dividedBy(10**new_decimals).toFixed(2);
+          if(index === "token0") {
+            return (new BigNumber(amount2[1]._hex).dividedBy(10**new_decimals)).toFixed(2);
           } else {
-            return new BigNumber(amount2[0]._hex).dividedBy(10**new_decimals).toFixed(2);
+            return (new BigNumber(amount2[0]._hex).dividedBy(10**new_decimals)).toFixed(2);
           }
         }
       }
 
 
-      function total_liquidity(pairAddress, chain, symbol, decimals, index) {
-        if(chain == "BSC") {
+      async function total_liquidity(pairAddress, chain, symbol, decimals, index) {
+        if(chain === "BSC") {
           const web3 = getBSCWeb3();
           const pancakePortal = new web3.eth.Contract(pancakeswapBSCabi, pairAddress);
           let amount1 = await pancakePortal.methods.getReserves().call();
-          if(index == "token0") {
-            if(symbol == "WBNB") {
-              return new BigNumber(amount1[0]._hex).dividedBy(10**decimals).multipliedBy(bnbprice).multipliedBy(2).toFixed(2);
+          if(index === "token0") {
+            if(symbol === "WBNB") {
+              return (new BigNumber(amount1[0]._hex).dividedBy(10**decimals).multipliedBy(bnbprice).multipliedBy(2)).toFixed(2);
             } else {
-              return new BigNumber(amount1[0]._hex).dividedBy(10**decimals).multipliedBy(2).toFixed(2);
+              return (new BigNumber(amount1[0]._hex).dividedBy(10**decimals).multipliedBy(2)).toFixed(2);
             }
           } else {
-            if(symbol == "WBNB") {
-              return new BigNumber(amount1[1]._hex).dividedBy(10**decimals).multipliedBy(bnbprice).multipliedBy(2).toFixed(2);
+            if(symbol === "WBNB") {
+              return (new BigNumber(amount1[1]._hex).dividedBy(10**decimals).multipliedBy(bnbprice).multipliedBy(2)).toFixed(2);
             } else {
-              return new BigNumber(amount1[1]._hex).dividedBy(10**decimals).multipliedBy(2).toFixed(2);
+              return (new BigNumber(amount1[1]._hex).dividedBy(10**decimals).multipliedBy(2)).toFixed(2);
             }
           }
         } else {
           const web3 = getETHWeb3();
           const uniPortal = new web3.eth.Contract(uniswapETHabi, pairAddress);
           let amount2 = await uniPortal.methods.getReserves().call();
-          if(index == "token0") {
-            if(symbol == "WETH") {
-              return new BigNumber(amount2[0]._hex).dividedBy(10**decimals).multipliedBy(ethprice).multipliedBy(2).toFixed(2);
+          if(index === "token0") {
+            if(symbol === "WETH") {
+              return (new BigNumber(amount2[0]._hex).dividedBy(10**decimals).multipliedBy(ethprice).multipliedBy(2)).toFixed(2);
             } else {
-              return new BigNumber(amount2[0]._hex).dividedBy(10**decimals).multipliedBy(2).toFixed(2);
+              return (new BigNumber(amount2[0]._hex).dividedBy(10**decimals).multipliedBy(2)).toFixed(2);
             }
           } else {
-            if(symbol == "WETH") {
-              return new BigNumber(amount2[1]._hex).dividedBy(10**decimals).multipliedBy(ethprice).multipliedBy(2).toFixed(2);
+            if(symbol === "WETH") {
+              return (new BigNumber(amount2[1]._hex).dividedBy(10**decimals).multipliedBy(ethprice).multipliedBy(2)).toFixed(2);
             } else {
-              return new BigNumber(amount2[1]._hex).dividedBy(10**decimals).multipliedBy(2).toFixed(2);
+              return (new BigNumber(amount2[1]._hex).dividedBy(10**decimals).multipliedBy(2)).toFixed(2);
             }
           }
         }
