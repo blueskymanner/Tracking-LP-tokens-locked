@@ -1,6 +1,7 @@
 const getBSCWeb3 = require('../utils/getBSCweb3.js');
 const deepLockerabi = require('../abi/deepLocker_abi.json');
 const pancakeswapBSCabi = require('../abi/pancakeswapBSC_abi.json');
+const bep20abi = require('../abi/bep20.json');
 const BigNumber = require("bignumber.js");
 const multicallBSC = require('./multicallBSC.js');
 const fetch = require("node-fetch");
@@ -30,6 +31,7 @@ module.exports = async function DeepLocker() {
         let lastIndex;
         let storingTokenName;
         let storingTokenAddr;
+        let newDecimals;
         let nativeSymbol;
         let nativeAmount;
         let newAmount;
@@ -135,16 +137,22 @@ module.exports = async function DeepLocker() {
         if (datainfo0.data.data.symbol == "WETH" || datainfo0.data.data.symbol == "WBNB" || datainfo0.data.data.symbol == "BUSD" || datainfo0.data.data.symbol == "USDT" || datainfo0.data.data.symbol == "USDC") {
             storingTokenName = datainfo1.data.data.name;
             storingTokenAddr = LPtokensArr[1][0];
+            newDecimals = tokenData1.decimals;
             nativeSymbol = datainfo0.data.data.symbol;
-            nativeAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(percentage).toFixed(2);
+            nativeAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(percentage).toFixed(4);
             newAmount = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(percentage).toFixed(2);
         } else if (datainfo1.data.data.symbol == "WETH" || datainfo1.data.data.symbol == "WBNB" || datainfo1.data.data.symbol == "BUSD" || datainfo1.data.data.symbol == "USDT" || datainfo1.data.data.symbol == "USDC") {
             storingTokenName = datainfo0.data.data.name;
             storingTokenAddr = LPtokensArr[0][0];
+            newDecimals = tokenData0.decimals;
             nativeSymbol = datainfo1.data.data.symbol;
-            nativeAmount = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(percentage).toFixed(2);
+            nativeAmount = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(percentage).toFixed(4);
             newAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(percentage).toFixed(2);
         }
+
+        const bep20Portal = new web3.eth.Contract(bep20abi, storingTokenAddr);
+        let new_totalSupply = await bep20Portal.methods.totalSupply().call();
+        let new_marketCap = new BigNumber(new_totalSupply).dividedBy(10**newDecimals).toFixed(2);
 
         const epochNum1 = new Date(tokenLocksArr[3] * 1000);
         let unlockDate = epochNum1.toLocaleString();
@@ -170,7 +178,7 @@ module.exports = async function DeepLocker() {
                 Locked_Date: lockDate, 
                 Time_to_unlock: unlockDate, 
                 Locker: "DeepLock",
-                Marketcap: token0Price.plus(token1Price).toFixed(0), 
+                Marketcap: new_marketCap, 
                 Coingecko_Rank: "—", 
                 Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
                 PairTokenAddress: tokenLocksArr[0],
@@ -190,7 +198,7 @@ module.exports = async function DeepLocker() {
                 Locked_Date: lockDate, 
                 Time_to_unlock: unlockDate, 
                 Locker: "DeepLock",
-                Marketcap: token0Price.plus(token1Price).toFixed(0), 
+                Marketcap: new_marketCap, 
                 Coingecko_Rank: "—", 
                 Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
                 PairTokenAddress: tokenLocksArr[0],
@@ -210,7 +218,7 @@ module.exports = async function DeepLocker() {
                 Locked_Date: lockDate, 
                 Time_to_unlock: unlockDate, 
                 Locker: "DeepLock",
-                Marketcap: token0Price.plus(token1Price).toFixed(0), 
+                Marketcap: new_marketCap, 
                 Coingecko_Rank: "—", 
                 Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
                 PairTokenAddress: tokenLocksArr[0],

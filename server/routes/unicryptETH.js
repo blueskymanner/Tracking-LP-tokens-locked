@@ -1,6 +1,7 @@
 const getETHWeb3 = require('../utils/getETHweb3.js');
 const unicryptETHabi = require('../abi/unicryptETH_abi.json');
 const uniswapETHabi = require('../abi/uniswapETH_abi.json');
+const erc20abi = require('../abi/erc20.json');
 const multicallETH = require('./multicallETH.js');
 const BigNumber = require("bignumber.js");
 const fetch = require("node-fetch");
@@ -127,7 +128,7 @@ module.exports = async function UnicryptETH() {
       nativeSymbol = tokenData0.symbol;
 
       console.log("00000000000000000000000-if", LPtokensArr[3][0]);
-      nativeAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(percentage).toFixed(2);
+      nativeAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(percentage).toFixed(4);
       console.log(nativeAmount, "00000000000000000000000-if");
       console.log("11111111111111111111111-if", LPtokensArr[3][1]);
       newAmount = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(percentage).toFixed(2);
@@ -138,7 +139,7 @@ module.exports = async function UnicryptETH() {
       nativeSymbol = tokenData1.symbol;
 
       console.log("111111111111111111111111-elseif", LPtokensArr[3][1]);
-      nativeAmount = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(percentage).toFixed(2);
+      nativeAmount = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(percentage).toFixed(4);
       console.log(nativeAmount, "111111111111111111111111-elseif");
       console.log("000000000000000000000-elseif", LPtokensArr[3][0]);
       newAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(percentage).toFixed(2);
@@ -182,7 +183,7 @@ module.exports = async function UnicryptETH() {
       await db_connect.collection("records").insertOne(myobj);
     } else if (lastIndex.LastId >= total_tokenNums) {
       console.log(nativeAmount, newAmount);
-      
+
       await db_connect.collection("records").updateOne({PairTokenAddress: tokenAddrsArr}, {$set: {
         PairToken: tokenData0.symbol + " / " + tokenData1.symbol,
         Blockchain: "Ethereum",

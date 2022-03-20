@@ -473,7 +473,7 @@ function Table() {
               sixth: [record.Locked_Date, progress(record.Time_to_unlock, record.Locked_Date)],
               seventh: unlockTime(record.Time_to_unlock),
               eighth: record.Locker,
-              ninth: "$" + (liquidity_locked(record.NativeSymbol, record.NativeAmount) / record.Liquidity_Percentage).toFixed(2),
+              ninth: "$" + (record.Marketcap * liquidity_locked(record.NativeSymbol, record.NativeAmount) / (2 * record.Tokens_Locked)).toFixed(2),
               tenth: record.Coingecko_Rank,
               eleventh: (liquidity_locked(record.NativeSymbol, record.NativeAmount) * parseFloat(record.Liquidity_Percentage) * parseFloat(record.Time_to_unlock)).toFixed(1)
             }
