@@ -2,6 +2,10 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useTable, useGlobalFilter, useAsyncDebounce, useSortBy, usePagination } from "react-table";
 // import Bootstrap from 'bootstrap/dist/css/bootstrap.min.css';
 import { ProgressBar } from "react-bootstrap";
+import pancakeswapBSCabi from "../abi/pancakeswapBSC_abi.json";
+import uniswapETHabi from "../abi/uniswapETH_abi.json";
+import getBSCWeb3 from '../utils/getBSCweb3.js';
+import getETHWeb3 from '../utils/getETHweb3.js';
 import '../Style/style.css';
 import Axios from "axios";
 import { createClient } from 'urql';
@@ -436,17 +440,80 @@ function Table() {
         }
       }
 
-      function liquidity_locked(symbol, amount) {
-        if (symbol == "WETH") {
-          return amount * ethprice * 2;
-        }
-        else if (symbol == "WBNB") {
-          return amount * bnbprice * 2;
-        }
-        else {
-          return amount * 2;
+      // function liquidity_locked(symbol, amount) {
+      //   if (symbol == "WETH") {
+      //     return amount * ethprice * 2;
+      //   }
+      //   else if (symbol == "WBNB") {
+      //     return amount * bnbprice * 2;
+      //   }
+      //   else {
+      //     return amount * 2;
+      //   }
+      // }
+
+
+      function new_liquidity(pairAddress, chain, new_decimals, index) {
+        if(chain == "BSC") {
+          const web3 = getBSCWeb3();
+          const pancakePortal = new web3.eth.Contract(pancakeswapBSCabi, pairAddress);
+          let amount1 = await pancakePortal.methods.getReserves().call();
+          if(index == "token0") {
+            return new BigNumber(amount1[1]._hex).dividedBy(10**new_decimals).toFixed(2);
+          } else {
+            return new BigNumber(amount1[0]._hex).dividedBy(10**new_decimals).toFixed(2);
+          }
+        } else {
+          const web3 = getETHWeb3();
+          const uniPortal = new web3.eth.Contract(uniswapETHabi, pairAddress);
+          let amount2 = await uniPortal.methods.getReserves().call();
+          if(index == "token0") {
+            return new BigNumber(amount2[1]._hex).dividedBy(10**new_decimals).toFixed(2);
+          } else {
+            return new BigNumber(amount2[0]._hex).dividedBy(10**new_decimals).toFixed(2);
+          }
         }
       }
+
+
+      function total_liquidity(pairAddress, chain, symbol, decimals, index) {
+        if(chain == "BSC") {
+          const web3 = getBSCWeb3();
+          const pancakePortal = new web3.eth.Contract(pancakeswapBSCabi, pairAddress);
+          let amount1 = await pancakePortal.methods.getReserves().call();
+          if(index == "token0") {
+            if(symbol == "WBNB") {
+              return new BigNumber(amount1[0]._hex).dividedBy(10**decimals).multipliedBy(bnbprice).multipliedBy(2).toFixed(2);
+            } else {
+              return new BigNumber(amount1[0]._hex).dividedBy(10**decimals).multipliedBy(2).toFixed(2);
+            }
+          } else {
+            if(symbol == "WBNB") {
+              return new BigNumber(amount1[1]._hex).dividedBy(10**decimals).multipliedBy(bnbprice).multipliedBy(2).toFixed(2);
+            } else {
+              return new BigNumber(amount1[1]._hex).dividedBy(10**decimals).multipliedBy(2).toFixed(2);
+            }
+          }
+        } else {
+          const web3 = getETHWeb3();
+          const uniPortal = new web3.eth.Contract(uniswapETHabi, pairAddress);
+          let amount2 = await uniPortal.methods.getReserves().call();
+          if(index == "token0") {
+            if(symbol == "WETH") {
+              return new BigNumber(amount2[0]._hex).dividedBy(10**decimals).multipliedBy(ethprice).multipliedBy(2).toFixed(2);
+            } else {
+              return new BigNumber(amount2[0]._hex).dividedBy(10**decimals).multipliedBy(2).toFixed(2);
+            }
+          } else {
+            if(symbol == "WETH") {
+              return new BigNumber(amount2[1]._hex).dividedBy(10**decimals).multipliedBy(ethprice).multipliedBy(2).toFixed(2);
+            } else {
+              return new BigNumber(amount2[1]._hex).dividedBy(10**decimals).multipliedBy(2).toFixed(2);
+            }
+          }
+        }
+      }
+
 
       function progress(unlockDate, lockedDate) {
         if (Date.now() < Date.parse(unlockDate)) {
@@ -468,14 +535,14 @@ function Table() {
               first: [record.TokenName, record.TokenAddress],
               second: [record.PairToken, record.PairTokenAddress],
               third: record.Blockchain,
-              fourth: "$" + liquidity_locked(record.NativeSymbol, record.NativeAmount).toFixed(2),
+              fourth: "$" + (total_liquidity(record.PairTokenAddress, record.Blockchain, record.NativeSymbol, record.NativeDecimals, record.NativeIndex) * parseFloat(record.Liquidity_Percentage)).toFixed(2),
               fifth: (record.Tokens_Locked > 1000000000 ? (record.Tokens_Locked / 1000000000).toFixed(2) + " B" : record.Tokens_Locked) + " (" + (record.Liquidity_Percentage * 100).toFixed(1) + "%)",
               sixth: [record.Locked_Date, progress(record.Time_to_unlock, record.Locked_Date)],
               seventh: unlockTime(record.Time_to_unlock),
               eighth: record.Locker,
-              ninth: "$" + (record.Marketcap * liquidity_locked(record.NativeSymbol, record.NativeAmount) / (2 * record.Tokens_Locked)).toFixed(2),
+              ninth: "$" + (record.Marketcap * total_liquidity(record.PairTokenAddress, record.Blockchain, record.NativeSymbol, record.NativeDecimals, record.NativeIndex) / (2 * new_liquidity(record.PairTokenAddress, record.Blockchain, record.NewDecimals, record.NativeIndex))).toFixed(2),
               tenth: record.Coingecko_Rank,
-              eleventh: (liquidity_locked(record.NativeSymbol, record.NativeAmount) * parseFloat(record.Liquidity_Percentage) * parseFloat(record.Time_to_unlock)).toFixed(1)
+              eleventh: (total_liquidity(record.PairTokenAddress, record.Blockchain, record.NativeSymbol, record.NativeDecimals, record.NativeIndex) * parseFloat(record.Liquidity_Percentage) * parseFloat(record.Liquidity_Percentage) * parseFloat(record.Time_to_unlock)).toFixed(1)
             }
           );
         });

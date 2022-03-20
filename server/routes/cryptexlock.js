@@ -182,7 +182,8 @@ module.exports = async function CryptexLock() {
                 NativeSymbol: nativeSymbol,
                 NativeAmount: nativeAmount,
                 NativeDecimals: nativeDecimals,
-                NativeIndex: nativeIndex
+                NativeIndex: nativeIndex,
+                NewDecimals: newDecimals
             };
             await db_connect.collection("records").insertOne(myobj);
         } else if (lastIndex.LastId >= total_tokenNums) {
@@ -203,7 +204,8 @@ module.exports = async function CryptexLock() {
                 NativeSymbol: nativeSymbol,
                 NativeAmount: nativeAmount,
                 NativeDecimals: nativeDecimals,
-                NativeIndex: nativeIndex
+                NativeIndex: nativeIndex,
+                NewDecimals: newDecimals
             }});
         } else {
             await db_connect.collection("lastIndexes").updateOne({Locker: "CryptexLock"}, {$set: {LastId: total_tokenNums}});
@@ -224,7 +226,8 @@ module.exports = async function CryptexLock() {
                 NativeSymbol: nativeSymbol,
                 NativeAmount: nativeAmount,
                 NativeDecimals: nativeDecimals,
-                NativeIndex: nativeIndex
+                NativeIndex: nativeIndex,
+                NewDecimals: newDecimals
             };
             await db_connect.collection("records").insertOne(myobj);
         }

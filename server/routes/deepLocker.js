@@ -193,7 +193,8 @@ module.exports = async function DeepLocker() {
                 NativeSymbol: nativeSymbol,
                 NativeAmount: nativeAmount,
                 NativeDecimals: nativeDecimals,
-                NativeIndex: nativeIndex
+                NativeIndex: nativeIndex,
+                NewDecimals: newDecimals
             };
             await db_connect.collection("records").insertOne(myobj);
             
@@ -215,7 +216,8 @@ module.exports = async function DeepLocker() {
                 NativeSymbol: nativeSymbol,
                 NativeAmount: nativeAmount,
                 NativeDecimals: nativeDecimals,
-                NativeIndex: nativeIndex
+                NativeIndex: nativeIndex,
+                NewDecimals: newDecimals
             }});
         } else {
             await db_connect.collection("lastIndexes").updateOne({Locker: "DeepLocker"}, {$set: {LastId: total_tokenNums}});
@@ -237,7 +239,8 @@ module.exports = async function DeepLocker() {
                 NativeSymbol: nativeSymbol,
                 NativeAmount: nativeAmount,
                 NativeDecimals: nativeDecimals,
-                NativeIndex: nativeIndex
+                NativeIndex: nativeIndex,
+                NewDecimals: newDecimals
             };
             await db_connect.collection("records").insertOne(myobj);
             
