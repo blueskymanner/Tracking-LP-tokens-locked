@@ -51,6 +51,9 @@ module.exports = async function UnicryptETH() {
     let lastIndex;
     let storingTokenName;
     let storingTokenAddr;
+    let newDecimals;
+    let nativeDecimals;
+    let nativeIndex;
     let nativeSymbol;
     let nativeAmount;
     let newAmount;
@@ -125,26 +128,26 @@ module.exports = async function UnicryptETH() {
     if (tokenData0.symbol == "WETH" || tokenData0.symbol == "WBNB" || tokenData0.symbol == "USDT" || tokenData0.symbol == "USDC" || tokenData0.symbol == "BUSD") {
       storingTokenName = tokenData1.name;
       storingTokenAddr = LPtokensArr[1][0];
+      newDecimals = tokenData1.decimals;
+      nativeDecimals = tokenData0.decimals;
+      nativeIndex = "token0";
       nativeSymbol = tokenData0.symbol;
-
-      console.log("00000000000000000000000-if", LPtokensArr[3][0]);
       nativeAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(percentage).toFixed(4);
-      console.log(nativeAmount, "00000000000000000000000-if");
-      console.log("11111111111111111111111-if", LPtokensArr[3][1]);
       newAmount = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(percentage).toFixed(2);
-      console.log(newAmount, "111111111111111111111-if");
     } else if (tokenData1.symbol == "WETH" || tokenData1.symbol == "WBNB" || tokenData1.symbol == "USDT" || tokenData1.symbol == "USDC" || tokenData1.symbol == "BUSD") {
       storingTokenName = tokenData0.name;
       storingTokenAddr = LPtokensArr[0][0];
+      newDecimals = tokenData0.decimals;
+      nativeDecimals = tokenData1.decimals;
+      nativeIndex = "token1";
       nativeSymbol = tokenData1.symbol;
-
-      console.log("111111111111111111111111-elseif", LPtokensArr[3][1]);
       nativeAmount = new BigNumber(LPtokensArr[3][1]._hex).dividedBy(10**tokenData1.decimals).multipliedBy(percentage).toFixed(4);
-      console.log(nativeAmount, "111111111111111111111111-elseif");
-      console.log("000000000000000000000-elseif", LPtokensArr[3][0]);
       newAmount = new BigNumber(LPtokensArr[3][0]._hex).dividedBy(10**tokenData0.decimals).multipliedBy(percentage).toFixed(2);
-      console.log(newAmount, "000000000000000000000000-elseif");
     }
+
+    const erc20Portal = new web3.eth.Contract(erc20abi, storingTokenAddr);
+    let new_totalSupply = await erc20Portal.methods.totalSupply().call();
+    let new_marketCap = new BigNumber(new_totalSupply).dividedBy(10**newDecimals).toFixed(2);
 
     const epochNum1 = new Date(tokenLocksArr[3] * 1000);
     let unlockDate = epochNum1.toLocaleString();
@@ -171,14 +174,17 @@ module.exports = async function UnicryptETH() {
         Locked_Date: lockDate,
         Time_to_unlock: unlockDate,
         Locker: "Unicrypt",
-        Marketcap: token0Price.plus(token1Price).toFixed(0),
+        Marketcap: new_marketCap,
         Coingecko_Rank: "—",
         Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
         PairTokenAddress: tokenAddrsArr,
         TokenName: storingTokenName,
         TokenAddress: storingTokenAddr,
         NativeSymbol: nativeSymbol,
-        NativeAmount: nativeAmount
+        NativeAmount: nativeAmount,
+        NativeDecimals: nativeDecimals,
+        NativeIndex: nativeIndex,
+        NewDecimals: newDecimals
       };
       await db_connect.collection("records").insertOne(myobj);
     } else if (lastIndex.LastId >= total_tokenNums) {
@@ -192,14 +198,17 @@ module.exports = async function UnicryptETH() {
         Locked_Date: lockDate,
         Time_to_unlock: unlockDate,
         Locker: "Unicrypt",
-        Marketcap: token0Price.plus(token1Price).toFixed(0),
+        Marketcap: new_marketCap,
         Coingecko_Rank: "—",
         Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
         PairTokenAddress: tokenAddrsArr,
         TokenName: storingTokenName,
         TokenAddress: storingTokenAddr,
         NativeSymbol: nativeSymbol,
-        NativeAmount: nativeAmount
+        NativeAmount: nativeAmount,
+        NativeDecimals: nativeDecimals,
+        NativeIndex: nativeIndex,
+        NewDecimals: newDecimals
       }});
     } else {
       await db_connect.collection("lastIndexes").updateOne({Locker: "UnicryptETH"}, {$set: {LastId: total_tokenNums}});
@@ -213,14 +222,17 @@ module.exports = async function UnicryptETH() {
         Locked_Date: lockDate,
         Time_to_unlock: unlockDate,
         Locker: "Unicrypt",
-        Marketcap: token0Price.plus(token1Price).toFixed(0),
+        Marketcap: new_marketCap,
         Coingecko_Rank: "—",
         Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
         PairTokenAddress: tokenAddrsArr,
         TokenName: storingTokenName,
         TokenAddress: storingTokenAddr,
         NativeSymbol: nativeSymbol,
-        NativeAmount: nativeAmount
+        NativeAmount: nativeAmount,
+        NativeDecimals: nativeDecimals,
+        NativeIndex: nativeIndex,
+        NewDecimals: newDecimals
       };
       await db_connect.collection("records").insertOne(myobj);
     }

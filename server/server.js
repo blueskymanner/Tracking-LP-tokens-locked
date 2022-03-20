@@ -26,7 +26,7 @@ const DeepLocker = require('./routes/deepLocker.js');
 const CryptexLock = require('./routes/cryptexlock.js');
 // const UnilockerETH = require('./routes/unilocker.js');
 
-// UnicryptETH();
+UnicryptETH();
 UnicryptBSC();
 DeepLocker();
 CryptexLock();
