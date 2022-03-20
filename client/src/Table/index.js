@@ -320,6 +320,12 @@ function Table() {
     });
   }, [records]);
 
+
+
+
+
+
+
   // const [searchTerm, setSearchTerm] = useState("");
   const fetchIdRef = useRef(0);
   let totalRecords;
@@ -459,57 +465,73 @@ function Table() {
           const web3 = getBSCWeb3();
           const pancakePortal = new web3.eth.Contract(pancakeswapBSCabi, pairAddress);
           let amount1 = await pancakePortal.methods.getReserves().call();
+          // console.log((amount1[1] / (10**new_decimals)).toFixed(2));
+          // console.log((amount1[0] / (10**new_decimals)).toFixed(2));
+    
           if(index === "token0") {
-            return (new BigNumber(amount1[1]._hex).dividedBy(10**new_decimals)).toFixed(2);
+            return (amount1[1] / (10**new_decimals)).toFixed(2);
           } else {
-            return (new BigNumber(amount1[0]._hex).dividedBy(10**new_decimals)).toFixed(2);
+            return (amount1[0] / (10**new_decimals)).toFixed(2);
           }
         } else {
           const web3 = getETHWeb3();
           const uniPortal = new web3.eth.Contract(uniswapETHabi, pairAddress);
           let amount2 = await uniPortal.methods.getReserves().call();
+          // console.log((amount2[1] / (10**new_decimals)).toFixed(2));
+          // console.log((amount2[0] / (10**new_decimals)).toFixed(2));
+    
           if(index === "token0") {
-            return (new BigNumber(amount2[1]._hex).dividedBy(10**new_decimals)).toFixed(2);
+            return (amount2[1] / (10**new_decimals)).toFixed(2);
           } else {
-            return (new BigNumber(amount2[0]._hex).dividedBy(10**new_decimals)).toFixed(2);
+            return (amount2[0] / (10**new_decimals)).toFixed(2);
           }
         }
       }
-
-
+    
+    
       async function total_liquidity(pairAddress, chain, symbol, decimals, index) {
         if(chain === "BSC") {
           const web3 = getBSCWeb3();
           const pancakePortal = new web3.eth.Contract(pancakeswapBSCabi, pairAddress);
           let amount1 = await pancakePortal.methods.getReserves().call();
+          console.log(((amount1[0] / (10**decimals)) * bnbprice * 2).toFixed(2));
+          console.log(((amount1[0] / (10**decimals)) * 2).toFixed(2));
+          console.log(((amount1[1] / (10**decimals)) * bnbprice * 2).toFixed(2));
+          console.log(((amount1[1] / (10**decimals)) * 2).toFixed(2));
+    
           if(index === "token0") {
             if(symbol === "WBNB") {
-              return (new BigNumber(amount1[0]._hex).dividedBy(10**decimals).multipliedBy(bnbprice).multipliedBy(2)).toFixed(2);
+              return ((amount1[0] / (10**decimals)) * bnbprice * 2).toFixed(2);
             } else {
-              return (new BigNumber(amount1[0]._hex).dividedBy(10**decimals).multipliedBy(2)).toFixed(2);
+              return ((amount1[0] / (10**decimals)) * 2).toFixed(2);
             }
           } else {
             if(symbol === "WBNB") {
-              return (new BigNumber(amount1[1]._hex).dividedBy(10**decimals).multipliedBy(bnbprice).multipliedBy(2)).toFixed(2);
+              return ((amount1[1] / (10**decimals)) * bnbprice * 2).toFixed(2);
             } else {
-              return (new BigNumber(amount1[1]._hex).dividedBy(10**decimals).multipliedBy(2)).toFixed(2);
+              return ((amount1[1] / (10**decimals)) * 2).toFixed(2);
             }
           }
         } else {
           const web3 = getETHWeb3();
           const uniPortal = new web3.eth.Contract(uniswapETHabi, pairAddress);
           let amount2 = await uniPortal.methods.getReserves().call();
+          console.log(((amount2[0] / (10**decimals)) * ethprice * 2).toFixed(2));
+          console.log(((amount2[0] / (10**decimals)) * 2).toFixed(2));
+          console.log(((amount2[1] / (10**decimals)) * ethprice * 2).toFixed(2));
+          console.log(((amount2[1] / (10**decimals)) * 2).toFixed(2));
+    
           if(index === "token0") {
             if(symbol === "WETH") {
-              return (new BigNumber(amount2[0]._hex).dividedBy(10**decimals).multipliedBy(ethprice).multipliedBy(2)).toFixed(2);
+              return ((amount2[0] / (10**decimals)) * ethprice * 2).toFixed(2);
             } else {
-              return (new BigNumber(amount2[0]._hex).dividedBy(10**decimals).multipliedBy(2)).toFixed(2);
+              return ((amount2[0] / (10**decimals)) * 2).toFixed(2);
             }
           } else {
             if(symbol === "WETH") {
-              return (new BigNumber(amount2[1]._hex).dividedBy(10**decimals).multipliedBy(ethprice).multipliedBy(2)).toFixed(2);
+              return ((amount2[1] / (10**decimals)) * ethprice * 2).toFixed(2);
             } else {
-              return (new BigNumber(amount2[1]._hex).dividedBy(10**decimals).multipliedBy(2)).toFixed(2);
+              return ((amount2[1] / (10**decimals)) * 2).toFixed(2);
             }
           }
         }
