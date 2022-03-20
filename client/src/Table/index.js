@@ -536,7 +536,7 @@ function Table() {
               second: [record.PairToken, record.PairTokenAddress],
               third: record.Blockchain,
               fourth: "$" + (total_liquidity(record.PairTokenAddress, record.Blockchain, record.NativeSymbol, record.NativeDecimals, record.NativeIndex) * parseFloat(record.Liquidity_Percentage)).toFixed(2),
-              fifth: (record.Tokens_Locked > 1000000000 ? (record.Tokens_Locked / 1000000000).toFixed(2) + " B" : record.Tokens_Locked) + " (" + (record.Liquidity_Percentage * 100).toFixed(1) + "%)",
+              fifth: (new_liquidity(record.PairTokenAddress, record.Blockchain, record.NewDecimals, record.NativeIndex) * parseFloat(record.Liquidity_Percentage) > 1000000000 ? (new_liquidity(record.PairTokenAddress, record.Blockchain, record.NewDecimals, record.NativeIndex) * parseFloat(record.Liquidity_Percentage) / 1000000000).toFixed(2) + " B" : new_liquidity(record.PairTokenAddress, record.Blockchain, record.NewDecimals, record.NativeIndex) * parseFloat(record.Liquidity_Percentage)) + " (" + (record.Liquidity_Percentage * 100).toFixed(1) + "%)",
               sixth: [record.Locked_Date, progress(record.Time_to_unlock, record.Locked_Date)],
               seventh: unlockTime(record.Time_to_unlock),
               eighth: record.Locker,
