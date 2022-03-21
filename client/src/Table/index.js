@@ -401,6 +401,7 @@ function Table() {
   }
 
   useEffect(() => {
+    
     const lpPromises = [];
     records.forEach((record) => {
       const subPromises = [];
@@ -421,12 +422,14 @@ function Table() {
           else if (index2 === 1) {
             bbb.push(res);
           }
+
         })
       });
-      setIsGot(true);
-
+// console.log("///////////////aaa", aaa);
+// console.log("///////////////bbb", bbb);
       setNewLp(aaa);
       setTotalLp(bbb);
+      setIsGot(true);
     });
   }, [records]);
 
@@ -578,9 +581,15 @@ function Table() {
         }
       }
 
+// console.log("/////////////isGot", isGot);
+// console.log("//////////newLp", newLp.length);
+// console.log("////////////totalLp", totalLp.length);
 
       if (isLoaded && isGot) {
         records.map((record, index) => {
+          // console.log(newLp.length);
+          // console.log(totalLp.length);
+
           tokensInfo.push(
             {
               first: [record.TokenName, record.TokenAddress],
