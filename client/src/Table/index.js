@@ -304,6 +304,9 @@ function Table() {
   const [bnbprice, setBnbprice] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  const [newLp, setNewLp] = useState([]);
+  const [totalLp, setTotalLp] = useState([]);
+
   useEffect(() => {
     const promises = [ETH_price(), BNB_price()];
 
@@ -322,6 +325,162 @@ function Table() {
 
 
 
+  async function new_liquidity(pairAddress, chain, new_decimals, index) {
+    if(chain === "BSC") {
+      const web3 = getBSCWeb3();
+      const pancakePortal = new web3.eth.Contract(pancakeswapBSCabi, pairAddress);
+      let amount1 = await pancakePortal.methods.getReserves().call();
+      // console.log((amount1[1] / (10**new_decimals)).toFixed(2));
+      // console.log((amount1[0] / (10**new_decimals)).toFixed(2));
+
+      if(index === "token0") {
+        return (amount1[1] / (10**new_decimals)).toFixed(2);
+      } else {
+        return (amount1[0] / (10**new_decimals)).toFixed(2);
+      }
+    } else {
+      const web3 = getETHWeb3();
+      const uniPortal = new web3.eth.Contract(uniswapETHabi, pairAddress);
+      let amount2 = await uniPortal.methods.getReserves().call();
+      // console.log((amount2[1] / (10**new_decimals)).toFixed(2));
+      // console.log((amount2[0] / (10**new_decimals)).toFixed(2));
+
+      if(index === "token0") {
+        return (amount2[1] / (10**new_decimals)).toFixed(2);
+      } else {
+        return (amount2[0] / (10**new_decimals)).toFixed(2);
+      }
+    }
+  }
+
+
+
+
+  async function total_liquidity(pairAddress, chain, symbol, decimals, index) {
+    if(chain === "BSC") {
+      const web3 = getBSCWeb3();
+      const pancakePortal = new web3.eth.Contract(pancakeswapBSCabi, pairAddress);
+      let amount1 = await pancakePortal.methods.getReserves().call();
+      // console.log(((amount1[0] / (10**decimals)) * bnbprice * 2).toFixed(2));
+      // console.log(((amount1[0] / (10**decimals)) * 2).toFixed(2));
+      // console.log(((amount1[1] / (10**decimals)) * bnbprice * 2).toFixed(2));
+      // console.log(((amount1[1] / (10**decimals)) * 2).toFixed(2));
+
+      if(index === "token0") {
+        if(symbol === "WBNB") {
+          return ((amount1[0] / (10**decimals)) * bnbprice * 2).toFixed(2);
+        } else {
+          return ((amount1[0] / (10**decimals)) * 2).toFixed(2);
+        }
+      } else {
+        if(symbol === "WBNB") {
+          return ((amount1[1] / (10**decimals)) * bnbprice * 2).toFixed(2);
+        } else {
+          return ((amount1[1] / (10**decimals)) * 2).toFixed(2);
+        }
+      }
+    } else {
+      const web3 = getETHWeb3();
+      const uniPortal = new web3.eth.Contract(uniswapETHabi, pairAddress);
+      let amount2 = await uniPortal.methods.getReserves().call();
+      // console.log(((amount2[0] / (10**decimals)) * ethprice * 2).toFixed(2));
+      // console.log(((amount2[0] / (10**decimals)) * 2).toFixed(2));
+      // console.log(((amount2[1] / (10**decimals)) * ethprice * 2).toFixed(2));
+      // console.log(((amount2[1] / (10**decimals)) * 2).toFixed(2));
+
+      if(index === "token0") {
+        if(symbol === "WETH") {
+          return ((amount2[0] / (10**decimals)) * ethprice * 2).toFixed(2);
+        } else {
+          return ((amount2[0] / (10**decimals)) * 2).toFixed(2);
+        }
+      } else {
+        if(symbol === "WETH") {
+          return ((amount2[1] / (10**decimals)) * ethprice * 2).toFixed(2);
+        } else {
+          return ((amount2[1] / (10**decimals)) * 2).toFixed(2);
+        }
+      }
+    }
+  }
+
+
+
+
+
+  useEffect(() => {
+    const lpPromises = [];
+    records.forEach((record) => {
+      const subPromises = [];
+      subPromises.push(new_liquidity(record.PairTokenAddress, record.Blockchain, record.NewDecimals, record.NativeIndex));
+      subPromises.push(total_liquidity(record.PairTokenAddress, record.Blockchain, record.NativeSymbol, record.NativeDecimals, record.NativeIndex));
+      lpPromises.push(Promise.all(subPromises));
+    });
+    console.log("/////////////////////////lpPromises", lpPromises);
+
+    let aaa = [];
+    let bbb = [];
+
+    Promise.all(lpPromises).then(responses => {
+      console.log("////////////////////////responses", responses);
+      console.log("////////////////////////responses.length", responses.length);
+
+      responses.forEach((response, index) => {
+        console.log("////////////////////////response", response, "index", index);
+        console.log("////////////////////////response.length", response.length);
+        response.forEach((res, index2) => {
+          console.log("////////////////////////res", res, "index2", index);
+          console.log("////////////////////////res.length", res.length);
+          if (index2 === 0) {
+
+            aaa.push(res);
+
+          }
+          else if (index2 === 1) {
+
+            bbb.push(res);
+
+          }
+        })
+      });
+      // console.log("/////////////aaa", aaa)
+      // console.log("/////////////aaa.length", aaa.length)
+      // console.log("/////////////bbb", bbb)
+
+      setNewLp(aaa);
+      setTotalLp(bbb);
+    });
+  }, [records]);
+
+
+
+
+  // useEffect(() => {
+  //   const lpPromises = [];
+  //   records.forEach((record) => {
+  //     lpPromises.push(new_liquidity(record.PairTokenAddress, record.Blockchain, record.NewDecimals, record.NativeIndex));
+  //     lpPromises.push(total_liquidity(record.PairTokenAddress, record.Blockchain, record.NativeSymbol, record.NativeDecimals, record.NativeIndex));
+  //   });
+
+  //   let aaa = [];
+  //   let bbb = [];
+
+  //   Promise.all([lpPromises]).then(responses => {
+  //     console.log("/////////////////responses.length", responses.length);
+
+  //     responses.forEach((response, index) => {
+  //           console.log("/////////////////response.length", response.length);
+  //           aaa.push(response[index*2]);
+
+  //           bbb.push(response[index*2+1]);
+
+  //     });
+  //     console.log("/////////////////aaa", aaa);
+
+  //     setNewLp(aaa);
+  //     setTotalLp(bbb);
+  //   });
+  // }, [records]);
 
 
 
@@ -460,83 +619,6 @@ function Table() {
       // }
 
 
-      async function new_liquidity(pairAddress, chain, new_decimals, index) {
-        if(chain === "BSC") {
-          const web3 = getBSCWeb3();
-          const pancakePortal = new web3.eth.Contract(pancakeswapBSCabi, pairAddress);
-          let amount1 = await pancakePortal.methods.getReserves().call();
-          // console.log((amount1[1] / (10**new_decimals)).toFixed(2));
-          // console.log((amount1[0] / (10**new_decimals)).toFixed(2));
-    
-          if(index === "token0") {
-            return (amount1[1] / (10**new_decimals)).toFixed(2);
-          } else {
-            return (amount1[0] / (10**new_decimals)).toFixed(2);
-          }
-        } else {
-          const web3 = getETHWeb3();
-          const uniPortal = new web3.eth.Contract(uniswapETHabi, pairAddress);
-          let amount2 = await uniPortal.methods.getReserves().call();
-          // console.log((amount2[1] / (10**new_decimals)).toFixed(2));
-          // console.log((amount2[0] / (10**new_decimals)).toFixed(2));
-    
-          if(index === "token0") {
-            return (amount2[1] / (10**new_decimals)).toFixed(2);
-          } else {
-            return (amount2[0] / (10**new_decimals)).toFixed(2);
-          }
-        }
-      }
-    
-    
-      async function total_liquidity(pairAddress, chain, symbol, decimals, index) {
-        if(chain === "BSC") {
-          const web3 = getBSCWeb3();
-          const pancakePortal = new web3.eth.Contract(pancakeswapBSCabi, pairAddress);
-          let amount1 = await pancakePortal.methods.getReserves().call();
-          console.log(((amount1[0] / (10**decimals)) * bnbprice * 2).toFixed(2));
-          console.log(((amount1[0] / (10**decimals)) * 2).toFixed(2));
-          console.log(((amount1[1] / (10**decimals)) * bnbprice * 2).toFixed(2));
-          console.log(((amount1[1] / (10**decimals)) * 2).toFixed(2));
-    
-          if(index === "token0") {
-            if(symbol === "WBNB") {
-              return ((amount1[0] / (10**decimals)) * bnbprice * 2).toFixed(2);
-            } else {
-              return ((amount1[0] / (10**decimals)) * 2).toFixed(2);
-            }
-          } else {
-            if(symbol === "WBNB") {
-              return ((amount1[1] / (10**decimals)) * bnbprice * 2).toFixed(2);
-            } else {
-              return ((amount1[1] / (10**decimals)) * 2).toFixed(2);
-            }
-          }
-        } else {
-          const web3 = getETHWeb3();
-          const uniPortal = new web3.eth.Contract(uniswapETHabi, pairAddress);
-          let amount2 = await uniPortal.methods.getReserves().call();
-          console.log(((amount2[0] / (10**decimals)) * ethprice * 2).toFixed(2));
-          console.log(((amount2[0] / (10**decimals)) * 2).toFixed(2));
-          console.log(((amount2[1] / (10**decimals)) * ethprice * 2).toFixed(2));
-          console.log(((amount2[1] / (10**decimals)) * 2).toFixed(2));
-    
-          if(index === "token0") {
-            if(symbol === "WETH") {
-              return ((amount2[0] / (10**decimals)) * ethprice * 2).toFixed(2);
-            } else {
-              return ((amount2[0] / (10**decimals)) * 2).toFixed(2);
-            }
-          } else {
-            if(symbol === "WETH") {
-              return ((amount2[1] / (10**decimals)) * ethprice * 2).toFixed(2);
-            } else {
-              return ((amount2[1] / (10**decimals)) * 2).toFixed(2);
-            }
-          }
-        }
-      }
-
 
       function progress(unlockDate, lockedDate) {
         if (Date.now() < Date.parse(unlockDate)) {
@@ -551,21 +633,25 @@ function Table() {
         }
       }
 
+
       if (isLoaded) {
-        records.map((record) => {
+        records.map((record, index) => {
+          // console.log(newLp[index]);
+          // console.log(totalLp[index]);
+
           tokensInfo.push(
             {
               first: [record.TokenName, record.TokenAddress],
               second: [record.PairToken, record.PairTokenAddress],
               third: record.Blockchain,
-              fourth: "$" + (total_liquidity(record.PairTokenAddress, record.Blockchain, record.NativeSymbol, record.NativeDecimals, record.NativeIndex) * parseFloat(record.Liquidity_Percentage)).toFixed(2),
-              fifth: (new_liquidity(record.PairTokenAddress, record.Blockchain, record.NewDecimals, record.NativeIndex) * parseFloat(record.Liquidity_Percentage) > 1000000000 ? (new_liquidity(record.PairTokenAddress, record.Blockchain, record.NewDecimals, record.NativeIndex) * parseFloat(record.Liquidity_Percentage) / 1000000000).toFixed(2) + " B" : new_liquidity(record.PairTokenAddress, record.Blockchain, record.NewDecimals, record.NativeIndex) * parseFloat(record.Liquidity_Percentage)) + " (" + (record.Liquidity_Percentage * 100).toFixed(1) + "%)",
+              fourth: "$" + (totalLp[index] * parseFloat(record.Liquidity_Percentage)).toFixed(2),
+              fifth: (newLp[index] * parseFloat(record.Liquidity_Percentage) > 1000000000 ? (newLp[index] * parseFloat(record.Liquidity_Percentage) / 1000000000).toFixed(2) + " B" : newLp[index] * parseFloat(record.Liquidity_Percentage)) + " (" + (record.Liquidity_Percentage * 100).toFixed(1) + "%)",
               sixth: [record.Locked_Date, progress(record.Time_to_unlock, record.Locked_Date)],
               seventh: unlockTime(record.Time_to_unlock),
               eighth: record.Locker,
-              ninth: "$" + (record.Marketcap * total_liquidity(record.PairTokenAddress, record.Blockchain, record.NativeSymbol, record.NativeDecimals, record.NativeIndex) / (2 * new_liquidity(record.PairTokenAddress, record.Blockchain, record.NewDecimals, record.NativeIndex))).toFixed(2),
+              ninth: "$" + (record.Marketcap * totalLp[index] / (2 * newLp[index])).toFixed(2),
               tenth: record.Coingecko_Rank,
-              eleventh: (total_liquidity(record.PairTokenAddress, record.Blockchain, record.NativeSymbol, record.NativeDecimals, record.NativeIndex) * parseFloat(record.Liquidity_Percentage) * parseFloat(record.Liquidity_Percentage) * parseFloat(record.Time_to_unlock)).toFixed(1)
+              eleventh: (totalLp[index] * parseFloat(record.Liquidity_Percentage) * parseFloat(record.Liquidity_Percentage) * parseFloat(record.Time_to_unlock)).toFixed(1)
             }
           );
         });

@@ -4,7 +4,7 @@
     margin: 0 auto;
     background-color: #1e1e2f;
     overflow: auto;
-    box-shadow: 5px 5px 5px rgb(117, 117, 163);
+    /* box-shadow: 5px 5px 5px rgb(117, 117, 163); */
 }
 
 .leftbar {
