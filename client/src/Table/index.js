@@ -303,6 +303,7 @@ function Table() {
   const [ethprice, setEthprice] = useState(0);
   const [bnbprice, setBnbprice] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isGot, setIsGot] = useState(false);
 
   const [newLp, setNewLp] = useState([]);
   const [totalLp, setTotalLp] = useState([]);
@@ -318,12 +319,10 @@ function Table() {
         else if (index === 1) {
           setBnbprice(response);
         }
-        setIsLoaded(true);
       })
+      setIsLoaded(true);
     });
   }, [records]);
-
-
 
   async function new_liquidity(pairAddress, chain, new_decimals, index) {
     if(chain === "BSC") {
@@ -352,9 +351,6 @@ function Table() {
       }
     }
   }
-
-
-
 
   async function total_liquidity(pairAddress, chain, symbol, decimals, index) {
     if(chain === "BSC") {
@@ -404,10 +400,6 @@ function Table() {
     }
   }
 
-
-
-
-
   useEffect(() => {
     const lpPromises = [];
     records.forEach((record) => {
@@ -416,74 +408,27 @@ function Table() {
       subPromises.push(total_liquidity(record.PairTokenAddress, record.Blockchain, record.NativeSymbol, record.NativeDecimals, record.NativeIndex));
       lpPromises.push(Promise.all(subPromises));
     });
-    console.log("/////////////////////////lpPromises", lpPromises);
 
     let aaa = [];
     let bbb = [];
 
     Promise.all(lpPromises).then(responses => {
-      console.log("////////////////////////responses", responses);
-      console.log("////////////////////////responses.length", responses.length);
-
       responses.forEach((response, index) => {
-        console.log("////////////////////////response", response, "index", index);
-        console.log("////////////////////////response.length", response.length);
         response.forEach((res, index2) => {
-          console.log("////////////////////////res", res, "index2", index);
-          console.log("////////////////////////res.length", res.length);
           if (index2 === 0) {
-
             aaa.push(res);
-
           }
           else if (index2 === 1) {
-
             bbb.push(res);
-
           }
         })
       });
-      // console.log("/////////////aaa", aaa)
-      // console.log("/////////////aaa.length", aaa.length)
-      // console.log("/////////////bbb", bbb)
+      setIsGot(true);
 
       setNewLp(aaa);
       setTotalLp(bbb);
     });
   }, [records]);
-
-
-
-
-  // useEffect(() => {
-  //   const lpPromises = [];
-  //   records.forEach((record) => {
-  //     lpPromises.push(new_liquidity(record.PairTokenAddress, record.Blockchain, record.NewDecimals, record.NativeIndex));
-  //     lpPromises.push(total_liquidity(record.PairTokenAddress, record.Blockchain, record.NativeSymbol, record.NativeDecimals, record.NativeIndex));
-  //   });
-
-  //   let aaa = [];
-  //   let bbb = [];
-
-  //   Promise.all([lpPromises]).then(responses => {
-  //     console.log("/////////////////responses.length", responses.length);
-
-  //     responses.forEach((response, index) => {
-  //           console.log("/////////////////response.length", response.length);
-  //           aaa.push(response[index*2]);
-
-  //           bbb.push(response[index*2+1]);
-
-  //     });
-  //     console.log("/////////////////aaa", aaa);
-
-  //     setNewLp(aaa);
-  //     setTotalLp(bbb);
-  //   });
-  // }, [records]);
-
-
-
 
   // const [searchTerm, setSearchTerm] = useState("");
   const fetchIdRef = useRef(0);
@@ -606,6 +551,7 @@ function Table() {
         }
       }
 
+
       // function liquidity_locked(symbol, amount) {
       //   if (symbol == "WETH") {
       //     return amount * ethprice * 2;
@@ -617,7 +563,6 @@ function Table() {
       //     return amount * 2;
       //   }
       // }
-
 
 
       function progress(unlockDate, lockedDate) {
@@ -634,11 +579,8 @@ function Table() {
       }
 
 
-      if (isLoaded) {
+      if (isLoaded && isGot) {
         records.map((record, index) => {
-          // console.log(newLp[index]);
-          // console.log(totalLp[index]);
-
           tokensInfo.push(
             {
               first: [record.TokenName, record.TokenAddress],
@@ -659,11 +601,11 @@ function Table() {
 
       return tokensInfo;
     },
-    [records, isLoaded]
+    [records, isLoaded, isGot]
   );
 
   return (
-    isLoaded ?
+    (isLoaded && isGot) ?
       <Actiontable columns={columns} data={data} pageNo={page} rowsNum={rows} fetchData={fetchData} pageCount={pageCount} />
     :
       <div></div>
