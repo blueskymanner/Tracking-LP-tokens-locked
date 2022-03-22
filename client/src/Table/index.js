@@ -355,15 +355,15 @@ function Table() {
 
       if(index === "token0") {
         if(symbol === "WBNB") {
-          return ((amount1[0] / (10**decimals)) * bnbprice * 2).toFixed(2);
+          return ((amount1[0] / (10**decimals)) * bnbprice * 2).toFixed(4);
         } else {
-          return ((amount1[0] / (10**decimals)) * 2).toFixed(2);
+          return ((amount1[0] / (10**decimals)) * 2).toFixed(4);
         }
       } else {
         if(symbol === "WBNB") {
-          return ((amount1[1] / (10**decimals)) * bnbprice * 2).toFixed(2);
+          return ((amount1[1] / (10**decimals)) * bnbprice * 2).toFixed(4);
         } else {
-          return ((amount1[1] / (10**decimals)) * 2).toFixed(2);
+          return ((amount1[1] / (10**decimals)) * 2).toFixed(4);
         }
       }
     } else {
@@ -373,15 +373,15 @@ function Table() {
 
       if(index === "token0") {
         if(symbol === "WETH") {
-          return ((amount2[0] / (10**decimals)) * ethprice * 2).toFixed(2);
+          return ((amount2[0] / (10**decimals)) * ethprice * 2).toFixed(4);
         } else {
-          return ((amount2[0] / (10**decimals)) * 2).toFixed(2);
+          return ((amount2[0] / (10**decimals)) * 2).toFixed(4);
         }
       } else {
         if(symbol === "WETH") {
-          return ((amount2[1] / (10**decimals)) * ethprice * 2).toFixed(2);
+          return ((amount2[1] / (10**decimals)) * ethprice * 2).toFixed(4);
         } else {
-          return ((amount2[1] / (10**decimals)) * 2).toFixed(2);
+          return ((amount2[1] / (10**decimals)) * 2).toFixed(4);
         }
       }
     }
