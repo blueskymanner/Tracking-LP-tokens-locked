@@ -184,7 +184,8 @@ module.exports = async function UnicryptETH() {
         NativeAmount: nativeAmount,
         NativeDecimals: nativeDecimals,
         NativeIndex: nativeIndex,
-        NewDecimals: newDecimals
+        NewDecimals: newDecimals,
+        LpDecimals: LPtokensArr[2][0]
       };
       await db_connect.collection("records").insertOne(myobj);
     } else if (lastIndex.LastId >= total_tokenNums) {
@@ -208,7 +209,8 @@ module.exports = async function UnicryptETH() {
         NativeAmount: nativeAmount,
         NativeDecimals: nativeDecimals,
         NativeIndex: nativeIndex,
-        NewDecimals: newDecimals
+        NewDecimals: newDecimals,
+        LpDecimals: LPtokensArr[2][0]
       }});
     } else {
       await db_connect.collection("lastIndexes").updateOne({Locker: "UnicryptETH"}, {$set: {LastId: total_tokenNums}});
@@ -232,7 +234,8 @@ module.exports = async function UnicryptETH() {
         NativeAmount: nativeAmount,
         NativeDecimals: nativeDecimals,
         NativeIndex: nativeIndex,
-        NewDecimals: newDecimals
+        NewDecimals: newDecimals,
+        LpDecimals: LPtokensArr[2][0]
       };
       await db_connect.collection("records").insertOne(myobj);
     }
