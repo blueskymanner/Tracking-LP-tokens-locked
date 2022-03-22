@@ -323,16 +323,16 @@ function Table() {
     });
   }, [records]);
 
-  async function new_liquidity(pairAddress, chain, lpDecimals, index) {
+  async function new_liquidity(pairAddress, chain, newDecimals, index) {
     if(chain === "BSC") {
       const web3 = getBSCWeb3();
       const pancakePortal = new web3.eth.Contract(pancakeswapBSCabi, pairAddress);
       let amount1 = await pancakePortal.methods.getReserves().call();
 
       if(index === "token0") {
-        return (amount1[1] / (10**lpDecimals)).toFixed(2);
+        return (amount1[1] / (10**newDecimals)).toFixed(2);
       } else {
-        return (amount1[0] / (10**lpDecimals)).toFixed(2);
+        return (amount1[0] / (10**newDecimals)).toFixed(2);
       }
     } else {
       const web3 = getETHWeb3();
@@ -340,14 +340,14 @@ function Table() {
       let amount2 = await uniPortal.methods.getReserves().call();
 
       if(index === "token0") {
-        return (amount2[1] / (10**lpDecimals)).toFixed(2);
+        return (amount2[1] / (10**newDecimals)).toFixed(2);
       } else {
-        return (amount2[0] / (10**lpDecimals)).toFixed(2);
+        return (amount2[0] / (10**newDecimals)).toFixed(2);
       }
     }
   }
 
-  async function total_liquidity(pairAddress, chain, symbol, lpDecimals, index) {
+  async function total_liquidity(pairAddress, chain, symbol, nativeDecimals, index) {
     if(chain === "BSC") {
       const web3 = getBSCWeb3();
       const pancakePortal = new web3.eth.Contract(pancakeswapBSCabi, pairAddress);
@@ -355,15 +355,15 @@ function Table() {
 
       if(index === "token0") {
         if(symbol === "WBNB") {
-          return ((amount1[0] / (10**lpDecimals)) * bnbprice * 2).toFixed(4);
+          return ((amount1[0] / (10**nativeDecimals)) * bnbprice * 2).toFixed(4);
         } else {
-          return ((amount1[0] / (10**lpDecimals)) * 2).toFixed(4);
+          return ((amount1[0] / (10**nativeDecimals)) * 2).toFixed(4);
         }
       } else {
         if(symbol === "WBNB") {
-          return ((amount1[1] / (10**lpDecimals)) * bnbprice * 2).toFixed(4);
+          return ((amount1[1] / (10**nativeDecimals)) * bnbprice * 2).toFixed(4);
         } else {
-          return ((amount1[1] / (10**lpDecimals)) * 2).toFixed(4);
+          return ((amount1[1] / (10**nativeDecimals)) * 2).toFixed(4);
         }
       }
     } else {
@@ -373,15 +373,15 @@ function Table() {
 
       if(index === "token0") {
         if(symbol === "WETH") {
-          return ((amount2[0] / (10**lpDecimals)) * ethprice * 2).toFixed(4);
+          return ((amount2[0] / (10**nativeDecimals)) * ethprice * 2).toFixed(4);
         } else {
-          return ((amount2[0] / (10**lpDecimals)) * 2).toFixed(4);
+          return ((amount2[0] / (10**nativeDecimals)) * 2).toFixed(4);
         }
       } else {
         if(symbol === "WETH") {
-          return ((amount2[1] / (10**lpDecimals)) * ethprice * 2).toFixed(4);
+          return ((amount2[1] / (10**nativeDecimals)) * ethprice * 2).toFixed(4);
         } else {
-          return ((amount2[1] / (10**lpDecimals)) * 2).toFixed(4);
+          return ((amount2[1] / (10**nativeDecimals)) * 2).toFixed(4);
         }
       }
     }
@@ -391,8 +391,8 @@ function Table() {
     const lpPromises = [];
     records.forEach((record) => {
       const subPromises = [];
-      subPromises.push(new_liquidity(record.PairTokenAddress, record.Blockchain, record.LpDecimals, record.NativeIndex));
-      subPromises.push(total_liquidity(record.PairTokenAddress, record.Blockchain, record.NativeSymbol, record.LpDecimals, record.NativeIndex));
+      subPromises.push(new_liquidity(record.PairTokenAddress, record.Blockchain, record.NewDecimals, record.NativeIndex));
+      subPromises.push(total_liquidity(record.PairTokenAddress, record.Blockchain, record.NativeSymbol, record.NativeDecimals, record.NativeIndex));
       lpPromises.push(Promise.all(subPromises));
     });
 
