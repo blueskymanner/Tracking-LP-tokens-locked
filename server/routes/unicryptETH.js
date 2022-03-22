@@ -169,7 +169,7 @@ module.exports = async function UnicryptETH() {
       let myobj = {
         PairToken: tokenData0.symbol + " / " + tokenData1.symbol,
         Blockchain: "Ethereum",
-        Liquidity_Percentage: percentage.toFixed(3),
+        Liquidity_Percentage: percentage.toFixed(4),
         Tokens_Locked: newAmount,
         Locked_Date: lockDate,
         Time_to_unlock: unlockDate,
@@ -193,7 +193,7 @@ module.exports = async function UnicryptETH() {
       await db_connect.collection("records").updateOne({PairTokenAddress: tokenAddrsArr}, {$set: {
         PairToken: tokenData0.symbol + " / " + tokenData1.symbol,
         Blockchain: "Ethereum",
-        Liquidity_Percentage: percentage.toFixed(3),
+        Liquidity_Percentage: percentage.toFixed(4),
         Tokens_Locked: newAmount,
         Locked_Date: lockDate,
         Time_to_unlock: unlockDate,
@@ -217,7 +217,7 @@ module.exports = async function UnicryptETH() {
       let myobj = {
         PairToken: tokenData0.symbol + " / " + tokenData1.symbol,
         Blockchain: "Ethereum",
-        Liquidity_Percentage: percentage.toFixed(3),
+        Liquidity_Percentage: percentage.toFixed(4),
         Tokens_Locked: newAmount,
         Locked_Date: lockDate,
         Time_to_unlock: unlockDate,

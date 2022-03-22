@@ -1,17 +1,17 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useTable, useGlobalFilter, useAsyncDebounce, useSortBy, usePagination } from "react-table";
-// import Bootstrap from 'bootstrap/dist/css/bootstrap.min.css';
 import { ProgressBar } from "react-bootstrap";
 import pancakeswapBSCabi from "../abi/pancakeswapBSC_abi.json";
 import uniswapETHabi from "../abi/uniswapETH_abi.json";
 import getBSCWeb3 from '../utils/getBSCweb3.js';
 import getETHWeb3 from '../utils/getETHweb3.js';
-import BigNumber from "bignumber.js";
 import '../Style/style.css';
 import Axios from "axios";
 import { createClient } from 'urql';
 import { useNavigate, useParams } from "react-router-dom";
 import $ from "jquery";
+// import Bootstrap from 'bootstrap/dist/css/bootstrap.min.css';
+// import BigNumber from "bignumber.js";
 
 
 async function ETH_price() {
@@ -303,7 +303,6 @@ function Table() {
   const [ethprice, setEthprice] = useState(0);
   const [bnbprice, setBnbprice] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isGot, setIsGot] = useState(false);
 
   const [newLp, setNewLp] = useState([]);
   const [totalLp, setTotalLp] = useState([]);
@@ -329,8 +328,6 @@ function Table() {
       const web3 = getBSCWeb3();
       const pancakePortal = new web3.eth.Contract(pancakeswapBSCabi, pairAddress);
       let amount1 = await pancakePortal.methods.getReserves().call();
-      // console.log((amount1[1] / (10**new_decimals)).toFixed(2));
-      // console.log((amount1[0] / (10**new_decimals)).toFixed(2));
 
       if(index === "token0") {
         return (amount1[1] / (10**new_decimals)).toFixed(2);
@@ -341,8 +338,6 @@ function Table() {
       const web3 = getETHWeb3();
       const uniPortal = new web3.eth.Contract(uniswapETHabi, pairAddress);
       let amount2 = await uniPortal.methods.getReserves().call();
-      // console.log((amount2[1] / (10**new_decimals)).toFixed(2));
-      // console.log((amount2[0] / (10**new_decimals)).toFixed(2));
 
       if(index === "token0") {
         return (amount2[1] / (10**new_decimals)).toFixed(2);
@@ -357,10 +352,6 @@ function Table() {
       const web3 = getBSCWeb3();
       const pancakePortal = new web3.eth.Contract(pancakeswapBSCabi, pairAddress);
       let amount1 = await pancakePortal.methods.getReserves().call();
-      // console.log(((amount1[0] / (10**decimals)) * bnbprice * 2).toFixed(2));
-      // console.log(((amount1[0] / (10**decimals)) * 2).toFixed(2));
-      // console.log(((amount1[1] / (10**decimals)) * bnbprice * 2).toFixed(2));
-      // console.log(((amount1[1] / (10**decimals)) * 2).toFixed(2));
 
       if(index === "token0") {
         if(symbol === "WBNB") {
@@ -379,10 +370,6 @@ function Table() {
       const web3 = getETHWeb3();
       const uniPortal = new web3.eth.Contract(uniswapETHabi, pairAddress);
       let amount2 = await uniPortal.methods.getReserves().call();
-      // console.log(((amount2[0] / (10**decimals)) * ethprice * 2).toFixed(2));
-      // console.log(((amount2[0] / (10**decimals)) * 2).toFixed(2));
-      // console.log(((amount2[1] / (10**decimals)) * ethprice * 2).toFixed(2));
-      // console.log(((amount2[1] / (10**decimals)) * 2).toFixed(2));
 
       if(index === "token0") {
         if(symbol === "WETH") {
@@ -401,7 +388,6 @@ function Table() {
   }
 
   useEffect(() => {
-    
     const lpPromises = [];
     records.forEach((record) => {
       const subPromises = [];
@@ -412,7 +398,6 @@ function Table() {
 
     let aaa = [];
     let bbb = [];
-
     Promise.all(lpPromises).then(responses => {
       responses.forEach((response, index) => {
         response.forEach((res, index2) => {
@@ -425,11 +410,9 @@ function Table() {
 
         })
       });
-// console.log("///////////////aaa", aaa);
-// console.log("///////////////bbb", bbb);
+
       setNewLp(aaa);
       setTotalLp(bbb);
-      setIsGot(true);
     });
   }, [records]);
 
@@ -554,7 +537,6 @@ function Table() {
         }
       }
 
-
       // function liquidity_locked(symbol, amount) {
       //   if (symbol == "WETH") {
       //     return amount * ethprice * 2;
@@ -566,7 +548,6 @@ function Table() {
       //     return amount * 2;
       //   }
       // }
-
 
       function progress(unlockDate, lockedDate) {
         if (Date.now() < Date.parse(unlockDate)) {
@@ -581,15 +562,8 @@ function Table() {
         }
       }
 
-// console.log("/////////////isGot", isGot);
-// console.log("//////////newLp", newLp.length);
-// console.log("////////////totalLp", totalLp.length);
-
-      if (isLoaded && isGot) {
+      if (isLoaded) {
         records.map((record, index) => {
-          // console.log(newLp.length);
-          // console.log(totalLp.length);
-
           tokensInfo.push(
             {
               first: [record.TokenName, record.TokenAddress],
@@ -610,11 +584,11 @@ function Table() {
 
       return tokensInfo;
     },
-    [records, isLoaded, isGot]
+    [records, isLoaded, newLp, totalLp]
   );
 
   return (
-    (isLoaded && isGot) ?
+    isLoaded ?
       <Actiontable columns={columns} data={data} pageNo={page} rowsNum={rows} fetchData={fetchData} pageCount={pageCount} />
     :
       <div></div>

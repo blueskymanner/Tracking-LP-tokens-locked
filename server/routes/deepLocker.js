@@ -179,7 +179,7 @@ module.exports = async function DeepLocker() {
             let myobj = {
                 PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
                 Blockchain: "BSC",
-                Liquidity_Percentage: percentage.toFixed(3),
+                Liquidity_Percentage: percentage.toFixed(4),
                 Tokens_Locked: newAmount, 
                 Locked_Date: lockDate, 
                 Time_to_unlock: unlockDate, 
@@ -202,7 +202,7 @@ module.exports = async function DeepLocker() {
             await db_connect.collection("records").updateOne({PairTokenAddress: tokenLocksArr[0]}, {$set: {
                 PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
                 Blockchain: "BSC",
-                Liquidity_Percentage: percentage.toFixed(3),
+                Liquidity_Percentage: percentage.toFixed(4),
                 Tokens_Locked: newAmount, 
                 Locked_Date: lockDate, 
                 Time_to_unlock: unlockDate, 
@@ -225,7 +225,7 @@ module.exports = async function DeepLocker() {
             let myobj = {
                 PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
                 Blockchain: "BSC",
-                Liquidity_Percentage: percentage.toFixed(3),
+                Liquidity_Percentage: percentage.toFixed(4),
                 Tokens_Locked: newAmount, 
                 Locked_Date: lockDate, 
                 Time_to_unlock: unlockDate, 
