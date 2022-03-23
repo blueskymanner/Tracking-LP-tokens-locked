@@ -27,6 +27,8 @@ module.exports = async function CryptexLock() {
         let LPtokens = [];
 
         let lastIndex;
+        let duplicatedAddr;
+
         let storingTokenName;
         let storingTokenAddr;
         let newDecimals;
@@ -210,29 +212,37 @@ module.exports = async function CryptexLock() {
                 LpDecimals: LPtokensArr[2][0]
             }});
         } else {
-            await db_connect.collection("lastIndexes").updateOne({Locker: "CryptexLock"}, {$set: {LastId: total_tokenNums}});
-            let myobj = {
-                PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
-                Blockchain: "BSC",
-                Liquidity_Percentage: percentage.toFixed(4),
-                Tokens_Locked: newAmount, 
-                Locked_Date: lockDate, 
-                Time_to_unlock: unlockDate, 
-                Locker: "CryptexLock",
-                Marketcap: new_marketCap, 
-                Coingecko_Rank: "—", 
-                Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
-                PairTokenAddress: tokenLocksArr[0],
-                TokenName: storingTokenName,
-                TokenAddress: storingTokenAddr,
-                NativeSymbol: nativeSymbol,
-                NativeAmount: nativeAmount,
-                NativeDecimals: nativeDecimals,
-                NativeIndex: nativeIndex,
-                NewDecimals: newDecimals,
-                LpDecimals: LPtokensArr[2][0]
-            };
-            await db_connect.collection("records").insertOne(myobj);
+            await db_connect.collection("records").findOne({PairTokenAddress: tokenLocksArr[0]}).then(function(result) {
+                duplicatedAddr = result;
+            });
+
+            if (duplicatedAddr) {
+                return;
+            } else {
+                await db_connect.collection("lastIndexes").updateOne({Locker: "CryptexLock"}, {$set: {LastId: total_tokenNums}});
+                let myobj = {
+                    PairToken: datainfo0.data.data.symbol + " / " + datainfo1.data.data.symbol,
+                    Blockchain: "BSC",
+                    Liquidity_Percentage: percentage.toFixed(4),
+                    Tokens_Locked: newAmount, 
+                    Locked_Date: lockDate, 
+                    Time_to_unlock: unlockDate, 
+                    Locker: "CryptexLock",
+                    Marketcap: new_marketCap, 
+                    Coingecko_Rank: "—", 
+                    Token_TotalAmount: new BigNumber(LPtokensArr[4][0]._hex).dividedBy(10**LPtokensArr[2][0]).toFixed(2),
+                    PairTokenAddress: tokenLocksArr[0],
+                    TokenName: storingTokenName,
+                    TokenAddress: storingTokenAddr,
+                    NativeSymbol: nativeSymbol,
+                    NativeAmount: nativeAmount,
+                    NativeDecimals: nativeDecimals,
+                    NativeIndex: nativeIndex,
+                    NewDecimals: newDecimals,
+                    LpDecimals: LPtokensArr[2][0]
+                };
+                await db_connect.collection("records").insertOne(myobj);
+            }
         }
     });
 }

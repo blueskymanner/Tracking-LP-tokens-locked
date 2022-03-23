@@ -452,7 +452,7 @@ function Table() {
             totalRecords = response.data[response.data.length - 1];
             response.data.pop();
             setRecords(response.data);
-            setTimeout(dosth, 120000);
+            setTimeout(dosth, 77000);
           })
           .catch(function (error) {
             console.log(error);
