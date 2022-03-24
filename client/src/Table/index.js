@@ -148,6 +148,13 @@ function Actiontable({ columns, data, pageNo, rowsNum, fetchData, pageCount: con
 
   }, [$("#filterRecords").val(), pageIndex, pageSize]);
 
+  useEffect(() => {
+    if($("#filterRecords").val()) {
+      // navigate("/" + 1 + "/" + pageSize);
+      gotoPage(0);
+    }
+  }, [$("#filterRecords").val()]);
+
   // Render the UI for your table
   return (
     <>
@@ -312,7 +319,7 @@ function Table() {
 
     Promise.all(promises).then(responses => {
       responses.forEach((response, index) => {
-        if(index === 0) {
+        if (index === 0) {
           setEthprice(response);
         }
         else if (index === 1) {
@@ -324,46 +331,46 @@ function Table() {
   }, [records]);
 
   async function new_liquidity(pairAddress, chain, newDecimals, index) {
-    if(chain === "BSC") {
+    if (chain === "BSC") {
       const web3 = getBSCWeb3();
       const pancakePortal = new web3.eth.Contract(pancakeswapBSCabi, pairAddress);
       let amount1 = await pancakePortal.methods.getReserves().call();
 
-      if(index === "token0") {
-        return (amount1[1] / (10**newDecimals)).toFixed(2);
+      if (index === "token0") {
+        return (amount1[1] / (10 ** newDecimals)).toFixed(2);
       } else {
-        return (amount1[0] / (10**newDecimals)).toFixed(2);
+        return (amount1[0] / (10 ** newDecimals)).toFixed(2);
       }
     } else {
       const web3 = getETHWeb3();
       const uniPortal = new web3.eth.Contract(uniswapETHabi, pairAddress);
       let amount2 = await uniPortal.methods.getReserves().call();
 
-      if(index === "token0") {
-        return (amount2[1] / (10**newDecimals)).toFixed(2);
+      if (index === "token0") {
+        return (amount2[1] / (10 ** newDecimals)).toFixed(2);
       } else {
-        return (amount2[0] / (10**newDecimals)).toFixed(2);
+        return (amount2[0] / (10 ** newDecimals)).toFixed(2);
       }
     }
   }
 
   async function total_liquidity(pairAddress, chain, symbol, nativeDecimals, index) {
-    if(chain === "BSC") {
+    if (chain === "BSC") {
       const web3 = getBSCWeb3();
       const pancakePortal = new web3.eth.Contract(pancakeswapBSCabi, pairAddress);
       let amount1 = await pancakePortal.methods.getReserves().call();
 
-      if(index === "token0") {
-        if(symbol === "WBNB") {
-          return ((amount1[0] / (10**nativeDecimals)) * bnbprice * 2).toFixed(4);
+      if (index === "token0") {
+        if (symbol === "WBNB") {
+          return ((amount1[0] / (10 ** nativeDecimals)) * bnbprice * 2).toFixed(4);
         } else {
-          return ((amount1[0] / (10**nativeDecimals)) * 2).toFixed(4);
+          return ((amount1[0] / (10 ** nativeDecimals)) * 2).toFixed(4);
         }
       } else {
-        if(symbol === "WBNB") {
-          return ((amount1[1] / (10**nativeDecimals)) * bnbprice * 2).toFixed(4);
+        if (symbol === "WBNB") {
+          return ((amount1[1] / (10 ** nativeDecimals)) * bnbprice * 2).toFixed(4);
         } else {
-          return ((amount1[1] / (10**nativeDecimals)) * 2).toFixed(4);
+          return ((amount1[1] / (10 ** nativeDecimals)) * 2).toFixed(4);
         }
       }
     } else {
@@ -371,100 +378,21 @@ function Table() {
       const uniPortal = new web3.eth.Contract(uniswapETHabi, pairAddress);
       let amount2 = await uniPortal.methods.getReserves().call();
 
-      if(index === "token0") {
-        if(symbol === "WETH") {
-          return ((amount2[0] / (10**nativeDecimals)) * ethprice * 2).toFixed(4);
+      if (index === "token0") {
+        if (symbol === "WETH") {
+          return ((amount2[0] / (10 ** nativeDecimals)) * ethprice * 2).toFixed(4);
         } else {
-          return ((amount2[0] / (10**nativeDecimals)) * 2).toFixed(4);
+          return ((amount2[0] / (10 ** nativeDecimals)) * 2).toFixed(4);
         }
       } else {
-        if(symbol === "WETH") {
-          return ((amount2[1] / (10**nativeDecimals)) * ethprice * 2).toFixed(4);
+        if (symbol === "WETH") {
+          return ((amount2[1] / (10 ** nativeDecimals)) * ethprice * 2).toFixed(4);
         } else {
-          return ((amount2[1] / (10**nativeDecimals)) * 2).toFixed(4);
+          return ((amount2[1] / (10 ** nativeDecimals)) * 2).toFixed(4);
         }
       }
     }
   }
-
-  useEffect(() => {
-    const lpPromises = [];
-    records.forEach((record) => {
-      const subPromises = [];
-      subPromises.push(new_liquidity(record.PairTokenAddress, record.Blockchain, record.NewDecimals, record.NativeIndex));
-      subPromises.push(total_liquidity(record.PairTokenAddress, record.Blockchain, record.NativeSymbol, record.NativeDecimals, record.NativeIndex));
-      lpPromises.push(Promise.all(subPromises));
-    });
-
-    let aaa = [];
-    let bbb = [];
-    Promise.all(lpPromises).then(responses => {
-      responses.forEach((response, index) => {
-        response.forEach((res, index2) => {
-          if (index2 === 0) {
-            aaa.push(res);
-          }
-          else if (index2 === 1) {
-            bbb.push(res);
-          }
-
-        })
-      });
-
-      setNewLp(aaa);
-      setTotalLp(bbb);
-    });
-  }, [records]);
-
-  // const [searchTerm, setSearchTerm] = useState("");
-  const fetchIdRef = useRef(0);
-  let totalRecords;
-
-  const fetchData = useCallback(({ pageSize, pageIndex, searchTerm }) => {
-    // Give this fetch an ID
-    const fetchId = ++fetchIdRef.current;
-    // We'll even set a delay to simulate a server here
-
-    // setTimeout(async () => {
-    //   // Only update the data if this is the latest fetch
-    //   if (fetchId === fetchIdRef.current) {
-    //   await Axios
-    //   .get("http://localhost:5000/record/", {params: {page: pageIndex, rows: pageSize, search: searchTerm}})
-    //   .then((response) => {
-    //     totalRecords = response.data[response.data.length-1];
-    //     response.data.pop();
-    //     setRecords(response.data);
-    //   })
-    //   .catch(function (error) {
-    //     console.log(error);
-    //   });
-
-    //     setPageCount(Math.ceil(totalRecords / pageSize));
-    //   }
-    // }, 1000)
-
-    const dosth = async () => {
-
-      if (fetchId === fetchIdRef.current) {
-        await Axios
-          .get("http://localhost:5000/record/", { params: { page: pageIndex, rows: pageSize, search: searchTerm } })
-          .then((response) => {
-            totalRecords = response.data[response.data.length - 1];
-            response.data.pop();
-            setRecords(response.data);
-            setTimeout(dosth, 77000);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-
-        setPageCount(Math.ceil(totalRecords / pageSize));
-      }
-
-    }
-    dosth();
-    return () => clearTimeout(dosth);
-  }, []);
 
   const columns = React.useMemo(
     () => [
@@ -587,10 +515,88 @@ function Table() {
     [records, isLoaded, newLp, totalLp]
   );
 
+  useEffect(() => {
+    const lpPromises = [];
+    records.forEach((record) => {
+      const subPromises = [];
+      subPromises.push(new_liquidity(record.PairTokenAddress, record.Blockchain, record.NewDecimals, record.NativeIndex));
+      subPromises.push(total_liquidity(record.PairTokenAddress, record.Blockchain, record.NativeSymbol, record.NativeDecimals, record.NativeIndex));
+      lpPromises.push(Promise.all(subPromises));
+    });
+
+    let aaa = [];
+    let bbb = [];
+    Promise.all(lpPromises).then(responses => {
+      responses.forEach((response, index) => {
+        response.forEach((res, index2) => {
+          if (index2 === 0) {
+            aaa.push(res);
+          }
+          else if (index2 === 1) {
+            bbb.push(res);
+          }
+
+        })
+      });
+
+      setNewLp(aaa);
+      setTotalLp(bbb);
+    });
+  }, [records]);
+
+  // const [searchTerm, setSearchTerm] = useState("");
+  const fetchIdRef = useRef(0);
+  let totalRecords;
+
+  const fetchData = useCallback(({ pageSize, pageIndex, searchTerm }) => {
+    // Give this fetch an ID
+    const fetchId = ++fetchIdRef.current;
+    // We'll even set a delay to simulate a server here
+
+    // setTimeout(async () => {
+    //   // Only update the data if this is the latest fetch
+    //   if (fetchId === fetchIdRef.current) {
+    //   await Axios
+    //   .get("http://localhost:5000/record/", {params: {page: pageIndex, rows: pageSize, search: searchTerm}})
+    //   .then((response) => {
+    //     totalRecords = response.data[response.data.length-1];
+    //     response.data.pop();
+    //     setRecords(response.data);
+    //   })
+    //   .catch(function (error) {
+    //     console.log(error);
+    //   });
+
+    //     setPageCount(Math.ceil(totalRecords / pageSize));
+    //   }
+    // }, 1000)
+
+    const dosth = async () => {
+
+      if (fetchId === fetchIdRef.current) {
+        await Axios
+          .get("http://localhost:5000/record/", { params: { page: pageIndex, rows: pageSize, search: searchTerm } })
+          .then((response) => {
+            totalRecords = response.data[response.data.length - 1];
+            response.data.pop();
+            setRecords(response.data);
+            setTimeout(dosth, 77000);
+            setPageCount(Math.ceil(totalRecords / pageSize));
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      }
+
+    }
+    dosth();
+    return () => clearTimeout(dosth);
+  }, []);
+
   return (
     isLoaded ?
       <Actiontable columns={columns} data={data} pageNo={page} rowsNum={rows} fetchData={fetchData} pageCount={pageCount} />
-    :
+      :
       <div></div>
   )
 }
